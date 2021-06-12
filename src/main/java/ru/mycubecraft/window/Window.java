@@ -5,6 +5,10 @@ import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.opengl.GL;
 import ru.mycubecraft.listener.KeyboardListener;
 import ru.mycubecraft.listener.MouseListener;
+import ru.mycubecraft.scene.LevelEditorScene;
+import ru.mycubecraft.scene.LevelScene;
+import ru.mycubecraft.scene.Scene;
+import ru.mycubecraft.util.Time;
 
 import java.util.Objects;
 
@@ -20,12 +24,13 @@ public class Window {
     private final int height;
     private final String title;
     private float red = 0.0f;
-    private final float green = 0.0f;
-    private final float blue = 0.0f;
-    private final float alpha = 1.0f;
+    private float green = 0.0f;
+    private float blue = 0.0f;
+    private float alpha = 1.0f;
     private long glfwWindow;
     private KeyboardListener keyboardListener;
     private MouseListener mouseListener;
+    private Scene currentScene;
 
     private Window() {
         this.width = 800;
@@ -90,10 +95,14 @@ public class Window {
         glfwSwapInterval(1);
 
         GL.createCapabilities();
+        this.changeScene(0);
     }
 
-
     public void loop() {
+
+        float beginTime = Time.getTime();
+        float endTime;
+        float dt = -1.0f;
         while (!glfwWindowShouldClose(this.glfwWindow)) {
 
             // Poll events
@@ -108,9 +117,61 @@ public class Window {
                 this.red -= 0.01f;
             }
 
+            if (dt > 0) {
+                currentScene.update(dt);
+            }
+
             glfwSwapBuffers(this.glfwWindow);
+
+            endTime = Time.getTime();
+            dt = endTime - beginTime;
+            beginTime = endTime;
         }
     }
 
+    public void changeScene(int scene) {
+        switch (scene) {
+            case 0:
+                currentScene = new LevelEditorScene();
+                break;
+            case 1:
+                currentScene = new LevelScene();
+                break;
+            default:
+                throw new IllegalStateException("Scene for load is wrong!");
+        }
+    }
+
+    public float getRed() {
+        return red;
+    }
+
+    public void setRed(float red) {
+        this.red = red;
+    }
+
+    public float getGreen() {
+        return green;
+    }
+
+    public void setGreen(float green) {
+        this.green = green;
+    }
+
+    public float getBlue() {
+        return blue;
+    }
+
+    public void setBlue(float blue) {
+        this.blue = blue;
+    }
+
+    public float getAlpha() {
+        return alpha;
+    }
+
+    public void setAlpha(float alpha) {
+        this.alpha = alpha;
+    }
 
 }
