@@ -15,7 +15,7 @@ import static org.lwjgl.system.MemoryUtil.NULL;
 
 public class Window {
 
-    private static Window window = null;
+    private static Window instance;
     private final int width;
     private final int height;
     private final String title;
@@ -33,11 +33,11 @@ public class Window {
         this.title = "CubeCraft Game";
     }
 
-    public static Window getInstance() {
-        if (window == null) {
-            window = new Window();
+    public static synchronized Window getInstance() {
+        if (instance == null) {
+            instance = new Window();
         }
-        return window;
+        return instance;
     }
 
     public void run() {
