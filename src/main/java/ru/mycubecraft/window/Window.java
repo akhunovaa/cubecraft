@@ -4,6 +4,9 @@ import org.lwjgl.Version;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.opengl.GL;
 
+import java.util.Objects;
+
+import static org.lwjgl.glfw.Callbacks.glfwFreeCallbacks;
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.system.MemoryUtil.NULL;
@@ -34,6 +37,14 @@ public class Window {
 
         init();
         loop();
+
+        // Free the memory after the loop exists
+        glfwFreeCallbacks(glfwWindow);
+        glfwDestroyWindow(glfwWindow);
+
+        // Terminate GLFW and the free the error callback
+        glfwTerminate();
+        Objects.requireNonNull(glfwSetErrorCallback(null)).free();
     }
 
 
