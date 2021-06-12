@@ -3,6 +3,8 @@ package ru.mycubecraft.window;
 import org.lwjgl.Version;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.opengl.GL;
+import ru.mycubecraft.listener.KeyboardListener;
+import ru.mycubecraft.listener.MouseListener;
 
 import java.util.Objects;
 
@@ -13,11 +15,17 @@ import static org.lwjgl.system.MemoryUtil.NULL;
 
 public class Window {
 
-    private int width, height;
-    private String title;
-    private  long glfwWindow;
-
     private static Window window = null;
+    private final int width;
+    private final int height;
+    private final String title;
+    private float red = 0.0f;
+    private final float green = 0.0f;
+    private final float blue = 0.0f;
+    private final float alpha = 1.0f;
+    private long glfwWindow;
+    private KeyboardListener keyboardListener;
+    private MouseListener mouseListener;
 
     private Window() {
         this.width = 800;
@@ -68,6 +76,14 @@ public class Window {
             throw new IllegalStateException("Failed to create the GLFW window.");
         }
 
+        this.mouseListener = MouseListener.getInstance();
+        glfwSetCursorPosCallback(this.glfwWindow, this.mouseListener::mousePositionCallback);
+        glfwSetMouseButtonCallback(this.glfwWindow, this.mouseListener::mouseButtonCallback);
+        glfwSetScrollCallback(this.glfwWindow, this.mouseListener::mouseScrollCallback);
+
+        this.keyboardListener = KeyboardListener.getInstance();
+        glfwSetKeyCallback(this.glfwWindow, this.keyboardListener::keyCallback);
+
         // Make the OpenGL context current
         glfwMakeContextCurrent(this.glfwWindow);
         // Enable v-sync
@@ -78,21 +94,23 @@ public class Window {
 
 
     public void loop() {
-        while(!glfwWindowShouldClose(this.glfwWindow)){
+        while (!glfwWindowShouldClose(this.glfwWindow)) {
 
             // Poll events
             glfwPollEvents();
 
-            glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
+            glClearColor(this.red, this.green, this.blue, this.alpha);
             glClear(GL_COLOR_BUFFER_BIT);
+
+            if (this.keyboardListener.isKeyPressed(GLFW_KEY_EQUAL)) {
+                this.red += 0.01f;
+            } else if (this.keyboardListener.isKeyPressed(GLFW_KEY_MINUS)) {
+                this.red -= 0.01f;
+            }
 
             glfwSwapBuffers(this.glfwWindow);
         }
     }
-
-
-
-
 
 
 }
