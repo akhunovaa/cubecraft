@@ -1,7 +1,5 @@
 package ru.mycubecraft.scene;
 
-import java.awt.event.KeyEvent;
-
 public class LevelEditorScene extends Scene {
 
     private boolean changingScene = false;
@@ -14,12 +12,15 @@ public class LevelEditorScene extends Scene {
     @Override
     public void update(float dt) {
         //System.out.println("Current FPS: " + (1.0f / dt) + " ");
-        if (!changingScene && keyboardListener.isKeyPressed(KeyEvent.VK_SPACE)) {
-            this.changingScene = true;
-        }
+    }
 
-        if (changingScene) {
-            window.changeScene(1);
-        }
+    @Override
+    public void render() {
+
+    }
+
+    @Override
+    public void cleanup() {
+
     }
 }

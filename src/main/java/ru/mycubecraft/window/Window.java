@@ -2,6 +2,8 @@ package ru.mycubecraft.window;
 
 import org.lwjgl.Version;
 import org.lwjgl.glfw.GLFWErrorCallback;
+import org.lwjgl.glfw.GLFWVidMode;
+import org.lwjgl.glfw.GLFWWindowSizeCallback;
 import org.lwjgl.opengl.GL;
 import ru.mycubecraft.listener.KeyboardListener;
 import ru.mycubecraft.listener.MouseListener;
@@ -20,8 +22,8 @@ import static org.lwjgl.system.MemoryUtil.NULL;
 public class Window {
 
     private static Window instance;
-    private final int width;
-    private final int height;
+    private int width;
+    private int height;
     private final String title;
     private float red = 0.0f;
     private float green = 0.0f;
@@ -31,6 +33,7 @@ public class Window {
     private KeyboardListener keyboardListener;
     private MouseListener mouseListener;
     private Scene currentScene;
+    private boolean resized;
 
     private Window() {
         this.width = 800;
@@ -72,14 +75,29 @@ public class Window {
 
         // Configure GLFW
         glfwDefaultWindowHints();
-        glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
-        glfwWindowHint(GLFW_VISIBLE, GLFW_TRUE);
+        glfwWindowHint(GLFW_VISIBLE, GL_FALSE); // the window will stay hidden
+        // after creation
+        glfwWindowHint(GLFW_RESIZABLE, GL_TRUE); // the window will be resizable
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+        glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+        glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 
         // Create the window where glfwWindow stores the memory address of created window
         this.glfwWindow = glfwCreateWindow(this.width, this.height, this.title, NULL, NULL);
         if (this.glfwWindow == NULL) {
             throw new IllegalStateException("Failed to create the GLFW window.");
         }
+
+        // Setup resize callback
+        glfwSetWindowSizeCallback(this.glfwWindow, new GLFWWindowSizeCallback() {
+            @Override
+            public void invoke(long window, int width, int height) {
+                Window.this.width = width;
+                Window.this.height = height;
+                Window.this.setResized(true);
+            }
+        });
 
         this.mouseListener = MouseListener.getInstance();
         glfwSetCursorPosCallback(this.glfwWindow, this.mouseListener::mousePositionCallback);
@@ -89,13 +107,29 @@ public class Window {
         this.keyboardListener = KeyboardListener.getInstance();
         glfwSetKeyCallback(this.glfwWindow, this.keyboardListener::keyCallback);
 
+
+        // Get the resolution of the primary monitor
+        GLFWVidMode vidmode = glfwGetVideoMode(glfwGetPrimaryMonitor());
+        // Center our window
+        glfwSetWindowPos(this.glfwWindow, ((vidmode != null ? vidmode.width() : 800) - width) / 2, ((vidmode != null ? vidmode.height() : 600) - height) / 2);
+
+
         // Make the OpenGL context current
         glfwMakeContextCurrent(this.glfwWindow);
         // Enable v-sync
         glfwSwapInterval(1);
+        // Make the window visible
+        glfwShowWindow(this.glfwWindow);
 
         GL.createCapabilities();
-        this.changeScene(0);
+
+        // Set the clear color
+        glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+        glEnable(GL_CULL_FACE);
+        glCullFace(GL_BACK);
+        glfwSetInputMode(this.glfwWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+
+        this.changeScene(1);
     }
 
     public void loop() {
@@ -119,6 +153,7 @@ public class Window {
 
             if (dt > 0) {
                 currentScene.update(dt);
+                currentScene.render();
             }
 
             glfwSwapBuffers(this.glfwWindow);
@@ -140,6 +175,14 @@ public class Window {
             default:
                 throw new IllegalStateException("Scene for load is wrong!");
         }
+    }
+
+    public void setResized(boolean resized) {
+        this.resized = resized;
+    }
+
+    public boolean isResized() {
+        return resized;
     }
 
     public float getRed() {
@@ -174,4 +217,11 @@ public class Window {
         this.alpha = alpha;
     }
 
+    public int getWidth() {
+        return width;
+    }
+
+    public int getHeight() {
+        return height;
+    }
 }

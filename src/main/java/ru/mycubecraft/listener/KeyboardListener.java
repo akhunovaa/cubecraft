@@ -1,7 +1,7 @@
 package ru.mycubecraft.listener;
 
-import static org.lwjgl.glfw.GLFW.GLFW_PRESS;
-import static org.lwjgl.glfw.GLFW.GLFW_RELEASE;
+import static org.lwjgl.glfw.GLFW.*;
+import static org.lwjgl.glfw.GLFW.glfwSetWindowShouldClose;
 
 public class KeyboardListener {
 
@@ -23,6 +23,13 @@ public class KeyboardListener {
             this.keyPressed[key] = true;
         } else if (action == GLFW_RELEASE) {
             this.keyPressed[key] = false;
+        }
+
+        if (key == GLFW_KEY_ESCAPE && action == GLFW_RELEASE) {
+            glfwSetWindowShouldClose(window, true);
+        }
+        if (key == GLFW_KEY_ESCAPE && action == GLFW_RELEASE) {
+            glfwSetWindowShouldClose(window, true);
         }
     }
 
