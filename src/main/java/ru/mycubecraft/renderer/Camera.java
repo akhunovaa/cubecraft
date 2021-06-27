@@ -4,12 +4,17 @@ import org.joml.Vector3f;
 import org.joml.Vector4f;
 
 public class Camera {
+    public static final float FOV = (float) Math.toRadians(60.0f);
+    private static final float Z_NEAR = 0.01f;
+    private static final float Z_FAR = 100.f;
 
+    private final Transformation transformation;
     public Vector4f position;
     public Vector3f rotation;
 
     public Camera() {
-        position = new Vector4f(0, 0, 0, 100.0f);
+        this.transformation = new Transformation();
+        position = new Vector4f(0, 0, 0, FOV);
         rotation = new Vector3f(0, 0, 0);
     }
 

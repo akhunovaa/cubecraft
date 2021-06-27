@@ -97,4 +97,11 @@ public class MouseListener {
         return (float) (yLastPosition - yPosition);
     }
 
+    public double getxLastPosition() {
+        return xLastPosition;
+    }
+
+    public double getyLastPosition() {
+        return yLastPosition;
+    }
 }

@@ -11,6 +11,7 @@ import ru.mycubecraft.world.World;
 import java.util.ArrayList;
 
 public abstract class Scene {
+    public static final float FOV = (float) Math.toRadians(60.0f);
 
     public World world;
     protected Window window = Window.getInstance();

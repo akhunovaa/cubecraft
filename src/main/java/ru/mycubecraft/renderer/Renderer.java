@@ -5,7 +5,6 @@ import ru.mycubecraft.core.GameItem;
 import ru.mycubecraft.util.AssetPool;
 import ru.mycubecraft.window.Window;
 import ru.mycubecraft.world.World;
-
 import java.util.ArrayList;
 
 import static org.lwjgl.opengl.GL11.*;
@@ -45,8 +44,6 @@ public class Renderer {
 
         shaderProgram.use();
 
-        //GL11.glLoadMatrixf(new Matrix4f().identity().get(FloatBuffer.allocate(16)));
-        // GL11.glTranslatef(camera.getPosition().x, camera.getPosition().y, camera.getPosition().z);
         // Update projection Matrix
         Matrix4f projectionMatrix = transformation.getProjectionMatrix(FOV, window.getWidth(), window.getHeight(), Z_NEAR, Z_FAR);
         shaderProgram.uploadMat4f("projectionMatrix", projectionMatrix);
