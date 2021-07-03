@@ -14,8 +14,8 @@ void main()
     outTexCoord = texCoord;
 }
 
-    #type fragment
-    #version 330 core
+#type fragment
+#version 330 core
 
 in  vec2 outTexCoord;
 out vec4 fragColor;
@@ -52,5 +52,5 @@ vec4 hsv_to_rgb(float h, float s, float v, float a)
 
 void main()
 {
-    fragColor = texture(texture_sampler, outTexCoord);
+    fragColor = texture(texture_sampler, outTexCoord) * vec4(0.1, 0.2, 0.4, 0.5);
 }

@@ -109,6 +109,17 @@ public class LevelScene extends Scene {
         }
 
         //camera.rotation.add(new Vector3f(-cursorPositionY, -cursorPositionX, 0));
+//        if (cursorPositionX != cursorLastXPosition && cursorPositionX != 0.0f && cursorLastXPosition != 0.0f) {
+//            System.out.println("camera.rotation.x " + camera.rotation.x);
+//            System.out.println("cursorPositionDx " + cursorPositionDx);
+//            camera.rotation.x = Math.max(Math.min(camera.rotation.x - (cursorPositionDy - window.getHeight() / 2.0f) / 4.0f, 90.0f), -90.0f);
+//            //camera.rotation.add(new Vector3f(-cursorPositionDx, 0, 0));
+//            // }
+////            camera.rotation.x = Math.max(Math.min(camera.rotation.x - (cursorPositionY - window.getHeight() / 2.0f) / 4.0f, 90.0f), -90.0f);
+//        }
+        if (cursorPositionY != cursorLastYPosition && cursorPositionY != 0.0f && cursorLastYPosition != 0.0f) {
+            camera.rotation.y = camera.rotation.y - (cursorPositionDx - window.getWidth() / 2.0f) / 4.0f;
+        }
 
 //        System.out.println("cursorLastXPosition X: " + cursorLastXPosition + " cursorLastYPosition:" + cursorLastYPosition);
 //        new Quaternionf().setEulerAnglesXYZ(0.0f,

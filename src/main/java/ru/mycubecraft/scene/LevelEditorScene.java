@@ -2,7 +2,7 @@ package ru.mycubecraft.scene;
 
 public class LevelEditorScene extends Scene {
 
-    private boolean changingScene = false;
+    private final boolean changingScene = false;
 
     public LevelEditorScene() {
         System.out.println("Entered to a Level Editor Scene");

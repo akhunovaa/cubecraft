@@ -20,8 +20,11 @@ public abstract class Scene {
     protected Camera camera = new Camera();
     protected Renderer renderer;
     protected ArrayList<GameItem> gameItems = new ArrayList<>();
+
     public abstract void update(float dt);
+
     public abstract void render();
+
     public abstract void cleanup();
 
 }
