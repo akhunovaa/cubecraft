@@ -1,24 +1,21 @@
 package ru.mycubecraft.renderer;
 
 import org.joml.Matrix4f;
+import ru.mycubecraft.Player;
 import ru.mycubecraft.core.GameItem;
 import ru.mycubecraft.util.AssetPool;
 import ru.mycubecraft.window.Window;
 import ru.mycubecraft.world.World;
+
 import java.util.ArrayList;
 
 import static org.lwjgl.opengl.GL11.*;
 
 public class Renderer {
 
-    private static final float FOV = (float) Math.toRadians(60.0f);
-    private static final float Z_NEAR = 0.01f;
-    private static final float Z_FAR = 100.f;
-    private final Transformation transformation;
     private Shader shaderProgram;
 
     public Renderer() {
-        transformation = new Transformation();
         init();
     }
 
@@ -31,7 +28,7 @@ public class Renderer {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     }
 
-    public void render(Window window, ArrayList<GameItem> gameItems, Camera camera, World world) {
+    public void render(Window window, ArrayList<GameItem> gameItems, World world, Player player) {
         clear();
         ArrayList<GameItem> allGameItems = new ArrayList<>(gameItems);
         if (world != null) {
@@ -45,17 +42,17 @@ public class Renderer {
         shaderProgram.use();
 
         // Update projection Matrix
-        Matrix4f projectionMatrix = transformation.getProjectionMatrix(FOV, window.getWidth(), window.getHeight(), Z_NEAR, Z_FAR);
+        Matrix4f projectionMatrix = player.camera.transformation.getProjectionMatrix(window.getWidth(), window.getHeight());
         shaderProgram.uploadMat4f("projectionMatrix", projectionMatrix);
         shaderProgram.uploadTexture("texture_sampler", 0);
 
         // Render each gameItem
         for (GameItem gameItem : allGameItems) {
             // Set world matrix for this item
-            Matrix4f worldMatrix = transformation.getWorldMatrix(
+            Matrix4f worldMatrix = player.camera.transformation.getWorldMatrix(
                     gameItem.getPosition(),
                     gameItem.getRotation(),
-                    gameItem.getScale(), camera);
+                    gameItem.getScale());
             shaderProgram.uploadMat4f("worldMatrix", worldMatrix);
 
             // Render the mesh for this game item

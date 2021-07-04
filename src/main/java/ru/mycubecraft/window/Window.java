@@ -22,9 +22,9 @@ import static org.lwjgl.system.MemoryUtil.NULL;
 public class Window {
 
     private static Window instance;
+    private final String title;
     private int width;
     private int height;
-    private final String title;
     private float red = 0.0f;
     private float green = 0.0f;
     private float blue = 0.0f;
@@ -133,7 +133,6 @@ public class Window {
     }
 
     public void loop() {
-
         float beginTime = Time.getTime();
         float endTime;
         float dt = -1.0f;
@@ -145,10 +144,8 @@ public class Window {
             glClearColor(this.red, this.green, this.blue, this.alpha);
             glClear(GL_COLOR_BUFFER_BIT);
 
-            if (this.keyboardListener.isKeyPressed(GLFW_KEY_EQUAL)) {
-                this.red += 0.01f;
-            } else if (this.keyboardListener.isKeyPressed(GLFW_KEY_MINUS)) {
-                this.red -= 0.01f;
+            if (this.keyboardListener.isKeyPressed(GLFW_PRESS)) {
+                glfwSetCursorPos(this.glfwWindow, (float) this.width / 2, (float) this.height / 2);
             }
 
             if (dt > 0) {
@@ -177,12 +174,12 @@ public class Window {
         }
     }
 
-    public void setResized(boolean resized) {
-        this.resized = resized;
-    }
-
     public boolean isResized() {
         return resized;
+    }
+
+    public void setResized(boolean resized) {
+        this.resized = resized;
     }
 
     public float getRed() {

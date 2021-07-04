@@ -52,7 +52,7 @@ public class World {
         return c;
     }
 
-    public void gen() {
+    public void generate() {
         for (int x = 0; x < WORLD_WIDTH; x++) {
             for (int z = 0; z < WORLD_WIDTH; z++) {
                 if (chunks[x][z] != null) {

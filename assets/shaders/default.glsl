@@ -5,12 +5,13 @@ layout (location=1) in vec2 texCoord;
 
 uniform mat4 worldMatrix;
 uniform mat4 projectionMatrix;
+uniform float uTime;
 
 out vec2 outTexCoord;
 
 void main()
 {
-    gl_Position = projectionMatrix * worldMatrix * vec4(position, 1.0);
+    gl_Position = projectionMatrix * worldMatrix * vec4(position, 1.0f);
     outTexCoord = texCoord;
 }
 
@@ -52,5 +53,5 @@ vec4 hsv_to_rgb(float h, float s, float v, float a)
 
 void main()
 {
-    fragColor = texture(texture_sampler, outTexCoord) * vec4(0.1, 0.2, 0.4, 0.5);
+    fragColor = texture(texture_sampler, outTexCoord);
 }
