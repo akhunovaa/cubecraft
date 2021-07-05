@@ -29,13 +29,13 @@ public class SimplexNoiseOctave { // Simplex noise in 2D, 3D and 4D
     private static final double F4 = (Math.sqrt(5.0) - 1.0) / 4.0;
     private static final double G4 = (5.0 - Math.sqrt(5.0)) / 20.0;
     public static int RANDOMSEED = 0;
-    private static int NUMBEROFSWAPS = 400;
-    private static Grad grad3[] = {new Grad(1, 1, 0), new Grad(-1, 1, 0),
+    private static final int NUMBEROFSWAPS = 400;
+    private static final Grad[] grad3 = {new Grad(1, 1, 0), new Grad(-1, 1, 0),
             new Grad(1, -1, 0), new Grad(-1, -1, 0), new Grad(1, 0, 1),
             new Grad(-1, 0, 1), new Grad(1, 0, -1), new Grad(-1, 0, -1),
             new Grad(0, 1, 1), new Grad(0, -1, 1), new Grad(0, 1, -1),
             new Grad(0, -1, -1)};
-    private static Grad grad4[] = {new Grad(0, 1, 1, 1),
+    private static final Grad[] grad4 = {new Grad(0, 1, 1, 1),
             new Grad(0, 1, 1, -1), new Grad(0, 1, -1, 1),
             new Grad(0, 1, -1, -1), new Grad(0, -1, 1, 1),
             new Grad(0, -1, 1, -1), new Grad(0, -1, -1, 1),
@@ -52,7 +52,7 @@ public class SimplexNoiseOctave { // Simplex noise in 2D, 3D and 4D
             new Grad(1, -1, -1, 0), new Grad(-1, 1, 1, 0),
             new Grad(-1, 1, -1, 0), new Grad(-1, -1, 1, 0),
             new Grad(-1, -1, -1, 0)};
-    private static short p_supply[] = {151, 160, 137, 91, 90, 15, 131, 13,
+    private static final short[] p_supply = {151, 160, 137, 91, 90, 15, 131, 13,
             201, 95, 96, 53, 194, 233, 7, 225, 140, 36, 103, 30, 69, 142, 8,
             99, 37, 240, 21, 10, 23, 190, 6, 148, 247, 120, 234, 75, 0, 26,
             197, 62, 94, 252, 219, 203, 117, 35, 11, 32, 57, 177, 33, 88, 237,
@@ -71,11 +71,12 @@ public class SimplexNoiseOctave { // Simplex noise in 2D, 3D and 4D
             84, 204, 176, 115, 121, 50, 45, 127, 4, 150, 254, 138, 236, 205,
             93, 222, 114, 67, 29, 24, 72, 243, 141, 128, 195, 78, 66, 215, 61,
             156, 180};
-    private short p[] = new short[p_supply.length];
+    private short[] p = new short[p_supply.length];
     // To remove the need for index wrapping, double the permutation table
     // length
-    private short perm[] = new short[512];
-    private short permMod12[] = new short[512];
+    private final short[] perm = new short[512];
+    private final short[] permMod12 = new short[512];
+
     public SimplexNoiseOctave(int seed) {
         p = p_supply.clone();
 

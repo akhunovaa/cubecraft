@@ -1,7 +1,6 @@
 package ru.mycubecraft.listener;
 
 import static org.lwjgl.glfw.GLFW.*;
-import static org.lwjgl.glfw.GLFW.glfwSetWindowShouldClose;
 
 public class KeyboardListener {
 

@@ -47,16 +47,14 @@ public class Renderer {
         shaderProgram.uploadMat4f("projectionMatrix", projectionMatrix);
         shaderProgram.uploadTexture("texture_sampler", 0);
 
+        Matrix4f viewMatrix = transformation.getViewMatrix(camera);
+        shaderProgram.uploadMat4f("viewMatrix", viewMatrix);
         // Render each gameItem
         for (GameItem gameItem : allGameItems) {
-            // Set world matrix for this item
-            Matrix4f worldMatrix = transformation.getWorldMatrix(
-                    gameItem.getPosition(),
-                    gameItem.getRotation(),
-                    gameItem.getScale(),
-                    camera);
-            shaderProgram.uploadMat4f("worldMatrix", worldMatrix);
 
+            // Set world matrix for this item
+            Matrix4f modelMatrix = transformation.getModelMatrix(gameItem.getPosition(), gameItem.getRotation(), gameItem.getScale());
+            shaderProgram.uploadMat4f("modelMatrix", modelMatrix);
             // Render the mesh for this game item
             gameItem.render();
         }

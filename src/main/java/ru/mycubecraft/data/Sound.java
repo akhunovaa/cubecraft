@@ -11,7 +11,7 @@ import static org.lwjgl.system.libc.LibCStdlib.free;
 public class Sound {
     private int bufferId;
     private int sourceId;
-    private String filepath;
+    private final String filepath;
 
     private boolean isPlaying = false;
 

@@ -6,11 +6,11 @@ import ru.mycubecraft.core.GameItem;
 import java.util.ArrayList;
 
 public class Chunk {
+    private final int genHeight = 0;
     public Block[][][] blocks;
     int cx = 0;
     int cz = 0;
     Generator g;
-    private final int genHeight = 0;
     private boolean genFin = false;
 
     public Chunk(int cx, int cz, Generator g) {

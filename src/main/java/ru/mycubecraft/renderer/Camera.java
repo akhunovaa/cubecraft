@@ -7,9 +7,6 @@ import ru.mycubecraft.data.Settings;
 
 public class Camera {
 
-    private static final float MAX_LOOK = 85;
-    private static final float MOUSE_SENSITIVITY = 0.55f;
-
     public Vector4f position;
     public Vector3f rotation;
 
@@ -65,9 +62,9 @@ public class Camera {
     }
 
     public void rotateCamera(float mouseDx, float mouseDy, float delta) {
-        float y = Math.max(-MAX_LOOK, Math.min(MAX_LOOK, mouseDx * MOUSE_SENSITIVITY * delta));
-        this.rotation.add(mouseDy * MOUSE_SENSITIVITY * delta, y, 0.0f);
-        if (y > MAX_LOOK) {
+        float y = Math.max(-Settings.MAX_LOOK, Math.min(Settings.MAX_LOOK, mouseDx * Settings.MOUSE_SENSITIVITY * delta));
+        this.rotation.add(mouseDy * Settings.MOUSE_SENSITIVITY * delta, y, 0.0f);
+        if (y > Settings.MAX_LOOK) {
             System.out.println("xRotation: " + this.rotation.y);
         }
     }

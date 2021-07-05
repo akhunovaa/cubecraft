@@ -7,11 +7,13 @@ import ru.mycubecraft.data.Settings;
 public class Transformation {
 
     private final Matrix4f projectionMatrix;
-    private final Matrix4f worldMatrix;
+    private final Matrix4f viewMatrix;
+    private final Matrix4f modelMatrix;
 
     public Transformation() {
-        this.worldMatrix = new Matrix4f();
+        this.viewMatrix = new Matrix4f();
         this.projectionMatrix = new Matrix4f();
+        this.modelMatrix = new Matrix4f();
     }
 
     public final Matrix4f getCameraProjectionMatrix(float fov, float width, float height, float zNear, float zFar, Camera camera) {
@@ -34,26 +36,21 @@ public class Transformation {
     }
 
     public Matrix4f getModelMatrix(Vector3f offset, Vector3f rotation, float scale) {
-        this.worldMatrix.identity()
+        this.modelMatrix.identity()
                 .translate(offset)
                 .rotateX((float) Math.toRadians(rotation.x))
                 .rotateY((float) Math.toRadians(rotation.y))
                 .rotateZ((float) Math.toRadians(rotation.z))
                 .scale(scale);
-        return this.worldMatrix;
+        return this.modelMatrix;
     }
 
-    public Matrix4f getWorldMatrix(Vector3f offset, Vector3f rotation, float scale, Camera camera) {
-        this.worldMatrix.identity()
+    public Matrix4f getViewMatrix(Camera camera) {
+        this.viewMatrix.identity()
                 .rotateX(-(float) Math.toRadians(camera.getRotation().x))
                 .rotateY(-(float) Math.toRadians(camera.getRotation().y))
-                .translate(new Vector3f(camera.getPosition().x, -camera.getPosition().y, camera.getPosition().z))
-                .translate(offset)
-                .rotateX((float) Math.toRadians(rotation.x))
-                .rotateY((float) Math.toRadians(rotation.y))
-                .rotateZ((float) Math.toRadians(rotation.z))
-                .scale(scale);
-        return this.worldMatrix;
+                .translate(new Vector3f(camera.getPosition().x, -camera.getPosition().y, camera.getPosition().z));
+        return this.viewMatrix;
     }
 
 }

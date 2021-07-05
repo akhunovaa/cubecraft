@@ -1,9 +1,9 @@
 package ru.mycubecraft.scene;
 
-import ru.mycubecraft.player.Player;
 import ru.mycubecraft.core.GameItem;
 import ru.mycubecraft.listener.KeyboardListener;
 import ru.mycubecraft.listener.MouseListener;
+import ru.mycubecraft.player.Player;
 import ru.mycubecraft.renderer.Camera;
 import ru.mycubecraft.renderer.Renderer;
 import ru.mycubecraft.window.Window;

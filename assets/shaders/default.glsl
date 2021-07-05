@@ -3,7 +3,8 @@
 layout (location=0) in vec3 position;
 layout (location=1) in vec2 texCoord;
 
-uniform mat4 worldMatrix;
+uniform mat4 modelMatrix;
+uniform mat4 viewMatrix;
 uniform mat4 projectionMatrix;
 uniform float uTime;
 
@@ -11,7 +12,7 @@ out vec2 outTexCoord;
 
 void main()
 {
-    gl_Position = projectionMatrix * worldMatrix * vec4(position, 1.0f);
+    gl_Position = projectionMatrix * viewMatrix * modelMatrix * vec4(position, 1.0f);
     outTexCoord = texCoord;
 }
 

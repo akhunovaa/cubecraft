@@ -3,7 +3,7 @@ package ru.mycubecraft.core;
 public class Timer {
 
     private double lastLoopTime;
-    
+
     public void init() {
         lastLoopTime = getTime();
     }

@@ -114,7 +114,7 @@ public class Texture {
     public boolean equals(Object o) {
         if (o == null) return false;
         if (!(o instanceof Texture)) return false;
-        Texture oTex = (Texture)o;
+        Texture oTex = (Texture) o;
         return oTex.getWidth() == this.width && oTex.getHeight() == this.height &&
                 oTex.getId() == this.id &&
                 oTex.getFilepath().equals(this.filepath);
