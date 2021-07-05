@@ -2,41 +2,24 @@ package ru.mycubecraft.renderer;
 
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
-import org.joml.Vector4f;
+import ru.mycubecraft.data.Settings;
 
 public class Transformation {
-
-    private static final float FOV = (float) Math.toRadians(60.0f);
-    private static final float Z_NEAR = 0.01f;
-    private static final float Z_FAR = 60.0f;
 
     private final Matrix4f projectionMatrix;
     private final Matrix4f worldMatrix;
 
-    public Vector4f position;
-    public Vector3f rotation;
-
     public Transformation() {
         this.worldMatrix = new Matrix4f();
         this.projectionMatrix = new Matrix4f();
-        this.position = new Vector4f();
-        this.rotation = new Vector3f();
     }
 
-    public void addPosition(Vector3f vector3f) {
-        position.add(new Vector4f(vector3f, FOV));
-    }
-
-    public void addRotation(Vector3f vector3f) {
-        rotation.add(vector3f);
-    }
-
-    public final Matrix4f getCameraProjectionMatrix(float fov, float width, float height, float zNear, float zFar) {
+    public final Matrix4f getCameraProjectionMatrix(float fov, float width, float height, float zNear, float zFar, Camera camera) {
         float aspectRatio = width / height;
         this.projectionMatrix.identity();
-        this.projectionMatrix.transform(this.position);
-        this.projectionMatrix.rotateY(this.rotation.y);
-        this.projectionMatrix.rotateX(this.rotation.x);
+        this.projectionMatrix.transform(camera.getPosition());
+        this.projectionMatrix.rotateY(camera.getRotation().y);
+        this.projectionMatrix.rotateX(camera.getRotation().x);
         this.projectionMatrix.perspective(fov, aspectRatio, zNear, zFar);
 
         return this.projectionMatrix;
@@ -45,7 +28,7 @@ public class Transformation {
     public final Matrix4f getProjectionMatrix(float width, float height) {
         float aspectRatio = width / height;
         this.projectionMatrix.identity();
-        this.projectionMatrix.perspective(FOV, aspectRatio, Z_NEAR, Z_FAR);
+        this.projectionMatrix.perspective(Settings.FOV, aspectRatio, Settings.Z_NEAR, Settings.Z_FAR);
 
         return this.projectionMatrix;
     }
@@ -60,11 +43,11 @@ public class Transformation {
         return this.worldMatrix;
     }
 
-    public Matrix4f getWorldMatrix(Vector3f offset, Vector3f rotation, float scale) {
+    public Matrix4f getWorldMatrix(Vector3f offset, Vector3f rotation, float scale, Camera camera) {
         this.worldMatrix.identity()
-                .rotateX(-(float) Math.toRadians(this.rotation.x))
-                .rotateY(-(float) Math.toRadians(this.rotation.y))
-                .translate(new Vector3f(this.position.x, -this.position.y, this.position.z))
+                .rotateX(-(float) Math.toRadians(camera.getRotation().x))
+                .rotateY(-(float) Math.toRadians(camera.getRotation().y))
+                .translate(new Vector3f(camera.getPosition().x, -camera.getPosition().y, camera.getPosition().z))
                 .translate(offset)
                 .rotateX((float) Math.toRadians(rotation.x))
                 .rotateY((float) Math.toRadians(rotation.y))
@@ -72,4 +55,5 @@ public class Transformation {
                 .scale(scale);
         return this.worldMatrix;
     }
+
 }

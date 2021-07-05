@@ -8,7 +8,7 @@ public class World {
     public static final int WORLD_WIDTH = 16;
     public static final int WORLD_HEIGHT = 64;
     public Chunk[][] chunks = new Chunk[WORLD_WIDTH][WORLD_WIDTH];
-    public Generator gen = new SuperFlatGen();
+    public Generator gen;
 
     public World(Generator gen2) {
         gen = gen2;

@@ -91,7 +91,7 @@ public class Chunk {
     }
 
     public ArrayList<GameItem> renderItems() {
-        ArrayList<GameItem> c = new ArrayList<GameItem>();
+        ArrayList<GameItem> c = new ArrayList<>();
         //if (genFin) {
         for (int y = 0; y < World.WORLD_HEIGHT; y++) {
             for (int x = 0; x < 16; x++) {

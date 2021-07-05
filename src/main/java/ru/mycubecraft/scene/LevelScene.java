@@ -2,8 +2,9 @@ package ru.mycubecraft.scene;
 
 import org.joml.Vector3f;
 import org.lwjgl.glfw.GLFW;
-import ru.mycubecraft.Player;
 import ru.mycubecraft.core.GameItem;
+import ru.mycubecraft.player.Player;
+import ru.mycubecraft.renderer.Camera;
 import ru.mycubecraft.renderer.Cube;
 import ru.mycubecraft.renderer.Renderer;
 import ru.mycubecraft.world.BasicGen;
@@ -17,6 +18,7 @@ public class LevelScene extends Scene {
         System.out.println("Entered to a Level Scene");
 
         renderer = new Renderer();
+        camera = new Camera();
         player = new Player();
 
         world = new World(new BasicGen(1));
@@ -36,20 +38,18 @@ public class LevelScene extends Scene {
         //System.out.println("Current FPS: " + (1.0f / dt) + " ");
 
         if (keyboardListener.isKeyPressed(GLFW_KEY_W)) {
-            player.moveForward(delta);
+            camera.moveForward(delta);
         } else if (keyboardListener.isKeyPressed(GLFW_KEY_S)) {
-            player.moveBackward(delta);
+            camera.moveBackward(delta);
         } else if (keyboardListener.isKeyPressed(GLFW_KEY_A)) {
-            player.moveLeft(delta);
+            camera.moveLeft(delta);
         } else if (keyboardListener.isKeyPressed(GLFW_KEY_D)) {
-            player.moveRight(delta);
+            camera.moveRight(delta);
         } else if (keyboardListener.isKeyPressed(GLFW_KEY_SPACE)) {
-            player.jump(delta);
+            camera.jump(delta);
         } else if (keyboardListener.isKeyPressed(GLFW.GLFW_KEY_LEFT_SHIFT) || keyboardListener.isKeyPressed(GLFW.GLFW_KEY_RIGHT_SHIFT)) {
-            player.sitDown(delta);
+            camera.sitDown(delta);
         }
-
-
 
 
         float cursorPositionX = mouseListener.getxPosition();
@@ -61,7 +61,7 @@ public class LevelScene extends Scene {
         float cursorPositionDy = mouseListener.getDy();
 
         if (cursorPositionX != cursorPositionLastX && cursorPositionY != cursorPositionLastY && cursorPositionDx != 0.0f && cursorPositionDy != 0.0f) {
-            player.rotateCamera(cursorPositionDx, cursorPositionDy, delta);
+            camera.rotateCamera(cursorPositionDx, cursorPositionDy, delta);
         }
 
 
@@ -70,7 +70,7 @@ public class LevelScene extends Scene {
     @Override
     public void render() {
         world.generate();
-        renderer.render(window, gameItems, world, player);
+        renderer.render(window, gameItems, world, camera);
     }
 
     @Override

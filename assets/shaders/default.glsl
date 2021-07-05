@@ -53,5 +53,6 @@ vec4 hsv_to_rgb(float h, float s, float v, float a)
 
 void main()
 {
+    // Результирующий цвет — цвет точки в текстуре по координатам UV
     fragColor = texture(texture_sampler, outTexCoord);
 }
