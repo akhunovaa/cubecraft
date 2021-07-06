@@ -1,5 +1,7 @@
 package ru.mycubecraft.listener;
 
+import ru.mycubecraft.data.Settings;
+
 import static org.lwjgl.glfw.GLFW.GLFW_PRESS;
 import static org.lwjgl.glfw.GLFW.GLFW_RELEASE;
 
@@ -11,6 +13,7 @@ public class MouseListener {
     private double scrollY;
     private double xPosition, yPosition, xLastPosition, yLastPosition;
     private boolean dragging;
+    private boolean inWindow = false;
 
     private MouseListener() {
         this.scrollX = 0.0;
@@ -41,6 +44,14 @@ public class MouseListener {
         } else {
             return false;
         }
+    }
+
+    public void mouseGetWindow() {
+        this.inWindow = true;
+    }
+
+    public boolean isMouseOnWindow() {
+        return this.inWindow;
     }
 
     public void mousePositionCallback(long window, double xPosition, double yPosition) {
@@ -103,5 +114,13 @@ public class MouseListener {
 
     public double getyLastPosition() {
         return yLastPosition;
+    }
+
+    public boolean isInWindow() {
+        return inWindow;
+    }
+
+    public void mouseGetWindow(long l, boolean inWindow) {
+        this.inWindow = inWindow;
     }
 }

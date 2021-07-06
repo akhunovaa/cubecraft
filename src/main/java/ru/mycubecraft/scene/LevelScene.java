@@ -60,7 +60,9 @@ public class LevelScene extends Scene {
         float cursorPositionLastY = (float) mouseListener.getyLastPosition();
         float cursorPositionDy = mouseListener.getDy();
 
-        if (cursorPositionX != cursorPositionLastX && cursorPositionY != cursorPositionLastY && cursorPositionDx != 0.0f && cursorPositionDy != 0.0f) {
+        boolean isOnWindow = mouseListener.isInWindow();
+
+        if (isOnWindow && cursorPositionX != cursorPositionLastX && cursorPositionY != cursorPositionLastY && cursorPositionDx != 0.0f && cursorPositionDy != 0.0f) {
             camera.rotateCamera(cursorPositionDx, cursorPositionDy, delta);
         }
 

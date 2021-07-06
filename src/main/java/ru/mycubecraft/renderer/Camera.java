@@ -4,6 +4,7 @@ import org.joml.Quaternionf;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
 import ru.mycubecraft.data.Settings;
+import ru.mycubecraft.util.MathUtil;
 
 public class Camera {
 
@@ -61,12 +62,30 @@ public class Camera {
         this.position.add(cameraDown);
     }
 
+//    public void rotateCamera(float mouseDx, float mouseDy, float delta) {
+//        System.out.println("===================================");
+//
+//        System.out.println("===================================");
+//        float y = Math.max(Settings.MIN_LOOK, Math.min(Settings.MAX_LOOK, mouseDx * Settings.MOUSE_SENSITIVITY * delta));
+//        this.rotation.x =+ (float) Math.max(Math.min(this.rotation.x - (mouseDy -Settings.HEIGHT / 2.0f) / 4.0f, 90.0f), -90.0f);
+//        this.rotation.y =+ (float) (rotation.y - (mouseDx - Settings.WIDTH / 2.0f) / 4.0f);
+//        //this.rotation.add(rotX * Settings.MOUSE_SENSITIVITY * delta, rotY, 0.0f);
+//    }
+
     public void rotateCamera(float mouseDx, float mouseDy, float delta) {
-        float y = Math.max(-Settings.MAX_LOOK, Math.min(Settings.MAX_LOOK, mouseDx * Settings.MOUSE_SENSITIVITY * delta));
-        this.rotation.add(mouseDy * Settings.MOUSE_SENSITIVITY * delta, y, 0.0f);
-        if (y > Settings.MAX_LOOK) {
-            System.out.println("xRotation: " + this.rotation.y);
+        this.rotation.x = MathUtil.clamp(this.rotation.x, Settings.MIN_LOOK, Settings.MAX_LOOK);
+        float xRotation = this.rotation.x;
+        float yRotation = this.rotation.y;
+        if (xRotation > Settings.MIN_LOOK) {
+            rotation.x += mouseDy * delta;
+            rotation.y += mouseDx * delta;
+            rotation.z += 0.0f;
+        } else {
+            rotation.x -= mouseDy * delta;
+            rotation.y -= mouseDx * delta;
+            rotation.z -= 0.0f;
         }
+
     }
 
     public Vector4f getPosition() {
@@ -87,6 +106,12 @@ public class Camera {
         this.rotation.x = x;
         this.rotation.y = y;
         this.rotation.z = z;
+    }
+
+    public void moveRotation(float offsetX, float offsetY, float offsetZ) {
+        rotation.x += offsetX;
+        rotation.y += offsetY;
+        rotation.z += offsetZ;
     }
 
 }

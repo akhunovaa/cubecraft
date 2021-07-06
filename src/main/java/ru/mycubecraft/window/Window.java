@@ -5,6 +5,7 @@ import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.glfw.GLFWWindowSizeCallback;
 import org.lwjgl.opengl.GL;
+import ru.mycubecraft.data.Settings;
 import ru.mycubecraft.listener.KeyboardListener;
 import ru.mycubecraft.listener.MouseListener;
 import ru.mycubecraft.scene.LevelEditorScene;
@@ -36,9 +37,9 @@ public class Window {
     private boolean resized;
 
     private Window() {
-        this.width = 800;
-        this.height = 600;
-        this.title = "CubeCraft Game";
+        this.width = Settings.WIDTH;
+        this.height = Settings.HEIGHT;
+        this.title = Settings.WINDOW_TITLE;
     }
 
     public static synchronized Window getInstance() {
@@ -101,6 +102,7 @@ public class Window {
 
         this.mouseListener = MouseListener.getInstance();
         glfwSetCursorPosCallback(this.glfwWindow, this.mouseListener::mousePositionCallback);
+        glfwSetCursorEnterCallback(this.glfwWindow, this.mouseListener::mouseGetWindow);
         glfwSetMouseButtonCallback(this.glfwWindow, this.mouseListener::mouseButtonCallback);
         glfwSetScrollCallback(this.glfwWindow, this.mouseListener::mouseScrollCallback);
 
