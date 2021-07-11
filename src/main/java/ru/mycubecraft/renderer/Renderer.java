@@ -6,9 +6,8 @@ import org.joml.Vector4f;
 import ru.mycubecraft.core.GameItem;
 import ru.mycubecraft.core.Mesh;
 import ru.mycubecraft.engine.SceneLight;
-import ru.mycubecraft.engine.graph.DirectionalLight;
-import ru.mycubecraft.engine.graph.PointLight;
-import ru.mycubecraft.engine.graph.SpotLight;
+
+import ru.mycubecraft.engine.graph.Camera;
 import ru.mycubecraft.scene.Scene;
 import ru.mycubecraft.util.AssetPool;
 import ru.mycubecraft.window.Window;
@@ -94,11 +93,11 @@ public class Renderer {
 //        viewMatrix.m32 = 0;
         skyBoxShaderProgram.uploadMat4f("viewMatrix", viewMatrix);
 
-        Matrix4f modelMatrix = transformation.getSkyModelMatrix(scene.getSkyBox().getPosition(), scene.getSkyBox().getRotation(), scene.getSkyBox().getScale());
-        skyBoxShaderProgram.uploadMat4f("modelMatrix", modelMatrix);
-        skyBoxShaderProgram.uploadVec3f("ambientLight", scene.getSceneLight().getAmbientLight());
+//        Matrix4f modelMatrix = transformation.getSkyModelMatrix(scene.getSkyBox().getPosition(), scene.getSkyBox().getRotation(), scene.getSkyBox().getScale());
+//        skyBoxShaderProgram.uploadMat4f("modelMatrix", modelMatrix);
+//        skyBoxShaderProgram.uploadVec3f("ambientLight", scene.getSceneLight().getAmbientLight());
 
-        scene.getSkyBox().getMesh().render();
+        //scene.getSkyBox().getMesh().render();
 
         skyBoxShaderProgram.detach();
     }
@@ -136,46 +135,46 @@ public class Renderer {
         sceneShaderProgram.uploadFloat("specularPower", specularPower);
 
         // Process Point Lights
-        PointLight[] pointLightList = sceneLight.getPointLightList();
-        int numLights = pointLightList != null ? pointLightList.length : 0;
-        for (int i = 0; i < numLights; i++) {
-            // Get a copy of the point light object and transform its position to view coordinates
-            PointLight currPointLight = new PointLight(pointLightList[i]);
-            Vector3f lightPos = currPointLight.getPosition();
-            Vector4f aux = new Vector4f(lightPos, 1);
-            aux.mul(viewMatrix);
-            lightPos.x = aux.x;
-            lightPos.y = aux.y;
-            lightPos.z = aux.z;
-            sceneShaderProgram.setUniform("pointLights", currPointLight, i);
-        }
-
-        // Process Spot Ligths
-        SpotLight[] spotLightList = sceneLight.getSpotLightList();
-        numLights = spotLightList != null ? spotLightList.length : 0;
-        for (int i = 0; i < numLights; i++) {
-            // Get a copy of the spot light object and transform its position and cone direction to view coordinates
-            SpotLight currSpotLight = new SpotLight(spotLightList[i]);
-            Vector4f dir = new Vector4f(currSpotLight.getConeDirection(), 0);
-            dir.mul(viewMatrix);
-            currSpotLight.setConeDirection(new Vector3f(dir.x, dir.y, dir.z));
-
-            Vector3f lightPos = currSpotLight.getPointLight().getPosition();
-            Vector4f aux = new Vector4f(lightPos, 1);
-            aux.mul(viewMatrix);
-            lightPos.x = aux.x;
-            lightPos.y = aux.y;
-            lightPos.z = aux.z;
-
-            sceneShaderProgram.setUniform("spotLights", currSpotLight, i);
-        }
-
-        // Get a copy of the directional light object and transform its position to view coordinates
-        DirectionalLight currDirLight = new DirectionalLight(sceneLight.getDirectionalLight());
-        Vector4f dir = new Vector4f(currDirLight.getDirection(), 0);
-        dir.mul(viewMatrix);
-        currDirLight.setDirection(new Vector3f(dir.x, dir.y, dir.z));
-        sceneShaderProgram.setUniform("directionalLight", currDirLight);
+        //PointLight[] pointLightList = sceneLight.getPointLightList();
+//        int numLights = pointLightList != null ? pointLightList.length : 0;
+//        for (int i = 0; i < numLights; i++) {
+//            // Get a copy of the point light object and transform its position to view coordinates
+//            PointLight currPointLight = new PointLight(pointLightList[i]);
+//            Vector3f lightPos = currPointLight.getPosition();
+//            Vector4f aux = new Vector4f(lightPos, 1);
+//            aux.mul(viewMatrix);
+//            lightPos.x = aux.x;
+//            lightPos.y = aux.y;
+//            lightPos.z = aux.z;
+//            sceneShaderProgram.setUniform("pointLights", currPointLight, i);
+//        }
+//
+//        // Process Spot Ligths
+//        SpotLight[] spotLightList = sceneLight.getSpotLightList();
+//        numLights = spotLightList != null ? spotLightList.length : 0;
+//        for (int i = 0; i < numLights; i++) {
+//            // Get a copy of the spot light object and transform its position and cone direction to view coordinates
+//            SpotLight currSpotLight = new SpotLight(spotLightList[i]);
+//            Vector4f dir = new Vector4f(currSpotLight.getConeDirection(), 0);
+//            dir.mul(viewMatrix);
+//            currSpotLight.setConeDirection(new Vector3f(dir.x, dir.y, dir.z));
+//
+//            Vector3f lightPos = currSpotLight.getPointLight().getPosition();
+//            Vector4f aux = new Vector4f(lightPos, 1);
+//            aux.mul(viewMatrix);
+//            lightPos.x = aux.x;
+//            lightPos.y = aux.y;
+//            lightPos.z = aux.z;
+//
+//            sceneShaderProgram.setUniform("spotLights", currSpotLight, i);
+//        }
+//
+//        // Get a copy of the directional light object and transform its position to view coordinates
+//        DirectionalLight currDirLight = new DirectionalLight(sceneLight.getDirectionalLight());
+//        Vector4f dir = new Vector4f(currDirLight.getDirection(), 0);
+//        dir.mul(viewMatrix);
+//        currDirLight.setDirection(new Vector3f(dir.x, dir.y, dir.z));
+//        sceneShaderProgram.setUniform("directionalLight", currDirLight);
     }
 
 

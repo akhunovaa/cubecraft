@@ -2,9 +2,9 @@ package ru.mycubecraft.renderer;
 
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
-import org.joml.Vector4f;
 import ru.mycubecraft.core.GameItem;
-import ru.mycubecraft.data.Settings;
+import ru.mycubecraft.Settings;
+import ru.mycubecraft.engine.graph.Camera;
 
 public class Transformation {
 
@@ -20,16 +20,6 @@ public class Transformation {
         this.modelViewMatrix = new Matrix4f();
     }
 
-    public final Matrix4f getCameraProjectionMatrix(float fov, float width, float height, float zNear, float zFar, Camera camera) {
-        float aspectRatio = width / height;
-        this.projectionMatrix.identity();
-        this.projectionMatrix.transform(camera.getPosition());
-        this.projectionMatrix.rotateY(camera.getRotation().y);
-        this.projectionMatrix.rotateX(camera.getRotation().x);
-        this.projectionMatrix.perspective(fov, aspectRatio, zNear, zFar);
-
-        return this.projectionMatrix;
-    }
 
     public final Matrix4f getProjectionMatrix(float width, float height) {
         float aspectRatio = width / height;

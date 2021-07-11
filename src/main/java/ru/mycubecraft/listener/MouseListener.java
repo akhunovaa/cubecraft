@@ -1,7 +1,5 @@
 package ru.mycubecraft.listener;
 
-import ru.mycubecraft.data.Settings;
-
 import static org.lwjgl.glfw.GLFW.GLFW_PRESS;
 import static org.lwjgl.glfw.GLFW.GLFW_RELEASE;
 

@@ -2,8 +2,8 @@ package ru.mycubecraft.core;
 
 import org.lwjgl.BufferUtils;
 import org.lwjgl.system.MemoryUtil;
-import ru.mycubecraft.engine.Material;
-import ru.mycubecraft.renderer.Texture;
+import ru.mycubecraft.engine.graph.Material;
+import ru.mycubecraft.engine.graph.Texture;
 
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;

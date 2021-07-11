@@ -6,10 +6,11 @@ import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.glfw.GLFWWindowSizeCallback;
 import org.lwjgl.opengl.GL;
-import ru.mycubecraft.data.Settings;
+import ru.mycubecraft.Settings;
 import ru.mycubecraft.engine.SceneLight;
-import ru.mycubecraft.engine.SkyBox;
-import ru.mycubecraft.engine.graph.DirectionalLight;
+
+import ru.mycubecraft.engine.graph.lights.DirectionalLight;
+import ru.mycubecraft.engine.items.SkyBox;
 import ru.mycubecraft.listener.KeyboardListener;
 import ru.mycubecraft.listener.MouseListener;
 import ru.mycubecraft.scene.LevelEditorScene;

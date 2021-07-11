@@ -2,10 +2,10 @@ package ru.mycubecraft.renderer;
 
 import org.joml.*;
 import org.lwjgl.BufferUtils;
-import ru.mycubecraft.engine.Material;
-import ru.mycubecraft.engine.graph.DirectionalLight;
-import ru.mycubecraft.engine.graph.PointLight;
-import ru.mycubecraft.engine.graph.SpotLight;
+import ru.mycubecraft.engine.graph.Material;
+import ru.mycubecraft.engine.graph.lights.DirectionalLight;
+import ru.mycubecraft.engine.graph.lights.PointLight;
+import ru.mycubecraft.engine.graph.lights.SpotLight;
 
 import java.io.IOException;
 import java.nio.FloatBuffer;
@@ -22,6 +22,7 @@ public class Shader {
 
     private String vertexSource;
     private String fragmentSource;
+
     private final String filepath;
 
     public Shader(String filepath) {

@@ -4,11 +4,9 @@ import org.joml.Vector3f;
 import org.lwjgl.glfw.GLFW;
 import ru.mycubecraft.core.GameItem;
 import ru.mycubecraft.core.Mesh;
-import ru.mycubecraft.player.Player;
-import ru.mycubecraft.renderer.Camera;
+import ru.mycubecraft.engine.graph.Camera;
 import ru.mycubecraft.renderer.Cube;
 import ru.mycubecraft.renderer.Renderer;
-import ru.mycubecraft.window.Window;
 import ru.mycubecraft.world.BasicGen;
 import ru.mycubecraft.world.World;
 
@@ -24,7 +22,6 @@ public class LevelScene extends Scene {
 
         renderer = new Renderer();
         camera = new Camera();
-        player = new Player();
 
         world = new World(new BasicGen(1));
 
@@ -56,20 +53,20 @@ public class LevelScene extends Scene {
     @Override
     public void update(float delta) {
         //System.out.println("Current FPS: " + (1.0f / dt) + " ");
-
-        if (keyboardListener.isKeyPressed(GLFW_KEY_W)) {
-            camera.moveForward(delta);
-        } else if (keyboardListener.isKeyPressed(GLFW_KEY_S)) {
-            camera.moveBackward(delta);
-        } else if (keyboardListener.isKeyPressed(GLFW_KEY_A)) {
-            camera.moveLeft(delta);
-        } else if (keyboardListener.isKeyPressed(GLFW_KEY_D)) {
-            camera.moveRight(delta);
-        } else if (keyboardListener.isKeyPressed(GLFW_KEY_SPACE)) {
-            camera.jump(delta);
-        } else if (keyboardListener.isKeyPressed(GLFW.GLFW_KEY_LEFT_SHIFT) || keyboardListener.isKeyPressed(GLFW.GLFW_KEY_RIGHT_SHIFT)) {
-            camera.sitDown(delta);
-        }
+//
+//        if (keyboardListener.isKeyPressed(GLFW_KEY_W)) {
+//            camera.moveForward(delta);
+//        } else if (keyboardListener.isKeyPressed(GLFW_KEY_S)) {
+//            camera.moveBackward(delta);
+//        } else if (keyboardListener.isKeyPressed(GLFW_KEY_A)) {
+//            camera.moveLeft(delta);
+//        } else if (keyboardListener.isKeyPressed(GLFW_KEY_D)) {
+//            camera.moveRight(delta);
+//        } else if (keyboardListener.isKeyPressed(GLFW_KEY_SPACE)) {
+//            camera.jump(delta);
+//        } else if (keyboardListener.isKeyPressed(GLFW.GLFW_KEY_LEFT_SHIFT) || keyboardListener.isKeyPressed(GLFW.GLFW_KEY_RIGHT_SHIFT)) {
+//            camera.sitDown(delta);
+//        }
 
 
         float cursorPositionX = mouseListener.getxPosition();
@@ -83,7 +80,7 @@ public class LevelScene extends Scene {
         boolean isOnWindow = mouseListener.isInWindow();
 
         if (isOnWindow && cursorPositionX != cursorPositionLastX && cursorPositionY != cursorPositionLastY && cursorPositionDx != 0.0f && cursorPositionDy != 0.0f) {
-            camera.rotateCamera(cursorPositionDx, cursorPositionDy, delta);
+            //camera.rotateCamera(cursorPositionDx, cursorPositionDy, delta);
         }
 
 
