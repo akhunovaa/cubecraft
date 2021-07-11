@@ -4,6 +4,7 @@ import org.joml.Vector3f;
 import org.lwjgl.opengl.GL11;
 import ru.mycubecraft.core.GameItem;
 import ru.mycubecraft.core.Mesh;
+import ru.mycubecraft.engine.Material;
 import ru.mycubecraft.util.AssetPool;
 
 public class Cube extends GameItem {
@@ -103,6 +104,9 @@ public class Cube extends GameItem {
                 0.5f, 0.5f,
                 1.0f, 0.5f,
         };
+
+        float[] normArr = new float[positions.length * 3];
+
         int[] indices = new int[]{
                 // Front face
                 0, 1, 3, 3, 1, 2,
@@ -117,7 +121,8 @@ public class Cube extends GameItem {
                 // Back face
                 7, 4, 5, 7, 6, 4};
         Texture texture = AssetPool.getTexture(texturePath);
-        this.mesh = new Mesh(positions, textCoords, indices, texture);
+        this.mesh = new Mesh(positions, textCoords, normArr, indices);
+        this.mesh.setMaterial(new Material(texture, 0.0f));
         this.position = new Vector3f(0, 0, 0);
         this.scale = 1;
         this.rotation = new Vector3f(0, 0, 0);

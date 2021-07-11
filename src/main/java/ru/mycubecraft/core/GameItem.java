@@ -5,10 +5,16 @@ import org.lwjgl.opengl.GL11;
 
 public class GameItem implements RenderObject {
 
-    private final Mesh mesh;
+    private Mesh mesh;
     private final Vector3f position;
     private final Vector3f rotation;
     private float scale;
+
+    public GameItem() {
+        position = new Vector3f();
+        scale = 1;
+        rotation = new Vector3f();
+    }
 
     public GameItem(Mesh mesh) {
         this.mesh = mesh;
@@ -43,6 +49,10 @@ public class GameItem implements RenderObject {
         this.rotation.x = x;
         this.rotation.y = y;
         this.rotation.z = z;
+    }
+
+    public void setMesh(Mesh mesh) {
+        this.mesh = mesh;
     }
 
     public Mesh getMesh() {

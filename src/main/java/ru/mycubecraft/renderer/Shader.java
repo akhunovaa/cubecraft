@@ -2,6 +2,10 @@ package ru.mycubecraft.renderer;
 
 import org.joml.*;
 import org.lwjgl.BufferUtils;
+import ru.mycubecraft.engine.Material;
+import ru.mycubecraft.engine.graph.DirectionalLight;
+import ru.mycubecraft.engine.graph.PointLight;
+import ru.mycubecraft.engine.graph.SpotLight;
 
 import java.io.IOException;
 import java.nio.FloatBuffer;
@@ -187,5 +191,49 @@ public class Shader {
         use();
         //glUniform — Specify the value of a uniform variable for the current program object
         glUniform1iv(varLocation, array);
+    }
+
+    public void setUniform(String uniformName, Vector3f value) {
+        int varLocation = glGetUniformLocation(shaderProgramID, uniformName);
+        use();
+        glUniform3f(varLocation, value.x, value.y, value.z);
+    }
+
+    public void setUniform(String uniformName, DirectionalLight dirLight) {
+        setUniform(uniformName + ".colour", dirLight.getColor());
+        setUniform(uniformName + ".direction", dirLight.getDirection());
+        uploadFloat(uniformName + ".intensity", dirLight.getIntensity());
+    }
+
+    public void setUniform(String uniformName, Material material) {
+        uploadVec4f(uniformName + ".ambient", material.getAmbientColour());
+        uploadVec4f(uniformName + ".diffuse", material.getDiffuseColour());
+        uploadVec4f(uniformName + ".specular", material.getSpecularColour());
+        uploadInt(uniformName + ".hasTexture", material.isTextured() ? 1 : 0);
+        uploadFloat(uniformName + ".reflectance", material.getReflectance());
+    }
+
+    public void setUniform(String uniformName, PointLight pointLight, int pos) {
+        setUniform(uniformName + "[" + pos + "]", pointLight);
+    }
+
+    public void setUniform(String uniformName, SpotLight spotLight, int pos) {
+        setUniform(uniformName + "[" + pos + "]", spotLight);
+    }
+
+    public void setUniform(String uniformName, SpotLight spotLight) {
+        setUniform(uniformName + ".pl", spotLight.getPointLight());
+        setUniform(uniformName + ".conedir", spotLight.getConeDirection());
+        uploadFloat(uniformName + ".cutoff", spotLight.getCutOff());
+    }
+
+    public void setUniform(String uniformName, PointLight pointLight) {
+        setUniform(uniformName + ".colour", pointLight.getColor());
+        setUniform(uniformName + ".position", pointLight.getPosition());
+        uploadFloat(uniformName + ".intensity", pointLight.getIntensity());
+        PointLight.Attenuation att = pointLight.getAttenuation();
+        uploadFloat(uniformName + ".att.constant", att.getConstant());
+        uploadFloat(uniformName + ".att.linear", att.getLinear());
+        uploadFloat(uniformName + ".att.exponent", att.getExponent());
     }
 }

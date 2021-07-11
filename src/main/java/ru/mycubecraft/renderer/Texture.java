@@ -9,9 +9,12 @@ import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.stb.STBImage.*;
 
 public class Texture {
+
     private String filepath;
     private transient int id;
     private int width, height;
+    private int numRows = 1;
+    private int numCols = 1;
 
     public Texture() {
         id = -1;
@@ -19,6 +22,12 @@ public class Texture {
         height = -1;
     }
 
+    /**
+     * Creates an empty texture.
+     *
+     * @param width Width of the texture
+     * @param height Height of the texture
+     */
     public Texture(int width, int height) {
         this.filepath = "Generated";
 

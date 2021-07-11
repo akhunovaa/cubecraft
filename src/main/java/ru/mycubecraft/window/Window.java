@@ -1,11 +1,15 @@
 package ru.mycubecraft.window;
 
+import org.joml.Vector3f;
 import org.lwjgl.Version;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.glfw.GLFWWindowSizeCallback;
 import org.lwjgl.opengl.GL;
 import ru.mycubecraft.data.Settings;
+import ru.mycubecraft.engine.SceneLight;
+import ru.mycubecraft.engine.SkyBox;
+import ru.mycubecraft.engine.graph.DirectionalLight;
 import ru.mycubecraft.listener.KeyboardListener;
 import ru.mycubecraft.listener.MouseListener;
 import ru.mycubecraft.scene.LevelEditorScene;
@@ -35,6 +39,7 @@ public class Window {
     private MouseListener mouseListener;
     private Scene currentScene;
     private boolean resized;
+    private final float skyBoxScale = 50.0f;
 
     private Window() {
         this.width = Settings.WIDTH;
@@ -132,6 +137,13 @@ public class Window {
         glfwSetInputMode(this.glfwWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
         this.changeScene(1);
+        try {
+            this.setupSkyBox();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        this.setupLights();
+        currentScene.init();
     }
 
     public void loop() {
@@ -174,6 +186,27 @@ public class Window {
             default:
                 throw new IllegalStateException("Scene for load is wrong!");
         }
+    }
+
+    public void setupSkyBox() throws Exception {
+
+        // Setup  SkyBox
+        SkyBox skyBox = new SkyBox("assets/models/skybox.obj", "assets/textures/skybox.png");
+        skyBox.setScale(skyBoxScale);
+        currentScene.setSkyBox(skyBox);
+    }
+
+    private void setupLights() {
+        SceneLight sceneLight = new SceneLight();
+        currentScene.setSceneLight(sceneLight);
+
+        // Ambient Light
+        sceneLight.setAmbientLight(new Vector3f(1.0f, 1.0f, 1.0f));
+
+        // Directional Light
+        float lightIntensity = 1.0f;
+        Vector3f lightPosition = new Vector3f(-1, 0, 0);
+        sceneLight.setDirectionalLight(new DirectionalLight(new Vector3f(1, 1, 1), lightPosition, lightIntensity));
     }
 
     public boolean isResized() {

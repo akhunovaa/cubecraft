@@ -3,12 +3,17 @@ package ru.mycubecraft.scene;
 import org.joml.Vector3f;
 import org.lwjgl.glfw.GLFW;
 import ru.mycubecraft.core.GameItem;
+import ru.mycubecraft.core.Mesh;
 import ru.mycubecraft.player.Player;
 import ru.mycubecraft.renderer.Camera;
 import ru.mycubecraft.renderer.Cube;
 import ru.mycubecraft.renderer.Renderer;
+import ru.mycubecraft.window.Window;
 import ru.mycubecraft.world.BasicGen;
 import ru.mycubecraft.world.World;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.lwjgl.glfw.GLFW.*;
 
@@ -24,13 +29,28 @@ public class LevelScene extends Scene {
         world = new World(new BasicGen(1));
 
         System.out.println("WORLD GEND");
-
         GameItem gameItem = new Cube(new Vector3f(1.0f, 1.0f, 1.0f), "assets/textures/dirt.png");
         gameItem.setPosition(0, 5, 0);
 
         gameItems.add(gameItem);
+        setGameItems(gameItems);
 
 
+    }
+
+    public void setGameItems(ArrayList<GameItem> gameItems) {
+        int numGameItems = gameItems != null ? gameItems.size() : 0;
+        for (int i=0; i< numGameItems; i++) {
+            GameItem gameItem = gameItems.get(0);
+            Mesh mesh = gameItem.getMesh();
+            List<GameItem> list = meshMap.computeIfAbsent(mesh, k -> new ArrayList<>());
+            list.add(gameItem);
+        }
+    }
+
+    @Override
+    public void init() {
+//        renderer.renderSkyBox(window, camera, this);
     }
 
     @Override
@@ -73,6 +93,8 @@ public class LevelScene extends Scene {
     public void render() {
         world.generate();
         renderer.render(window, gameItems, world, camera);
+        //renderer.renderScene(window, camera, this);
+        //renderer.renderSkyBox(window, camera, this);
     }
 
     @Override
@@ -83,4 +105,5 @@ public class LevelScene extends Scene {
             gameItem.getMesh().cleanUp();
         }
     }
+
 }

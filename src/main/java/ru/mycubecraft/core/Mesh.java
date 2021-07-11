@@ -1,12 +1,15 @@
 package ru.mycubecraft.core;
 
 import org.lwjgl.BufferUtils;
+import org.lwjgl.system.MemoryUtil;
+import ru.mycubecraft.engine.Material;
 import ru.mycubecraft.renderer.Texture;
 
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL13.GL_TEXTURE0;
@@ -23,10 +26,9 @@ public class Mesh {
 
     private final int vertexCount;
 
-    private final Texture texture;
+    private Material material;
 
-    public Mesh(float[] positions, float[] textCoords, int[] indices, Texture texture) {
-        this.texture = texture;
+    public Mesh(float[] positions, float[] textCoords, float[] normals, int[] indices) {
         vertexCount = indices.length;
         vboIdList = new ArrayList<>();
 
@@ -51,6 +53,16 @@ public class Mesh {
         glBufferData(GL_ARRAY_BUFFER, textCoordsBuffer, GL_STATIC_DRAW);
         glVertexAttribPointer(1, 2, GL_FLOAT, false, 0, 0);
 
+        // Vertex normals VBO
+        vboId = glGenBuffers();
+        vboIdList.add(vboId);
+        FloatBuffer vecNormalsBuffer = MemoryUtil.memAllocFloat(normals.length);
+        vecNormalsBuffer.put(normals).flip();
+        glBindBuffer(GL_ARRAY_BUFFER, vboId);
+        glBufferData(GL_ARRAY_BUFFER, vecNormalsBuffer, GL_STATIC_DRAW);
+        glEnableVertexAttribArray(2);
+        glVertexAttribPointer(2, 3, GL_FLOAT, false, 0, 0);
+
         // Index VBO
         vboId = glGenBuffers();
         vboIdList.add(vboId);
@@ -67,11 +79,46 @@ public class Mesh {
         return vaoId;
     }
 
+
     public int getVertexCount() {
         return vertexCount;
     }
 
+    public void renderList(List<GameItem> gameItems, Consumer<GameItem> consumer) {
+        initRender();
+
+        for (GameItem gameItem : gameItems) {
+            // Set up data required by GameItem
+            consumer.accept(gameItem);
+            // Render this game item
+            glDrawElements(GL_TRIANGLES, getVertexCount(), GL_UNSIGNED_INT, 0);
+        }
+
+        endRender();
+    }
+
+    private void initRender() {
+        Texture texture = material.getTexture();
+        if (texture != null) {
+            // Activate firs texture bank
+            glActiveTexture(GL_TEXTURE0);
+            // Bind the texture
+            glBindTexture(GL_TEXTURE_2D, texture.getId());
+        }
+
+        // Draw the mesh
+        glBindVertexArray(getVaoId());
+    }
+
+    private void endRender() {
+        // Restore state
+        glBindVertexArray(0);
+
+        glBindTexture(GL_TEXTURE_2D, 0);
+    }
+
     public void render() {
+        Texture texture = material.getTexture();
         // Activate firs texture bank
         glActiveTexture(GL_TEXTURE0);
         // Bind the texture
@@ -94,6 +141,15 @@ public class Mesh {
         glBindVertexArray(0);
     }
 
+    public Material getMaterial() {
+        return material;
+    }
+
+    public void setMaterial(Material material) {
+        this.material = material;
+    }
+
+
     public void cleanUp() {
         glDisableVertexAttribArray(0);
 
@@ -104,7 +160,10 @@ public class Mesh {
         }
 
         // Delete the texture
-        texture.cleanup();
+        Texture texture = material.getTexture();
+        if (texture != null) {
+            texture.cleanup();
+        }
 
         // Delete the VAO
         glBindVertexArray(0);
