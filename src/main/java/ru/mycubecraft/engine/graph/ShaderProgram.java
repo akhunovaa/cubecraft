@@ -10,7 +10,6 @@ import ru.mycubecraft.engine.graph.lights.PointLight;
 import ru.mycubecraft.engine.graph.lights.SpotLight;
 import ru.mycubecraft.engine.graph.weather.Fog;
 
-import java.io.IOException;
 import java.nio.FloatBuffer;
 import java.util.HashMap;
 import java.util.Map;
