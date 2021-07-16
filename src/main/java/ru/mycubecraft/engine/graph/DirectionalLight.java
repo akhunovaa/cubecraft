@@ -1,8 +1,8 @@
-package ru.mycubecraft.engine.graph.lights;
+package ru.mycubecraft.engine.graph;
 
 import org.joml.Vector3f;
 
-public class DirectionalLight implements Light {
+public class DirectionalLight {
     
     private Vector3f color;
 
@@ -42,20 +42,5 @@ public class DirectionalLight implements Light {
 
     public void setIntensity(float intensity) {
         this.intensity = intensity;
-    }
-    
-    public static class OrthoCoords {
-        
-        public float left;
-        
-        public float right;
-        
-        public float bottom;
-        
-        public float top;
-
-        public float near;
-        
-        public float far;
     }
 }

@@ -1,8 +1,8 @@
-package ru.mycubecraft.engine.graph.lights;
+package ru.mycubecraft.engine.graph;
 
 import org.joml.Vector3f;
 
-public class SpotLight implements Light {
+public class SpotLight {
 
     private PointLight pointLight;
 

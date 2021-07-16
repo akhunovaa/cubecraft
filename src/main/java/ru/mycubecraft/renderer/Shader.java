@@ -2,10 +2,10 @@ package ru.mycubecraft.renderer;
 
 import org.joml.*;
 import org.lwjgl.BufferUtils;
+import ru.mycubecraft.engine.graph.DirectionalLight;
 import ru.mycubecraft.engine.graph.Material;
-import ru.mycubecraft.engine.graph.lights.DirectionalLight;
-import ru.mycubecraft.engine.graph.lights.PointLight;
-import ru.mycubecraft.engine.graph.lights.SpotLight;
+import ru.mycubecraft.engine.graph.PointLight;
+import ru.mycubecraft.engine.graph.SpotLight;
 
 import java.io.IOException;
 import java.nio.FloatBuffer;
@@ -33,12 +33,12 @@ public class Shader {
 
             // Find the first pattern after #type 'pattern'
             int index = source.indexOf("#type") + 6;
-            int eol = source.indexOf("\r\n", index);
+            int eol = source.indexOf("\n", index);
             String firstPattern = source.substring(index, eol).trim();
 
             // Find the second pattern after #type 'pattern'
             index = source.indexOf("#type", eol) + 6;
-            eol = source.indexOf("\r\n", index);
+            eol = source.indexOf("\n", index);
             String secondPattern = source.substring(index, eol).trim();
 
             if (firstPattern.equals("vertex")) {

@@ -1,49 +1,52 @@
 package ru.mycubecraft.engine.graph;
 
 import org.lwjgl.system.MemoryUtil;
-import ru.mycubecraft.engine.items.GameItem;
+import ru.mycubecraft.engine.GameItem;
 
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.function.Consumer;
 
-import static org.lwjgl.opengl.GL11.*;
-import static org.lwjgl.opengl.GL13.*;
-import static org.lwjgl.opengl.GL15.*;
-import static org.lwjgl.opengl.GL20.*;
-import static org.lwjgl.opengl.GL30.*;
+import static org.lwjgl.opengl.ARBVertexArrayObject.glGenVertexArrays;
+import static org.lwjgl.opengl.GL11.GL_FLOAT;
+import static org.lwjgl.opengl.GL11.GL_TEXTURE_2D;
+import static org.lwjgl.opengl.GL11.GL_TRIANGLES;
+import static org.lwjgl.opengl.GL11.GL_UNSIGNED_INT;
+import static org.lwjgl.opengl.GL11.glBindTexture;
+import static org.lwjgl.opengl.GL11.glDrawElements;
+import static org.lwjgl.opengl.GL13.GL_TEXTURE0;
+import static org.lwjgl.opengl.GL13.glActiveTexture;
+import static org.lwjgl.opengl.GL15.GL_ARRAY_BUFFER;
+import static org.lwjgl.opengl.GL15.GL_ELEMENT_ARRAY_BUFFER;
+import static org.lwjgl.opengl.GL15.GL_STATIC_DRAW;
+import static org.lwjgl.opengl.GL15.glBindBuffer;
+import static org.lwjgl.opengl.GL15.glBufferData;
+import static org.lwjgl.opengl.GL15.glDeleteBuffers;
+import static org.lwjgl.opengl.GL15.glGenBuffers;
+import static org.lwjgl.opengl.GL20.glDisableVertexAttribArray;
+import static org.lwjgl.opengl.GL20.glEnableVertexAttribArray;
+import static org.lwjgl.opengl.GL20.glVertexAttribPointer;
+import static org.lwjgl.opengl.GL30.glBindVertexArray;
+import static org.lwjgl.opengl.GL40.glDeleteVertexArrays;
 
 public class Mesh {
 
-    public static final int MAX_WEIGHTS = 4;
+    private final int vaoId;
 
-    protected final int vaoId;
-
-    protected final List<Integer> vboIdList;
+    private final List<Integer> vboIdList;
 
     private final int vertexCount;
 
     private Material material;
 
-    private float boundingRadius;
-
     public Mesh(float[] positions, float[] textCoords, float[] normals, int[] indices) {
-        this(positions, textCoords, normals, indices, Mesh.createEmptyIntArray(Mesh.MAX_WEIGHTS * positions.length / 3, 0), Mesh.createEmptyFloatArray(Mesh.MAX_WEIGHTS * positions.length / 3, 0));
-    }
-
-    public Mesh(float[] positions, float[] textCoords, float[] normals, int[] indices, int[] jointIndices, float[] weights) {
         FloatBuffer posBuffer = null;
         FloatBuffer textCoordsBuffer = null;
         FloatBuffer vecNormalsBuffer = null;
-        FloatBuffer weightsBuffer = null;
-        IntBuffer jointIndicesBuffer = null;
         IntBuffer indicesBuffer = null;
         try {
-            calculateBoundingRadius(positions);
-
             vertexCount = indices.length;
             vboIdList = new ArrayList<>();
 
@@ -89,26 +92,6 @@ public class Mesh {
             glEnableVertexAttribArray(2);
             glVertexAttribPointer(2, 3, GL_FLOAT, false, 0, 0);
 
-            // Weights
-            vboId = glGenBuffers();
-            vboIdList.add(vboId);
-            weightsBuffer = MemoryUtil.memAllocFloat(weights.length);
-            weightsBuffer.put(weights).flip();
-            glBindBuffer(GL_ARRAY_BUFFER, vboId);
-            glBufferData(GL_ARRAY_BUFFER, weightsBuffer, GL_STATIC_DRAW);
-            glEnableVertexAttribArray(3);
-            glVertexAttribPointer(3, 4, GL_FLOAT, false, 0, 0);
-
-            // Joint indices
-            vboId = glGenBuffers();
-            vboIdList.add(vboId);
-            jointIndicesBuffer = MemoryUtil.memAllocInt(jointIndices.length);
-            jointIndicesBuffer.put(jointIndices).flip();
-            glBindBuffer(GL_ARRAY_BUFFER, vboId);
-            glBufferData(GL_ARRAY_BUFFER, jointIndicesBuffer, GL_STATIC_DRAW);
-            glEnableVertexAttribArray(4);
-            glVertexAttribPointer(4, 4, GL_FLOAT, false, 0, 0);
-
             // Index VBO
             vboId = glGenBuffers();
             vboIdList.add(vboId);
@@ -129,24 +112,9 @@ public class Mesh {
             if (vecNormalsBuffer != null) {
                 MemoryUtil.memFree(vecNormalsBuffer);
             }
-            if (weightsBuffer != null) {
-                MemoryUtil.memFree(weightsBuffer);
-            }
-            if (jointIndicesBuffer != null) {
-                MemoryUtil.memFree(jointIndicesBuffer);
-            }
             if (indicesBuffer != null) {
                 MemoryUtil.memFree(indicesBuffer);
             }
-        }
-    }
-
-    private void calculateBoundingRadius(float positions[]) {
-        int length = positions.length;
-        boundingRadius = 0;
-        for (int i = 0; i < length; i++) {
-            float pos = positions[i];
-            boundingRadius = Math.max(Math.abs(pos), boundingRadius);
         }
     }
 
@@ -158,7 +126,7 @@ public class Mesh {
         this.material = material;
     }
 
-    public final int getVaoId() {
+    public int getVaoId() {
         return vaoId;
     }
 
@@ -166,35 +134,20 @@ public class Mesh {
         return vertexCount;
     }
 
-    public float getBoundingRadius() {
-        return boundingRadius;
-    }
-
-    public void setBoundingRadius(float boundingRadius) {
-        this.boundingRadius = boundingRadius;
-    }
-
-    protected void initRender() {
-        Texture texture = material != null ? material.getTexture() : null;
+    private void initRender() {
+        Texture texture = material.getTexture();
         if (texture != null) {
-            // Activate first texture bank
+            // Activate firs texture bank
             glActiveTexture(GL_TEXTURE0);
             // Bind the texture
             glBindTexture(GL_TEXTURE_2D, texture.getId());
-        }
-        Texture normalMap = material != null ? material.getNormalMap() : null;
-        if (normalMap != null) {
-            // Activate second texture bank
-            glActiveTexture(GL_TEXTURE1);
-            // Bind the texture
-            glBindTexture(GL_TEXTURE_2D, normalMap.getId());
         }
 
         // Draw the mesh
         glBindVertexArray(getVaoId());
     }
 
-    protected void endRender() {
+    private void endRender() {
         // Restore state
         glBindVertexArray(0);
 
@@ -213,12 +166,10 @@ public class Mesh {
         initRender();
 
         for (GameItem gameItem : gameItems) {
-            if (gameItem.isInsideFrustum()) {
-                // Set up data required by GameItem
-                consumer.accept(gameItem);
-                // Render this game item
-                glDrawElements(GL_TRIANGLES, getVertexCount(), GL_UNSIGNED_INT, 0);
-            }
+            // Set up data required by GameItem
+            consumer.accept(gameItem);
+            // Render this game item
+            glDrawElements(GL_TRIANGLES, getVertexCount(), GL_UNSIGNED_INT, 0);
         }
 
         endRender();
@@ -255,17 +206,4 @@ public class Mesh {
         glBindVertexArray(0);
         glDeleteVertexArrays(vaoId);
     }
-
-    protected static float[] createEmptyFloatArray(int length, float defaultValue) {
-        float[] result = new float[length];
-        Arrays.fill(result, defaultValue);
-        return result;
-    }
-
-    protected static int[] createEmptyIntArray(int length, int defaultValue) {
-        int[] result = new int[length];
-        Arrays.fill(result, defaultValue);
-        return result;
-    }
-
 }

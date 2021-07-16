@@ -1,6 +1,9 @@
 package ru.mycubecraft.engine;
 
-import ru.mycubecraft.Settings;
+import org.lwjgl.Version;
+import org.lwjgl.glfw.GLFWWindowSizeCallback;
+
+import static org.lwjgl.glfw.GLFW.*;
 
 public class GameEngine implements Runnable {
 
@@ -16,19 +19,8 @@ public class GameEngine implements Runnable {
 
     private final MouseInput mouseInput;
 
-    private double lastFps;
-    
-    private int fps;
-    
-    private String windowTitle;
-    
-    public GameEngine(String windowTitle, boolean vSync, Window.WindowOptions opts, IGameLogic gameLogic) throws Exception {
-        this(windowTitle, Settings.WIDTH, Settings.HEIGHT, vSync, opts, gameLogic);
-    }
-
-    public GameEngine(String windowTitle, int width, int height, boolean vSync, Window.WindowOptions opts, IGameLogic gameLogic) throws Exception {
-        this.windowTitle = windowTitle;
-        window = new Window(windowTitle, width, height, vSync, opts);
+    public GameEngine(String windowTitle, int width, int height, boolean vSync, IGameLogic gameLogic) throws Exception {
+        window = new Window(windowTitle, width, height, vSync);
         mouseInput = new MouseInput();
         this.gameLogic = gameLogic;
         timer = new Timer();
@@ -36,11 +28,12 @@ public class GameEngine implements Runnable {
 
     @Override
     public void run() {
+        System.out.printf("LWJGL version %s%n", Version.getVersion());
         try {
             init();
             gameLoop();
-        } catch (Exception excp) {
-            excp.printStackTrace();
+        } catch (Exception exception) {
+            exception.printStackTrace();
         } finally {
             cleanup();
         }
@@ -51,17 +44,16 @@ public class GameEngine implements Runnable {
         timer.init();
         mouseInput.init(window);
         gameLogic.init(window);
-        lastFps = timer.getTime();
-        fps = 0;
     }
 
     protected void gameLoop() {
         float elapsedTime;
         float accumulator = 0f;
         float interval = 1f / TARGET_UPS;
-
+        glfwPollEvents();
+        glfwSwapBuffers(window.getWindowHandle());
         boolean running = true;
-        while (running && !window.windowShouldClose()) {
+        while (!window.windowShouldClose()) {
             elapsedTime = timer.getElapsedTime();
             accumulator += elapsedTime;
 
@@ -74,14 +66,13 @@ public class GameEngine implements Runnable {
 
             render();
 
-            if ( !window.isvSync() ) {
                 sync();
-            }
+
         }
     }
 
     protected void cleanup() {
-        gameLogic.cleanup();
+        gameLogic.cleanup(window);
     }
     
     private void sync() {
@@ -101,18 +92,11 @@ public class GameEngine implements Runnable {
     }
 
     protected void update(float interval) {
-        gameLogic.update(interval, mouseInput, window);
+        gameLogic.update(interval, mouseInput);
     }
 
     protected void render() {
-        if ( window.getWindowOptions().showFps && timer.getLastLoopTime() - lastFps > 1 ) {
-            lastFps = timer.getLastLoopTime();
-            window.setWindowTitle(windowTitle + " - " + fps + " FPS");
-            fps = 0;
-        }
-        fps++;
         gameLogic.render(window);
-        window.update();
+        //window.update();
     }
-
 }

@@ -9,8 +9,7 @@ import org.lwjgl.opengl.GL;
 import ru.mycubecraft.Settings;
 import ru.mycubecraft.engine.SceneLight;
 
-import ru.mycubecraft.engine.graph.lights.DirectionalLight;
-import ru.mycubecraft.engine.items.SkyBox;
+import ru.mycubecraft.engine.graph.DirectionalLight;
 import ru.mycubecraft.listener.KeyboardListener;
 import ru.mycubecraft.listener.MouseListener;
 import ru.mycubecraft.scene.LevelEditorScene;
@@ -135,14 +134,9 @@ public class Window {
         glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
         glEnable(GL_CULL_FACE);
         glCullFace(GL_BACK);
-        glfwSetInputMode(this.glfwWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+        //glfwSetInputMode(this.glfwWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
         this.changeScene(1);
-        try {
-            this.setupSkyBox();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
         this.setupLights();
         currentScene.init();
     }
@@ -187,14 +181,6 @@ public class Window {
             default:
                 throw new IllegalStateException("Scene for load is wrong!");
         }
-    }
-
-    public void setupSkyBox() throws Exception {
-
-        // Setup  SkyBox
-        SkyBox skyBox = new SkyBox("assets/models/skybox.obj", "assets/textures/skybox.png");
-        skyBox.setScale(skyBoxScale);
-        currentScene.setSkyBox(skyBox);
     }
 
     private void setupLights() {

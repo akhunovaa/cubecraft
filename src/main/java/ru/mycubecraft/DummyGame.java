@@ -2,19 +2,14 @@ package ru.mycubecraft;
 
 import org.joml.Vector2f;
 import org.joml.Vector3f;
-import org.joml.Vector4f;
-
 import ru.mycubecraft.engine.*;
-import ru.mycubecraft.engine.graph.Camera;
-import ru.mycubecraft.engine.graph.Mesh;
-import ru.mycubecraft.engine.graph.Renderer;
-import ru.mycubecraft.engine.graph.lights.DirectionalLight;
-import ru.mycubecraft.engine.graph.lights.PointLight;
-import ru.mycubecraft.engine.graph.weather.Fog;
-import ru.mycubecraft.engine.items.GameItem;
-import ru.mycubecraft.engine.items.SkyBox;
-import ru.mycubecraft.engine.loaders.assimp.StaticMeshesLoader;
+import ru.mycubecraft.engine.graph.*;
 
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+
+import static org.lwjgl.glfw.Callbacks.glfwFreeCallbacks;
 import static org.lwjgl.glfw.GLFW.*;
 
 public class DummyGame implements IGameLogic {
@@ -29,25 +24,17 @@ public class DummyGame implements IGameLogic {
 
     private Scene scene;
 
-    private static final float CAMERA_POS_STEP = 0.40f;
-
-    private float angleInc;
+    private Hud hud;
 
     private float lightAngle;
 
-    private boolean firstTime;
-
-    private boolean sceneChanged;
-
-    private Vector3f pointLightPos;
+    private static final float CAMERA_POS_STEP = 0.05f;
 
     public DummyGame() {
         renderer = new Renderer();
         camera = new Camera();
         cameraInc = new Vector3f(0.0f, 0.0f, 0.0f);
-        angleInc = 0;
-        lightAngle = 90;
-        firstTime = true;
+        lightAngle = -90;
     }
 
     @Override
@@ -55,145 +42,163 @@ public class DummyGame implements IGameLogic {
         renderer.init(window);
 
         scene = new Scene();
-
-        Mesh[] houseMesh = StaticMeshesLoader.load("assets/models/house/house.obj", "assets/models/house");
-        GameItem house = new GameItem(houseMesh);
-
-        Mesh[] terrainMesh = StaticMeshesLoader.load("assets/models/terrain/terrain.obj", "assets/models/terrain");
-        GameItem terrain = new GameItem(terrainMesh);
-        terrain.setScale(100.0f);
-
-        scene.setGameItems(new GameItem[]{house, terrain});
-
-        // Shadows
-        scene.setRenderShadows(true);
-
-        // Fog
-        Vector3f fogColour = new Vector3f(0.5f, 0.5f, 0.5f);
-        scene.setFog(new Fog(true, fogColour, 0.02f));
+        
+        // Setup  GameItems
+        float reflectance = 1f;
+        Mesh mesh = OBJLoader.loadMesh("assets/models/cube.obj");
+        Texture texture = new Texture("assets/textures/grassblock.png");
+        Material material = new Material(texture, reflectance);
+        mesh.setMaterial(material);
+        
+        float blockScale = 0.5f;        
+        float skyBoxScale = 50.0f;
+        float extension = 2.0f;
+        
+        float startx = extension * (-skyBoxScale + blockScale);
+        float startz = extension * (skyBoxScale - blockScale);
+        float starty = -1.0f;
+        float inc = blockScale * 2;
+        
+        float posx = startx;
+        float posz = startz;
+        float incy = 0.0f;
+        int NUM_ROWS = (int)(extension * skyBoxScale * 2 / inc);
+        int NUM_COLS = (int)(extension * skyBoxScale * 2/ inc);
+        GameItem[] gameItems  = new GameItem[NUM_ROWS * NUM_COLS];
+        for(int i=0; i<NUM_ROWS; i++) {
+            for(int j=0; j<NUM_COLS; j++) {
+                GameItem gameItem = new GameItem(mesh);
+                gameItem.setScale(blockScale);
+                incy = Math.random() > 0.9f ? blockScale * 2 : 0f;
+                gameItem.setPosition(posx, starty + incy, posz);
+                gameItems[i*NUM_COLS + j] = gameItem;
+                
+                posx += inc;
+            }
+            posx = startx;
+            posz -= inc;
+        }
+        scene.setGameItems(gameItems);
 
         // Setup  SkyBox
-        float skyBoxScale = 100.0f;
-        SkyBox skyBox = new SkyBox("assets/models/skybox.obj", new Vector4f(0.65f, 0.65f, 0.65f, 1.0f));
+        SkyBox skyBox = new SkyBox("assets/models/skybox.obj", "assets/textures/skybox.png");
         skyBox.setScale(skyBoxScale);
         scene.setSkyBox(skyBox);
-
+        
         // Setup Lights
         setupLights();
-
-        camera.getPosition().x = -17.0f;
-        camera.getPosition().y =  17.0f;
-        camera.getPosition().z = -30.0f;
-        camera.getRotation().x = 20.0f;
-        camera.getRotation().y = 140.f;
+        
+        // Create HUD
+        hud = new Hud("DEMO");
+        
+        camera.getPosition().x = 0.65f;
+        camera.getPosition().y = 1.15f;
+        camera.getPosition().y = 4.34f;
     }
-
+    
     private void setupLights() {
         SceneLight sceneLight = new SceneLight();
         scene.setSceneLight(sceneLight);
 
         // Ambient Light
-        sceneLight.setAmbientLight(new Vector3f(0.3f, 0.3f, 0.3f));
-        sceneLight.setSkyBoxLight(new Vector3f(1.0f, 1.0f, 1.0f));
+        sceneLight.setAmbientLight(new Vector3f(1.0f, 1.0f, 1.0f));
 
         // Directional Light
         float lightIntensity = 1.0f;
-        Vector3f lightDirection = new Vector3f(0, 1, 1);
-        DirectionalLight directionalLight = new DirectionalLight(new Vector3f(1, 1, 1), lightDirection, lightIntensity);
-        sceneLight.setDirectionalLight(directionalLight);
-
-        pointLightPos = new Vector3f(0.0f, 25.0f, 0.0f);
-        Vector3f pointLightColour = new Vector3f(0.0f, 1.0f, 0.0f);
-        PointLight.Attenuation attenuation = new PointLight.Attenuation(1, 0.0f, 0);
-        PointLight pointLight = new PointLight(pointLightColour, pointLightPos, lightIntensity, attenuation);
-        sceneLight.setPointLightList( new PointLight[] {pointLight});
+        Vector3f lightPosition = new Vector3f(-1, 0, 0);
+        sceneLight.setDirectionalLight(new DirectionalLight(new Vector3f(1, 1, 1), lightPosition, lightIntensity));
     }
 
     @Override
     public void input(Window window, MouseInput mouseInput) {
-        sceneChanged = false;
         cameraInc.set(0, 0, 0);
         if (window.isKeyPressed(GLFW_KEY_W)) {
-            sceneChanged = true;
+            System.out.println("GLFW_KEY_W");
             cameraInc.z = -1;
         } else if (window.isKeyPressed(GLFW_KEY_S)) {
-            sceneChanged = true;
+            System.out.println("GLFW_KEY_S");
             cameraInc.z = 1;
         }
         if (window.isKeyPressed(GLFW_KEY_A)) {
-            sceneChanged = true;
+            System.out.println("GLFW_KEY_A");
             cameraInc.x = -1;
         } else if (window.isKeyPressed(GLFW_KEY_D)) {
-            sceneChanged = true;
+            System.out.println("GLFW_KEY_D");
             cameraInc.x = 1;
         }
         if (window.isKeyPressed(GLFW_KEY_Z)) {
-            sceneChanged = true;
+            System.out.println("GLFW_KEY_Z");
             cameraInc.y = -1;
         } else if (window.isKeyPressed(GLFW_KEY_X)) {
-            sceneChanged = true;
+            System.out.println("GLFW_KEY_X");
             cameraInc.y = 1;
-        }
-        if (window.isKeyPressed(GLFW_KEY_LEFT)) {
-            sceneChanged = true;
-            angleInc -= 0.05f;
-        } else if (window.isKeyPressed(GLFW_KEY_RIGHT)) {
-            sceneChanged = true;
-            angleInc += 0.05f;
-        } else {
-            angleInc = 0;
-        }
-        if (window.isKeyPressed(GLFW_KEY_UP)) {
-            sceneChanged = true;
-            pointLightPos.y += 0.5f;
-        } else if (window.isKeyPressed(GLFW_KEY_DOWN)) {
-            sceneChanged = true;
-            pointLightPos.y -= 0.5f;
         }
     }
 
     @Override
-    public void update(float interval, MouseInput mouseInput, Window window) {
-           // Update camera based on mouse
+    public void update(float interval, MouseInput mouseInput) {
+
+
+        // Update camera based on mouse            
+        if (mouseInput.isRightButtonPressed()) {
             Vector2f rotVec = mouseInput.getDisplVec();
             camera.moveRotation(rotVec.x * MOUSE_SENSITIVITY, rotVec.y * MOUSE_SENSITIVITY, 0);
-            sceneChanged = true;
-
+            
+            // Update HUD compass
+            hud.rotateCompass(camera.getRotation().y);
+        }
 
         // Update camera position
         camera.movePosition(cameraInc.x * CAMERA_POS_STEP, cameraInc.y * CAMERA_POS_STEP, cameraInc.z * CAMERA_POS_STEP);
 
-        lightAngle += angleInc;
-        if (lightAngle < 0) {
-            lightAngle = 0;
-        } else if (lightAngle > 180) {
-            lightAngle = 180;
-        }
-        float zValue = (float) Math.cos(Math.toRadians(lightAngle));
-        float yValue = (float) Math.sin(Math.toRadians(lightAngle));
-        Vector3f lightDirection = this.scene.getSceneLight().getDirectionalLight().getDirection();
-        lightDirection.x = 0;
-        lightDirection.y = yValue;
-        lightDirection.z = zValue;
-        lightDirection.normalize();
+        SceneLight sceneLight = scene.getSceneLight();
 
-        // Update view matrix
-        camera.updateViewMatrix();
+        // Update directional light direction, intensity and colour
+        DirectionalLight directionalLight = sceneLight.getDirectionalLight();
+        lightAngle += 1.1f;
+        if (lightAngle > 90) {
+            directionalLight.setIntensity(0);
+            if (lightAngle >= 360) {
+                lightAngle = -90;
+            }
+            sceneLight.getAmbientLight().set(0.3f, 0.3f, 0.4f);
+        } else if (lightAngle <= -80 || lightAngle >= 80) {
+            float factor = 1 - (float) (Math.abs(lightAngle) - 80) / 10.0f;
+            sceneLight.getAmbientLight().set(factor, factor, factor);
+            directionalLight.setIntensity(factor);
+            directionalLight.getColor().y = Math.max(factor, 0.9f);
+            directionalLight.getColor().z = Math.max(factor, 0.5f);
+        } else {
+            sceneLight.getAmbientLight().set(1, 1, 1);
+            directionalLight.setIntensity(1);
+            directionalLight.getColor().x = 1;
+            directionalLight.getColor().y = 1;
+            directionalLight.getColor().z = 1;
+        }
+        double angRad = Math.toRadians(lightAngle);
+        directionalLight.getDirection().x = (float) Math.sin(angRad);
+        directionalLight.getDirection().y = (float) Math.cos(angRad);
     }
 
     @Override
     public void render(Window window) {
-        if (firstTime) {
-            sceneChanged = true;
-            firstTime = false;
-        }
-        renderer.render(window, camera, scene, sceneChanged);
+        hud.updateSize(window);
+        renderer.render(window, camera, scene, hud);
     }
 
     @Override
-    public void cleanup() {
+    public void cleanup(Window window) {
+        // Free the memory after the loop exists
+        glfwFreeCallbacks(window.getWindowHandle());
+        glfwDestroyWindow(window.getWindowHandle());
         renderer.cleanup();
-
-        scene.cleanup();
+        Map<Mesh, List<GameItem>> mapMeshes = scene.getGameMeshes();
+        for (Mesh mesh : mapMeshes.keySet()) {
+            mesh.cleanUp();
+        }
+        hud.cleanup();
+        // Terminate GLFW and the free the error callback
+        glfwTerminate();
+        Objects.requireNonNull(glfwSetErrorCallback(null)).free();
     }
 }

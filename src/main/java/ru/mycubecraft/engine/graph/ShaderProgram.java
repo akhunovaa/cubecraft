@@ -1,16 +1,10 @@
 package ru.mycubecraft.engine.graph;
 
 import org.joml.Matrix4f;
-import org.joml.Vector2f;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
 import org.lwjgl.system.MemoryStack;
-import ru.mycubecraft.engine.graph.lights.DirectionalLight;
-import ru.mycubecraft.engine.graph.lights.PointLight;
-import ru.mycubecraft.engine.graph.lights.SpotLight;
-import ru.mycubecraft.engine.graph.weather.Fog;
 
-import java.nio.FloatBuffer;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -23,8 +17,6 @@ public class ShaderProgram {
     private int vertexShaderId;
 
     private int fragmentShaderId;
-
-    private int geometryShaderId;
 
     private final Map<String, Integer> uniforms;
 
@@ -42,12 +34,6 @@ public class ShaderProgram {
             throw new Exception("Could not find uniform:" + uniformName);
         }
         uniforms.put(uniformName, uniformLocation);
-    }
-
-    public void createUniform(String uniformName, int size) throws Exception {
-        for (int i=0; i<size; i++) {
-            createUniform(uniformName + "[" + i + "]");
-        }
     }
 
     public void createPointLightListUniform(String uniformName, int size) throws Exception {
@@ -84,17 +70,11 @@ public class ShaderProgram {
     }
 
     public void createMaterialUniform(String uniformName) throws Exception {
+        createUniform(uniformName + ".ambient");
         createUniform(uniformName + ".diffuse");
         createUniform(uniformName + ".specular");
         createUniform(uniformName + ".hasTexture");
-        createUniform(uniformName + ".hasNormalMap");
         createUniform(uniformName + ".reflectance");
-    }
-
-    public void createFogUniform(String uniformName) throws Exception {
-        createUniform(uniformName + ".activeFog");
-        createUniform(uniformName + ".colour");
-        createUniform(uniformName + ".density");
     }
 
     public void setUniform(String uniformName, Matrix4f value) {
@@ -105,39 +85,12 @@ public class ShaderProgram {
         }
     }
 
-    public void setUniform(String uniformName, Matrix4f value, int index) {
-        setUniform(uniformName + "[" + index  + "]", value);
-    }
-
-    public void setUniform(String uniformName, Matrix4f[] matrices) {
-        try (MemoryStack stack = MemoryStack.stackPush()) {
-            int length = matrices != null ? matrices.length : 0;
-            FloatBuffer fb = stack.mallocFloat(16 * length);
-            for (int i = 0; i < length; i++) {
-                matrices[i].get(16 * i, fb);
-            }
-            glUniformMatrix4fv(uniforms.get(uniformName), false, fb);
-        }
-    }
-
     public void setUniform(String uniformName, int value) {
         glUniform1i(uniforms.get(uniformName), value);
     }
 
     public void setUniform(String uniformName, float value) {
         glUniform1f(uniforms.get(uniformName), value);
-    }
-
-    public void setUniform(String uniformName, float value, int index) {
-        setUniform(uniformName + "[" + index  + "]", value);
-    }
-
-    public void setUniform(String uniformName, float x, float y) {
-        glUniform2f(uniforms.get(uniformName), x, y);
-    }
-
-    public void setUniform(String uniformName, Vector2f value) {
-        glUniform2f(uniforms.get(uniformName), value.x, value.y);
     }
 
     public void setUniform(String uniformName, Vector3f value) {
@@ -193,28 +146,18 @@ public class ShaderProgram {
     }
 
     public void setUniform(String uniformName, Material material) {
+        setUniform(uniformName + ".ambient", material.getAmbientColour());
         setUniform(uniformName + ".diffuse", material.getDiffuseColour());
         setUniform(uniformName + ".specular", material.getSpecularColour());
         setUniform(uniformName + ".hasTexture", material.isTextured() ? 1 : 0);
-        setUniform(uniformName + ".hasNormalMap", material.hasNormalMap() ? 1 : 0);
         setUniform(uniformName + ".reflectance", material.getReflectance());
     }
 
-    public void setUniform(String uniformName, Fog fog) {
-        setUniform(uniformName + ".activeFog", fog.isActive() ? 1 : 0);
-        setUniform(uniformName + ".colour", fog.getColour());
-        setUniform(uniformName + ".density", fog.getDensity());
-    }
-
     public void createVertexShader(String shaderCode) throws Exception {
-        String[] splitString = shaderCode.split("(#type)( )+([a-zA-Z]+)");
-        shaderCode = splitString[1];
         vertexShaderId = createShader(shaderCode, GL_VERTEX_SHADER);
     }
 
     public void createFragmentShader(String shaderCode) throws Exception {
-        String[] splitString = shaderCode.split("(#type)( )+([a-zA-Z]+)");
-        shaderCode = splitString[2];
         fragmentShaderId = createShader(shaderCode, GL_FRAGMENT_SHADER);
     }
 
@@ -245,23 +188,13 @@ public class ShaderProgram {
         if (vertexShaderId != 0) {
             glDetachShader(programId, vertexShaderId);
         }
-        if (geometryShaderId != 0) {
-            glDetachShader(programId, geometryShaderId);
-        }
         if (fragmentShaderId != 0) {
             glDetachShader(programId, fragmentShaderId);
         }
 
-        //glValidateProgram(programId);
-//        if (glGetProgrami(programId, GL_VALIDATE_STATUS) == 0) {
-//            System.err.println("Warning validating Shader code: " + glGetProgramInfoLog(programId, 1024));
-//        }
-        // Check for linking errors
-        int success = glGetProgrami(programId, GL_LINK_STATUS);
-        if (success == GL_FALSE) {
-            int len = glGetProgrami(programId, GL_INFO_LOG_LENGTH);
-            System.out.println(glGetProgramInfoLog(programId, len));
-            assert false : "";
+        glValidateProgram(programId);
+        if (glGetProgrami(programId, GL_VALIDATE_STATUS) == 0) {
+            System.err.println("Warning validating Shader code: " + glGetProgramInfoLog(programId, 1024));
         }
     }
 

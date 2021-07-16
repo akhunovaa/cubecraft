@@ -4,7 +4,6 @@ import ru.mycubecraft.core.GameItem;
 import ru.mycubecraft.core.Mesh;
 import ru.mycubecraft.engine.SceneLight;
 import ru.mycubecraft.engine.graph.Camera;
-import ru.mycubecraft.engine.items.SkyBox;
 import ru.mycubecraft.listener.KeyboardListener;
 import ru.mycubecraft.listener.MouseListener;
 import ru.mycubecraft.renderer.Renderer;
@@ -20,7 +19,6 @@ public abstract class Scene {
 
     public World world;
     protected Window window = Window.getInstance();
-    protected SkyBox skyBox;
     protected SceneLight sceneLight;
     protected Renderer renderer;
     protected Camera camera;
@@ -38,14 +36,6 @@ public abstract class Scene {
     public abstract void render();
 
     public abstract void cleanup();
-
-    public SkyBox getSkyBox() {
-        return skyBox;
-    }
-
-    public void setSkyBox(SkyBox skyBox) {
-        this.skyBox = skyBox;
-    }
 
     public SceneLight getSceneLight() {
         return sceneLight;

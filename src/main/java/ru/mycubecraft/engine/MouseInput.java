@@ -43,10 +43,6 @@ public class MouseInput {
         return displVec;
     }
 
-    public Vector2d getCurrentPos() {
-        return currentPos;        
-    }
-    
     public void input(Window window) {
         displVec.x = 0;
         displVec.y = 0;
@@ -64,9 +60,6 @@ public class MouseInput {
         }
         previousPos.x = currentPos.x;
         previousPos.y = currentPos.y;
-
-//        System.out.println("previousPos.x: " + previousPos.x);
-//        System.out.println("previousPos.y: " + previousPos.y);
     }
 
     public boolean isLeftButtonPressed() {

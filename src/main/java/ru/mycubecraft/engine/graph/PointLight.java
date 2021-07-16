@@ -1,4 +1,4 @@
-package ru.mycubecraft.engine.graph.lights;
+package ru.mycubecraft.engine.graph;
 
 import org.joml.Vector3f;
 

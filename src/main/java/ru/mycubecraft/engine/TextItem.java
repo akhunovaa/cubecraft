@@ -1,6 +1,5 @@
-package ru.mycubecraft.engine.items;
+package ru.mycubecraft.engine;
 
-import ru.mycubecraft.engine.Utils;
 import ru.mycubecraft.engine.graph.FontTexture;
 import ru.mycubecraft.engine.graph.Material;
 import ru.mycubecraft.engine.graph.Mesh;
