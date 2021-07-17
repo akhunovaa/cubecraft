@@ -62,7 +62,6 @@ public class GameItem implements RenderObject {
     @Override
     public void render() {
         mesh.render();
-
     }
 
     @Override

@@ -97,9 +97,12 @@ public class LevelScene extends Scene {
     @Override
     public void render() {
         world.generate();
-        renderer.render(window, gameItems, world, camera);
+        skyBox.setScale(100);
+
+        renderer.render(window, gameItems, world, camera, skyBox);
+
         //renderer.renderScene(window, camera, this);
-        //renderer.renderSkyBox(window, camera, skyBox, sceneLight);
+
     }
 
     @Override

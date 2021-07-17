@@ -20,25 +20,17 @@ public class Transformation {
         this.modelViewMatrix = new Matrix4f();
     }
 
-    public final Matrix4f getProjectionMatrix(float width, float height) {
-        float aspectRatio = width / height;
-        this.projectionMatrix.identity();
-        this.projectionMatrix.perspective(Settings.FOV, aspectRatio, Settings.Z_NEAR, Settings.Z_FAR);
-
-        return this.projectionMatrix;
+    public Matrix4f updateProjectionMatrix(float width, float height) {
+        projectionMatrix.identity();
+        return projectionMatrix.setPerspective(Settings.FOV, width / height, Settings.Z_NEAR, Settings.Z_FAR);
     }
 
-    public Matrix4f getModelMatrix(Vector3f offset, Vector3f rotation, float scale) {
-        this.modelMatrix.identity()
-                .translate(offset)
-                .rotateX((float) Math.toRadians(rotation.x))
-                .rotateY((float) Math.toRadians(rotation.y))
-                .rotateZ((float) Math.toRadians(rotation.z))
-                .scale(scale);
-        return this.modelMatrix;
+    public Matrix4f getProjectionMatrix() {
+        return projectionMatrix;
     }
 
-    public Matrix4f getViewMatrix(Camera camera) {
+
+    public Matrix4f updateViewMatrix(Camera camera) {
         Vector4f cameraPos = camera.getPosition();
         Vector3f rotation = camera.getRotation();
 
@@ -51,13 +43,28 @@ public class Transformation {
         return viewMatrix;
     }
 
+    public Matrix4f getViewMatrix() {
+        return viewMatrix;
+    }
+
+    public Matrix4f getModelMatrix(Vector3f offset, Vector3f rotation, float scale) {
+        this.modelMatrix.identity()
+                .translate(offset)
+                .rotateX((float) Math.toRadians(rotation.x))
+                .rotateY((float) Math.toRadians(rotation.y))
+                .rotateZ((float) Math.toRadians(rotation.z))
+                .scale(scale);
+        return this.modelMatrix;
+    }
+
     public Matrix4f buildModelViewMatrix(GameItem gameItem, Matrix4f viewMatrix) {
         Vector3f rotation = gameItem.getRotation();
-        modelMatrix.identity().translate(gameItem.getPosition()).
-                rotateX((float)Math.toRadians(-rotation.x)).
-                rotateY((float)Math.toRadians(-rotation.y)).
-                rotateZ((float)Math.toRadians(-rotation.z)).
-                scale(gameItem.getScale());
+        modelMatrix.identity()
+                .translate(gameItem.getPosition())
+                .rotateX((float)Math.toRadians(rotation.x))
+                .rotateY((float)Math.toRadians(rotation.y))
+                .rotateZ((float)Math.toRadians(rotation.z))
+                .scale(gameItem.getScale());
         modelViewMatrix.set(viewMatrix);
         return modelViewMatrix.mul(modelMatrix);
     }

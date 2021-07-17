@@ -14,7 +14,7 @@ public class SkyBox extends GameItem {
         Texture skyBoxTexture = AssetPool.getTexture(textureFile);
         skyBoxMesh.setMaterial(new Material(skyBoxTexture, 0.0f));
         setMesh(skyBoxMesh);
-        setPosition(2f, 15f, 0.0f);
-        setRotation(90.0f, 0.0f, 0.0f);
+        setPosition(0, 0, 0);
     }
+
 }

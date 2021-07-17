@@ -1,6 +1,5 @@
 package ru.mycubecraft.core;
 
-import org.lwjgl.BufferUtils;
 import org.lwjgl.system.MemoryUtil;
 import ru.mycubecraft.engine.Material;
 import ru.mycubecraft.renderer.Texture;
@@ -29,50 +28,76 @@ public class Mesh {
     private Material material;
 
     public Mesh(float[] positions, float[] textCoords, float[] normals, int[] indices) {
-        vertexCount = indices.length;
-        vboIdList = new ArrayList<>();
+        FloatBuffer posBuffer = null;
+        FloatBuffer textCoordsBuffer = null;
+        FloatBuffer vecNormalsBuffer = null;
+        IntBuffer indicesBuffer = null;
+        try {
+            vertexCount = indices.length;
+            vboIdList = new ArrayList<>();
 
-        vaoId = glGenVertexArrays();
-        glBindVertexArray(vaoId);
+            vaoId = glGenVertexArrays();
+            glBindVertexArray(vaoId);
 
-        // Position VBO
-        int vboId = glGenBuffers();
-        vboIdList.add(vboId);
-        FloatBuffer posBuffer = BufferUtils.createFloatBuffer(positions.length);
-        posBuffer.put(positions).flip();
-        glBindBuffer(GL_ARRAY_BUFFER, vboId);
-        glBufferData(GL_ARRAY_BUFFER, posBuffer, GL_STATIC_DRAW);
-        glVertexAttribPointer(0, 3, GL_FLOAT, false, 0, 0);
+            // Position VBO
+            int vboId = glGenBuffers();
+            vboIdList.add(vboId);
+            posBuffer = MemoryUtil.memAllocFloat(positions.length);
+            posBuffer.put(positions).flip();
+            glBindBuffer(GL_ARRAY_BUFFER, vboId);
+            glBufferData(GL_ARRAY_BUFFER, posBuffer, GL_STATIC_DRAW);
+            glEnableVertexAttribArray(0);
+            glVertexAttribPointer(0, 3, GL_FLOAT, false, 0, 0);
 
-        // Texture coordinates VBO
-        vboId = glGenBuffers();
-        vboIdList.add(vboId);
-        FloatBuffer textCoordsBuffer = BufferUtils.createFloatBuffer(textCoords.length);
-        textCoordsBuffer.put(textCoords).flip();
-        glBindBuffer(GL_ARRAY_BUFFER, vboId);
-        glBufferData(GL_ARRAY_BUFFER, textCoordsBuffer, GL_STATIC_DRAW);
-        glVertexAttribPointer(1, 2, GL_FLOAT, false, 0, 0);
+            // Texture coordinates VBO
+            vboId = glGenBuffers();
+            vboIdList.add(vboId);
+            textCoordsBuffer = MemoryUtil.memAllocFloat(textCoords.length);
+            textCoordsBuffer.put(textCoords).flip();
+            glBindBuffer(GL_ARRAY_BUFFER, vboId);
+            glBufferData(GL_ARRAY_BUFFER, textCoordsBuffer, GL_STATIC_DRAW);
+            glEnableVertexAttribArray(1);
+            glVertexAttribPointer(1, 2, GL_FLOAT, false, 0, 0);
 
-        // Vertex normals VBO
-        vboId = glGenBuffers();
-        vboIdList.add(vboId);
-        FloatBuffer vecNormalsBuffer = MemoryUtil.memAllocFloat(normals.length);
-        vecNormalsBuffer.put(normals).flip();
-        glBindBuffer(GL_ARRAY_BUFFER, vboId);
-        glBufferData(GL_ARRAY_BUFFER, vecNormalsBuffer, GL_STATIC_DRAW);
-        glEnableVertexAttribArray(2);
-        glVertexAttribPointer(2, 3, GL_FLOAT, false, 0, 0);
+            // Vertex normals VBO
+            vboId = glGenBuffers();
+            vboIdList.add(vboId);
+            vecNormalsBuffer = MemoryUtil.memAllocFloat(normals.length);
+            if (vecNormalsBuffer.capacity() > 0) {
+                vecNormalsBuffer.put(normals).flip();
+            } else {
+                // Create empty structure
+                vecNormalsBuffer = MemoryUtil.memAllocFloat(positions.length);
+            }
+            glBindBuffer(GL_ARRAY_BUFFER, vboId);
+            glBufferData(GL_ARRAY_BUFFER, vecNormalsBuffer, GL_STATIC_DRAW);
+            glEnableVertexAttribArray(2);
+            glVertexAttribPointer(2, 3, GL_FLOAT, false, 0, 0);
 
-        // Index VBO
-        vboId = glGenBuffers();
-        vboIdList.add(vboId);
-        IntBuffer indicesBuffer = BufferUtils.createIntBuffer(indices.length);
-        indicesBuffer.put(indices).flip();
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vboId);
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, indicesBuffer, GL_STATIC_DRAW);
+            // Index VBO
+            vboId = glGenBuffers();
+            vboIdList.add(vboId);
+            indicesBuffer = MemoryUtil.memAllocInt(indices.length);
+            indicesBuffer.put(indices).flip();
+            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vboId);
+            glBufferData(GL_ELEMENT_ARRAY_BUFFER, indicesBuffer, GL_STATIC_DRAW);
 
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
-        glBindVertexArray(0);
+            glBindBuffer(GL_ARRAY_BUFFER, 0);
+            glBindVertexArray(0);
+        } finally {
+            if (posBuffer != null) {
+                MemoryUtil.memFree(posBuffer);
+            }
+            if (textCoordsBuffer != null) {
+                MemoryUtil.memFree(textCoordsBuffer);
+            }
+            if (vecNormalsBuffer != null) {
+                MemoryUtil.memFree(vecNormalsBuffer);
+            }
+            if (indicesBuffer != null) {
+                MemoryUtil.memFree(indicesBuffer);
+            }
+        }
     }
 
     public int getVaoId() {
@@ -91,7 +116,7 @@ public class Mesh {
             // Set up data required by GameItem
             consumer.accept(gameItem);
             // Render this game item
-            glDrawElements(GL_TRIANGLES, getVertexCount(), GL_UNSIGNED_INT, 0);
+            glDrawElements(GL_TRIANGLES, vertexCount, GL_UNSIGNED_INT, 0);
         }
 
         endRender();
@@ -107,7 +132,7 @@ public class Mesh {
         }
 
         // Draw the mesh
-        glBindVertexArray(getVaoId());
+        glBindVertexArray(vaoId);
     }
 
     private void endRender() {
@@ -128,11 +153,13 @@ public class Mesh {
         glBindVertexArray(getVaoId());
         glEnableVertexAttribArray(0);
         glEnableVertexAttribArray(1);
-        //GL11.glPolygonMode(GL11.GL_FRONT_AND_BACK, GL11.GL_LINE);
-        //GL11.glCullFace(GL11.GL_FRONT_AND_BACK);
-        //GL11.glPolygonMode(GL11.GL_BACK, GL11.GL_POINT);
+        glEnableVertexAttribArray(2);
+
+        //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+        //glCullFace(GL_FRONT_AND_BACK);
+        //glPolygonMode(GL_BACK, GL_POINT);
         glEnable(GL_DEPTH_TEST);
-        glDrawElements(GL_TRIANGLES, getVertexCount(), GL_UNSIGNED_INT, 0);
+        glDrawElements(GL_TRIANGLES, vertexCount, GL_UNSIGNED_INT, 0);
 
 
         // Restore state
@@ -140,6 +167,13 @@ public class Mesh {
         glDisableVertexAttribArray(1);
         glBindVertexArray(0);
     }
+//    public void render() {
+//        initRender();
+//
+//        glDrawElements(GL_TRIANGLES, vertexCount, GL_UNSIGNED_INT, 0);
+//
+//        endRender();
+//    }
 
     public Material getMaterial() {
         return material;
@@ -169,4 +203,5 @@ public class Mesh {
         glBindVertexArray(0);
         glDeleteVertexArrays(vaoId);
     }
+
 }

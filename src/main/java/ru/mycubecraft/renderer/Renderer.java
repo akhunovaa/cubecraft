@@ -4,20 +4,16 @@ import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
 import ru.mycubecraft.core.GameItem;
-import ru.mycubecraft.core.Mesh;
 import ru.mycubecraft.engine.SceneLight;
 import ru.mycubecraft.engine.SkyBox;
 import ru.mycubecraft.engine.graph.DirectionalLight;
 import ru.mycubecraft.engine.graph.PointLight;
 import ru.mycubecraft.engine.graph.SpotLight;
-import ru.mycubecraft.scene.Scene;
 import ru.mycubecraft.util.AssetPool;
 import ru.mycubecraft.window.Window;
 import ru.mycubecraft.world.World;
 
 import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 
 import static org.lwjgl.opengl.GL11.*;
 
@@ -46,25 +42,34 @@ public class Renderer {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     }
 
-    public void render(Window window, ArrayList<GameItem> gameItems, World world, Camera camera) {
+    public void render(Window window, ArrayList<GameItem> gameItems, World world, Camera camera, SkyBox skyBox) {
         clear();
-        ArrayList<GameItem> allGameItems = new ArrayList<>(gameItems);
-        if (world != null) {
-            allGameItems.addAll(world.renderItems());
-        }
         if (window.isResized()) {
             glViewport(0, 0, window.getWidth(), window.getHeight());
             window.setResized(false);
         }
 
+        // Update projection and view atrices once per render cycle
+        transformation.updateProjectionMatrix(window.getWidth(), window.getHeight());
+        transformation.updateViewMatrix(camera);
+
+        renderScene(gameItems, world);
+        renderSkyBox(skyBox);
+    }
+
+    private void renderScene(ArrayList<GameItem> gameItems, World world) {
+        ArrayList<GameItem> allGameItems = new ArrayList<>(gameItems);
+        if (world != null) {
+            allGameItems.addAll(world.renderItems());
+        }
         shaderProgram.use();
 
         // Update projection Matrix
-        Matrix4f projectionMatrix = transformation.getProjectionMatrix(window.getWidth(), window.getHeight());
+        Matrix4f projectionMatrix = transformation.getProjectionMatrix();
         shaderProgram.uploadMat4f("projectionMatrix", projectionMatrix);
         shaderProgram.uploadTexture("texture_sampler", 0);
 
-        Matrix4f viewMatrix = transformation.getViewMatrix(camera);
+        Matrix4f viewMatrix = transformation.getViewMatrix();
         shaderProgram.uploadMat4f("viewMatrix", viewMatrix);
         // Render each gameItem
         for (GameItem gameItem : allGameItems) {
@@ -80,57 +85,27 @@ public class Renderer {
         shaderProgram.detach();
     }
 
-    public void renderSkyBox(Window window, Camera camera, SkyBox skyBox, SceneLight sceneLight) {
-        clear();
+    private void renderSkyBox(SkyBox skyBox) {
         skyBoxShaderProgram.use();
         skyBoxShaderProgram.uploadTexture("texture_sampler", 0);
 
         // Update projection Matrix
-        Matrix4f projectionMatrix = transformation.getProjectionMatrix(window.getWidth(), window.getHeight());
+        Matrix4f projectionMatrix = transformation.getProjectionMatrix();
         skyBoxShaderProgram.uploadMat4f("projectionMatrix", projectionMatrix);
 
-        Matrix4f viewMatrix = transformation.getViewMatrix(camera);
+        Matrix4f viewMatrix = transformation.getViewMatrix();
         viewMatrix.m30 = 0;
         viewMatrix.m31 = 0;
         viewMatrix.m32 = 0;
-        skyBoxShaderProgram.uploadMat4f("viewMatrix", viewMatrix);
 
-        Matrix4f modelMatrix = transformation.getModelMatrix(skyBox.getPosition(), skyBox.getRotation(), skyBox.getScale());
-
-        skyBoxShaderProgram.uploadMat4f("modelMatrix", modelMatrix);
-        skyBoxShaderProgram.uploadVec3f("ambientLight", sceneLight.getAmbientLight());
+        Matrix4f modelViewMatrix = transformation.buildModelViewMatrix(skyBox, viewMatrix);
+        skyBoxShaderProgram.uploadMat4f("modelViewMatrix", modelViewMatrix);
 
         skyBox.getMesh().render();
 
         skyBoxShaderProgram.detach();
     }
 
-    public void renderScene(Window window, Camera camera, Scene scene) {
-        clear();
-        skyBoxShaderProgram.use();
-
-        Matrix4f projectionMatrix = transformation.getProjectionMatrix(window.getWidth(), window.getHeight());
-        sceneShaderProgram.uploadMat4f("projectionMatrix", projectionMatrix);
-
-        Matrix4f viewMatrix = transformation.getViewMatrix(camera);
-
-        SceneLight sceneLight = scene.getSceneLight();
-        renderLights(viewMatrix, sceneLight);
-
-        sceneShaderProgram.uploadTexture("texture_sampler", 0);
-        // Render each mesh with the associated game Items
-        Map<Mesh, List<GameItem>> mapMeshes = scene.getGameMeshes();
-        for (Mesh mesh : mapMeshes.keySet()) {
-            sceneShaderProgram.setUniform("material", mesh.getMaterial());
-            mesh.renderList(mapMeshes.get(mesh), (GameItem gameItem) -> {
-                        Matrix4f modelViewMatrix = transformation.buildModelViewMatrix(gameItem, viewMatrix);
-                        sceneShaderProgram.uploadMat4f("modelViewMatrix", modelViewMatrix);
-                    }
-            );
-        }
-
-        skyBoxShaderProgram.detach();
-    }
 
     private void renderLights(Matrix4f viewMatrix, SceneLight sceneLight) {
 

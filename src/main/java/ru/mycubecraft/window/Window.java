@@ -142,7 +142,7 @@ public class Window {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        this.setupLights();
+        //this.setupLights();
         currentScene.init();
     }
 
@@ -194,6 +194,7 @@ public class Window {
         SkyBox skyBox = new SkyBox("assets/models/skybox.obj", "assets/textures/skybox.png");
         skyBox.setScale(skyBoxScale);
         currentScene.setSkyBox(skyBox);
+
     }
 
     private void setupLights() {
