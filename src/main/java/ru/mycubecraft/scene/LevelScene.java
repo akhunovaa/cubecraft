@@ -1,9 +1,11 @@
 package ru.mycubecraft.scene;
 
+import org.joml.Vector2f;
 import org.joml.Vector3f;
 import org.lwjgl.glfw.GLFW;
 import ru.mycubecraft.core.GameItem;
 import ru.mycubecraft.core.Mesh;
+import ru.mycubecraft.data.Settings;
 import ru.mycubecraft.player.Player;
 import ru.mycubecraft.renderer.Camera;
 import ru.mycubecraft.renderer.Cube;
@@ -19,9 +21,12 @@ import static org.lwjgl.glfw.GLFW.*;
 
 public class LevelScene extends Scene {
 
+    private final Vector3f cameraInc;
+    private static final float CAMERA_POS_STEP = 0.05f;
+
     public LevelScene() {
         System.out.println("Entered to a Level Scene");
-
+        cameraInc = new Vector3f(0.0f, 0.0f, 0.0f);
         renderer = new Renderer();
         camera = new Camera();
         player = new Player();
@@ -94,7 +99,7 @@ public class LevelScene extends Scene {
         world.generate();
         renderer.render(window, gameItems, world, camera);
         //renderer.renderScene(window, camera, this);
-        //renderer.renderSkyBox(window, camera, this);
+        //renderer.renderSkyBox(window, camera, skyBox, sceneLight);
     }
 
     @Override

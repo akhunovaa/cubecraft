@@ -6,6 +6,7 @@ import org.joml.Vector4f;
 import ru.mycubecraft.core.GameItem;
 import ru.mycubecraft.core.Mesh;
 import ru.mycubecraft.engine.SceneLight;
+import ru.mycubecraft.engine.SkyBox;
 import ru.mycubecraft.engine.graph.DirectionalLight;
 import ru.mycubecraft.engine.graph.PointLight;
 import ru.mycubecraft.engine.graph.SpotLight;
@@ -79,7 +80,7 @@ public class Renderer {
         shaderProgram.detach();
     }
 
-    public void renderSkyBox(Window window, Camera camera, Scene scene) {
+    public void renderSkyBox(Window window, Camera camera, SkyBox skyBox, SceneLight sceneLight) {
         clear();
         skyBoxShaderProgram.use();
         skyBoxShaderProgram.uploadTexture("texture_sampler", 0);
@@ -88,17 +89,18 @@ public class Renderer {
         Matrix4f projectionMatrix = transformation.getProjectionMatrix(window.getWidth(), window.getHeight());
         skyBoxShaderProgram.uploadMat4f("projectionMatrix", projectionMatrix);
 
-        Matrix4f viewMatrix = transformation.getSkyViewMatrix(camera);
-//        viewMatrix.m30 = 0;
-//        viewMatrix.m31 = 0;
-//        viewMatrix.m32 = 0;
+        Matrix4f viewMatrix = transformation.getViewMatrix(camera);
+        viewMatrix.m30 = 0;
+        viewMatrix.m31 = 0;
+        viewMatrix.m32 = 0;
         skyBoxShaderProgram.uploadMat4f("viewMatrix", viewMatrix);
 
-        Matrix4f modelMatrix = transformation.getSkyModelMatrix(scene.getSkyBox().getPosition(), scene.getSkyBox().getRotation(), scene.getSkyBox().getScale());
-        skyBoxShaderProgram.uploadMat4f("modelMatrix", modelMatrix);
-        skyBoxShaderProgram.uploadVec3f("ambientLight", scene.getSceneLight().getAmbientLight());
+        Matrix4f modelMatrix = transformation.getModelMatrix(skyBox.getPosition(), skyBox.getRotation(), skyBox.getScale());
 
-        scene.getSkyBox().getMesh().render();
+        skyBoxShaderProgram.uploadMat4f("modelMatrix", modelMatrix);
+        skyBoxShaderProgram.uploadVec3f("ambientLight", sceneLight.getAmbientLight());
+
+        skyBox.getMesh().render();
 
         skyBoxShaderProgram.detach();
     }

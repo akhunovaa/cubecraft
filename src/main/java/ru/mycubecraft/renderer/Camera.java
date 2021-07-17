@@ -18,36 +18,36 @@ public class Camera {
 
     public void moveForward(float delta) {
         Quaternionf viewDirection = new Quaternionf();
-        viewDirection.setEulerAnglesXYZ(0.0f, -(float) Math.toRadians(rotation.y), 0.0f);
-
-        Vector4f directionVector = new Vector4f(0f, 0f, -delta * Settings.MOVE_SPEED, Settings.FOV);
-        directionVector.rotate(viewDirection);
-        this.position.add(directionVector);
-    }
-
-    public void moveBackward(float delta) {
-        Quaternionf viewDirection = new Quaternionf();
-        viewDirection.setEulerAnglesXYZ(0.0f, -(float) Math.toRadians(rotation.y), 0.0f);
+        viewDirection.setEulerAnglesXYZ(0.0f, (float) Math.toRadians(rotation.y), 0.0f);
 
         Vector4f directionVector = new Vector4f(0f, 0f, delta * Settings.MOVE_SPEED, Settings.FOV);
         directionVector.rotate(viewDirection);
         this.position.add(directionVector);
     }
 
+    public void moveBackward(float delta) {
+        Quaternionf viewDirection = new Quaternionf();
+        viewDirection.setEulerAnglesXYZ(0.0f, (float) Math.toRadians(rotation.y), 0.0f);
+
+        Vector4f directionVector = new Vector4f(0f, 0f, -delta * Settings.MOVE_SPEED, Settings.FOV);
+        directionVector.rotate(viewDirection);
+        this.position.add(directionVector);
+    }
+
     public void moveLeft(float delta) {
         Quaternionf viewDirection = new Quaternionf();
-        viewDirection.setEulerAnglesXYZ(0.0f, -(float) Math.toRadians(rotation.y), 0.0f);
+        viewDirection.setEulerAnglesXYZ(0.0f, (float) Math.toRadians(rotation.y), 0.0f);
 
-        Vector4f directionVector = new Vector4f(delta * Settings.MOVE_SPEED, 0.0f, 0.0f, Settings.FOV);
+        Vector4f directionVector = new Vector4f(-delta * Settings.MOVE_SPEED, 0.0f, 0.0f, Settings.FOV);
         directionVector.rotate(viewDirection);
         this.position.add(directionVector);
     }
 
     public void moveRight(float delta) {
         Quaternionf viewDirection = new Quaternionf();
-        viewDirection.setEulerAnglesXYZ(0.0f, -(float) Math.toRadians(rotation.y), 0.0f);
+        viewDirection.setEulerAnglesXYZ(0.0f, (float) Math.toRadians(rotation.y), 0.0f);
 
-        Vector4f directionVector = new Vector4f(-delta * Settings.MOVE_SPEED, 0.0f, 0.0f, Settings.FOV);
+        Vector4f directionVector = new Vector4f(delta * Settings.MOVE_SPEED, 0.0f, 0.0f, Settings.FOV);
         directionVector.rotate(viewDirection);
         this.position.add(directionVector);
     }
@@ -62,28 +62,16 @@ public class Camera {
         this.position.add(cameraDown);
     }
 
-//    public void rotateCamera(float mouseDx, float mouseDy, float delta) {
-//        System.out.println("===================================");
-//
-//        System.out.println("===================================");
-//        float y = Math.max(Settings.MIN_LOOK, Math.min(Settings.MAX_LOOK, mouseDx * Settings.MOUSE_SENSITIVITY * delta));
-//        this.rotation.x =+ (float) Math.max(Math.min(this.rotation.x - (mouseDy -Settings.HEIGHT / 2.0f) / 4.0f, 90.0f), -90.0f);
-//        this.rotation.y =+ (float) (rotation.y - (mouseDx - Settings.WIDTH / 2.0f) / 4.0f);
-//        //this.rotation.add(rotX * Settings.MOUSE_SENSITIVITY * delta, rotY, 0.0f);
-//    }
-
     public void rotateCamera(float mouseDx, float mouseDy, float delta) {
         this.rotation.x = MathUtil.clamp(this.rotation.x, Settings.MIN_LOOK, Settings.MAX_LOOK);
         float xRotation = this.rotation.x;
         float yRotation = this.rotation.y;
-        if (xRotation > Settings.MIN_LOOK) {
-            rotation.x += mouseDy * delta;
-            rotation.y += mouseDx * delta;
-            rotation.z += 0.0f;
-        } else {
+        if (xRotation >= Settings.MIN_LOOK) {
             rotation.x -= mouseDy * delta;
             rotation.y -= mouseDx * delta;
-            rotation.z -= 0.0f;
+        } else {
+            rotation.x += mouseDy * delta;
+            rotation.y += mouseDx * delta;
         }
 
     }
@@ -112,6 +100,18 @@ public class Camera {
         rotation.x += offsetX;
         rotation.y += offsetY;
         rotation.z += offsetZ;
+    }
+
+    public void movePosition(float offsetX, float offsetY, float offsetZ) {
+        if ( offsetZ != 0 ) {
+            position.x += (float)Math.sin(Math.toRadians(rotation.y)) * -1.0f * offsetZ;
+            position.z += (float)Math.cos(Math.toRadians(rotation.y)) * offsetZ;
+        }
+        if ( offsetX != 0) {
+            position.x += (float)Math.sin(Math.toRadians(rotation.y - 90)) * -1.0f * offsetX;
+            position.z += (float)Math.cos(Math.toRadians(rotation.y - 90)) * offsetX;
+        }
+        position.y += offsetY;
     }
 
 }
