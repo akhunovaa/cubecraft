@@ -170,11 +170,10 @@ public class Renderer {
             // Set ortohtaphic and model matrix for this HUD item
             Matrix4f projModelMatrix = transformation.buildOrthoProjModelMatrix(gameItem, ortho);
             hudShaderProgram.uploadMat4f("projModelMatrix", projModelMatrix);
-            hudShaderProgram.uploadVec4f("colour", gameItem.getMesh().getMaterial().getAmbientColour());
-            hudShaderProgram.uploadInt("hasTexture", gameItem.getMesh().getMaterial().isTextured() ? 1 : 0);
+            hudShaderProgram.uploadVec4f("colour", mesh.getMaterial().getAmbientColour());
+            hudShaderProgram.uploadInt("hasTexture", mesh.getMaterial().isTextured() ? 1 : 0);
 
-            // Render the mesh for this HUD item
-            mesh.render();
+            gameItem.render();
         }
 
         hudShaderProgram.detach();

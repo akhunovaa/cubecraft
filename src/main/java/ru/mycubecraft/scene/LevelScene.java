@@ -21,15 +21,15 @@ import static org.lwjgl.glfw.GLFW.*;
 
 public class LevelScene extends Scene {
 
-    private Hud hud;
     private static final float CAMERA_POS_STEP = 0.05f;
+    private Hud hud;
 
     public LevelScene() {
         System.out.println("Entered to a Level Scene");
         renderer = new Renderer();
         camera = new Camera();
         player = new Player();
-
+        hud = new Hud();
         world = new World(new BasicGen(1));
 
         System.out.println("WORLD GEND");
@@ -44,7 +44,7 @@ public class LevelScene extends Scene {
 
     public void setGameItems(ArrayList<GameItem> gameItems) {
         int numGameItems = gameItems != null ? gameItems.size() : 0;
-        for (int i=0; i< numGameItems; i++) {
+        for (int i = 0; i < numGameItems; i++) {
             GameItem gameItem = gameItems.get(0);
             Mesh mesh = gameItem.getMesh();
             List<GameItem> list = meshMap.computeIfAbsent(mesh, k -> new ArrayList<>());
@@ -54,8 +54,7 @@ public class LevelScene extends Scene {
 
     @Override
     public void init() throws Exception {
-        // Create HUD
-        hud = new Hud("DEMO");
+
     }
 
     @Override
@@ -100,7 +99,6 @@ public class LevelScene extends Scene {
         skyBox.setScale(100);
         hud.updateSize(window);
         renderer.render(window, gameItems, world, camera, skyBox, hud);
-
         //renderer.renderScene(window, camera, this);
 
     }

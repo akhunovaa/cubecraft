@@ -40,7 +40,7 @@ public class Mesh {
             vertexCount = indices.length;
             vboIdList = new ArrayList<>();
 
-            vaoId = glGenVertexArrays();
+            vaoId = GL30.glGenVertexArrays();
             GL30.glBindVertexArray(vaoId);
 
             // Position VBO
@@ -55,7 +55,6 @@ public class Mesh {
             GL20.glVertexAttribPointer(0, 3, GL11.GL_FLOAT, false, 0, 0);
 
             GL20.glEnableVertexAttribArray(0);
-
 
             // Texture coordinates VBO
             vboId = GL15.glGenBuffers();
@@ -174,11 +173,11 @@ public class Mesh {
         }
 
         // Draw the mesh
-        glBindVertexArray(vaoId);
+        GL30.glBindVertexArray(vaoId);
 
-//        glEnableVertexAttribArray(0);
-//        glEnableVertexAttribArray(1);
-//        glEnableVertexAttribArray(2);
+        GL20.glEnableVertexAttribArray(0);
+        GL20.glEnableVertexAttribArray(1);
+        GL20.glEnableVertexAttribArray(2);
 
         //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
         //glCullFace(GL_FRONT_AND_BACK);
@@ -204,9 +203,9 @@ public class Mesh {
 
 
     public void cleanUp() {
-        glDisableVertexAttribArray(0);
-//        glDisableVertexAttribArray(1);
-//        glDisableVertexAttribArray(2);
+        GL20.glDisableVertexAttribArray(0);
+        GL20.glDisableVertexAttribArray(1);
+        GL20.glDisableVertexAttribArray(2);
 
         // Delete the VBOs
         glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -221,8 +220,8 @@ public class Mesh {
         }
 
         // Delete the VAO
-        glBindVertexArray(0);
-        glDeleteVertexArrays(vaoId);
+        GL30.glBindVertexArray(0);
+        GL30.glDeleteVertexArrays(vaoId);
     }
 
 
