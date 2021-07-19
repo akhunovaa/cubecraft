@@ -34,7 +34,7 @@ public abstract class Scene {
 
     public abstract void update(float dt);
 
-    public abstract void init();
+    public abstract void init() throws Exception;
 
     public abstract void render();
 

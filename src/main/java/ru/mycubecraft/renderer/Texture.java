@@ -11,10 +11,11 @@ import static org.lwjgl.stb.STBImage.*;
 public class Texture {
 
     private String filepath;
+    private ByteBuffer buffer;
     private transient int id;
     private int width, height;
-    private int numRows = 1;
-    private int numCols = 1;
+    private final int numRows = 1;
+    private final int numCols = 1;
 
     public Texture() {
         id = -1;
@@ -25,7 +26,7 @@ public class Texture {
     /**
      * Creates an empty texture.
      *
-     * @param width Width of the texture
+     * @param width  Width of the texture
      * @param height Height of the texture
      */
     public Texture(int width, int height) {
@@ -40,6 +41,64 @@ public class Texture {
 
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height,
                 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
+    }
+
+    public Texture(ByteBuffer imageBuffer) {
+        // Load Texture file
+        IntBuffer width = BufferUtils.createIntBuffer(1);
+        IntBuffer height = BufferUtils.createIntBuffer(1);
+        IntBuffer channels = BufferUtils.createIntBuffer(1);
+
+        stbi_set_flip_vertically_on_load(true);
+
+        this.buffer = stbi_load_from_memory(imageBuffer, width, height, channels, 4);
+    }
+
+    public void init() {
+
+        // Generate texture on GPU
+        id = glGenTextures();
+        glBindTexture(GL_TEXTURE_2D, id);
+
+        // Tell OpenGL how to unpack the RGBA bytes. Each component is 1 byte size
+        glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+
+//
+        // Set texture parameters
+        // Repeat image in both directions
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+        // When stretching the image, pixelate
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        // When shrinking an image, pixelate
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+        IntBuffer width = BufferUtils.createIntBuffer(1);
+        IntBuffer height = BufferUtils.createIntBuffer(1);
+        IntBuffer channels = BufferUtils.createIntBuffer(1);
+
+        stbi_set_flip_vertically_on_load(true);
+
+        if (this.buffer != null) {
+            this.width = width.get(0);
+            this.height = height.get(0);
+
+            if (channels.get(0) == 3) {
+                // Upload the texture data
+                glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width.get(0), height.get(0),
+                        0, GL_RGB, GL_UNSIGNED_BYTE, this.buffer);
+            } else if (channels.get(0) == 4) {
+                // Upload the texture data
+                glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width.get(0), height.get(0),
+                        0, GL_RGBA, GL_UNSIGNED_BYTE, this.buffer);
+            } else {
+                assert false : "Error: (Texture) Unknown number of channesl '" + channels.get(0) + "'";
+            }
+        } else {
+            assert false : "Error: (Texture) Could not load image '" + filepath + "'";
+        }
+
+        stbi_image_free(buffer);
     }
 
     public void init(String filepath) {

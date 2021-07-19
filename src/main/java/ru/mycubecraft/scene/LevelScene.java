@@ -5,12 +5,12 @@ import org.joml.Vector3f;
 import org.lwjgl.glfw.GLFW;
 import ru.mycubecraft.core.GameItem;
 import ru.mycubecraft.core.Mesh;
+import ru.mycubecraft.data.Hud;
 import ru.mycubecraft.data.Settings;
 import ru.mycubecraft.player.Player;
 import ru.mycubecraft.renderer.Camera;
 import ru.mycubecraft.renderer.Cube;
 import ru.mycubecraft.renderer.Renderer;
-import ru.mycubecraft.window.Window;
 import ru.mycubecraft.world.BasicGen;
 import ru.mycubecraft.world.World;
 
@@ -21,12 +21,11 @@ import static org.lwjgl.glfw.GLFW.*;
 
 public class LevelScene extends Scene {
 
-    private final Vector3f cameraInc;
+    private Hud hud;
     private static final float CAMERA_POS_STEP = 0.05f;
 
     public LevelScene() {
         System.out.println("Entered to a Level Scene");
-        cameraInc = new Vector3f(0.0f, 0.0f, 0.0f);
         renderer = new Renderer();
         camera = new Camera();
         player = new Player();
@@ -54,14 +53,15 @@ public class LevelScene extends Scene {
     }
 
     @Override
-    public void init() {
-//        renderer.renderSkyBox(window, camera, this);
+    public void init() throws Exception {
+        // Create HUD
+        hud = new Hud("DEMO");
     }
 
     @Override
     public void update(float delta) {
         //System.out.println("Current FPS: " + (1.0f / dt) + " ");
-
+        hud.rotateCompass(-camera.getRotation().y);
         if (keyboardListener.isKeyPressed(GLFW_KEY_W)) {
             camera.moveForward(delta);
         } else if (keyboardListener.isKeyPressed(GLFW_KEY_S)) {
@@ -98,8 +98,8 @@ public class LevelScene extends Scene {
     public void render() {
         world.generate();
         skyBox.setScale(100);
-
-        renderer.render(window, gameItems, world, camera, skyBox);
+        hud.updateSize(window);
+        renderer.render(window, gameItems, world, camera, skyBox, hud);
 
         //renderer.renderScene(window, camera, this);
 
@@ -107,6 +107,7 @@ public class LevelScene extends Scene {
 
     @Override
     public void cleanup() {
+        hud.cleanup();
         renderer.cleanup();
         world.cleanup();
         for (GameItem gameItem : gameItems) {

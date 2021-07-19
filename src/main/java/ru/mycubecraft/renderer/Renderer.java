@@ -4,6 +4,8 @@ import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
 import ru.mycubecraft.core.GameItem;
+import ru.mycubecraft.core.Mesh;
+import ru.mycubecraft.engine.IHud;
 import ru.mycubecraft.engine.SceneLight;
 import ru.mycubecraft.engine.SkyBox;
 import ru.mycubecraft.engine.graph.DirectionalLight;
@@ -24,6 +26,7 @@ public class Renderer {
     private Shader shaderProgram;
     private Shader skyBoxShaderProgram;
     private Shader sceneShaderProgram;
+    private Shader hudShaderProgram;
 
     public Renderer() {
         transformation = new Transformation();
@@ -36,13 +39,14 @@ public class Renderer {
         shaderProgram = AssetPool.getShader("assets/shaders/default.glsl");
         skyBoxShaderProgram = AssetPool.getShader("assets/shaders/skybox.glsl");
         sceneShaderProgram = AssetPool.getShader("assets/shaders/scene.glsl");
+        hudShaderProgram = AssetPool.getShader("assets/shaders/hud.glsl");
     }
 
     public void clear() {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     }
 
-    public void render(Window window, ArrayList<GameItem> gameItems, World world, Camera camera, SkyBox skyBox) {
+    public void render(Window window, ArrayList<GameItem> gameItems, World world, Camera camera, SkyBox skyBox, IHud hud) {
         clear();
         if (window.isResized()) {
             glViewport(0, 0, window.getWidth(), window.getHeight());
@@ -55,6 +59,7 @@ public class Renderer {
 
         renderScene(gameItems, world);
         renderSkyBox(skyBox);
+        renderHud(window, hud);
     }
 
     private void renderScene(ArrayList<GameItem> gameItems, World world) {
@@ -156,12 +161,35 @@ public class Renderer {
     }
 
 
+    private void renderHud(Window window, IHud hud) {
+        hudShaderProgram.use();
+
+        Matrix4f ortho = transformation.getOrthoProjectionMatrix(0, window.getWidth(), window.getHeight(), 0);
+        for (GameItem gameItem : hud.getGameItems()) {
+            Mesh mesh = gameItem.getMesh();
+            // Set ortohtaphic and model matrix for this HUD item
+            Matrix4f projModelMatrix = transformation.buildOrthoProjModelMatrix(gameItem, ortho);
+            hudShaderProgram.uploadMat4f("projModelMatrix", projModelMatrix);
+            hudShaderProgram.uploadVec4f("colour", gameItem.getMesh().getMaterial().getAmbientColour());
+            hudShaderProgram.uploadInt("hasTexture", gameItem.getMesh().getMaterial().isTextured() ? 1 : 0);
+
+            // Render the mesh for this HUD item
+            mesh.render();
+        }
+
+        hudShaderProgram.detach();
+    }
+
+
     public void cleanup() {
         if (shaderProgram != null) {
             shaderProgram.detach();
         }
         if (skyBoxShaderProgram != null) {
             skyBoxShaderProgram.detach();
+        }
+        if (hudShaderProgram != null) {
+            hudShaderProgram.detach();
         }
     }
 }
