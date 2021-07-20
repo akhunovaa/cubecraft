@@ -9,7 +9,7 @@ mvn -P windows clean install)
 
 Start/Run: 
 java -jar cubecraft-0.1.0.jar 
-for MacOS users ad VM option: -XstartOnFirstThread 
+for MacOS users add VM option: -XstartOnFirstThread 
 
 java -jar cubecraft-0.1.0.jar -XstartOnFirstThread
 
