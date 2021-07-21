@@ -61,6 +61,10 @@ public class Transformation {
         return this.modelMatrix;
     }
 
+    public Matrix4f getModelMatrix() {
+        return modelMatrix;
+    }
+
     public Matrix4f buildModelViewMatrix(GameItem gameItem, Matrix4f viewMatrix) {
         Vector3f rotation = gameItem.getRotation();
         modelMatrix.identity()

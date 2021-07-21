@@ -11,6 +11,7 @@ import ru.mycubecraft.engine.SkyBox;
 import ru.mycubecraft.engine.graph.DirectionalLight;
 import ru.mycubecraft.engine.graph.PointLight;
 import ru.mycubecraft.engine.graph.SpotLight;
+import ru.mycubecraft.scene.Scene;
 import ru.mycubecraft.util.AssetPool;
 import ru.mycubecraft.window.Window;
 import ru.mycubecraft.world.World;
@@ -46,7 +47,7 @@ public class Renderer {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     }
 
-    public void render(Window window, ArrayList<GameItem> gameItems, World world, Camera camera, SkyBox skyBox, IHud hud) {
+    public void render(Window window, ArrayList<GameItem> gameItems, World world, Camera camera, SkyBox skyBox, Scene scene, IHud hud) {
         clear();
         if (window.isResized()) {
             glViewport(0, 0, window.getWidth(), window.getHeight());
@@ -59,6 +60,7 @@ public class Renderer {
 
         renderScene(gameItems, world);
         renderSkyBox(skyBox);
+        renderLights(scene.getSceneLight());
         renderHud(window, hud);
     }
 
@@ -112,11 +114,11 @@ public class Renderer {
     }
 
 
-    private void renderLights(Matrix4f viewMatrix, SceneLight sceneLight) {
+    private void renderLights(SceneLight sceneLight) {
 
         sceneShaderProgram.uploadVec3f("ambientLight", sceneLight.getAmbientLight());
         sceneShaderProgram.uploadFloat("specularPower", specularPower);
-
+        Matrix4f viewMatrix = transformation.getViewMatrix();
         // Process Point Lights
         PointLight[] pointLightList = sceneLight.getPointLightList();
         int numLights = pointLightList != null ? pointLightList.length : 0;
@@ -178,7 +180,6 @@ public class Renderer {
 
         hudShaderProgram.detach();
     }
-
 
     public void cleanup() {
         if (shaderProgram != null) {

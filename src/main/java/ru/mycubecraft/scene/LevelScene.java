@@ -1,12 +1,10 @@
 package ru.mycubecraft.scene;
 
-import org.joml.Vector2f;
 import org.joml.Vector3f;
 import org.lwjgl.glfw.GLFW;
 import ru.mycubecraft.core.GameItem;
 import ru.mycubecraft.core.Mesh;
 import ru.mycubecraft.data.Hud;
-import ru.mycubecraft.data.Settings;
 import ru.mycubecraft.player.Player;
 import ru.mycubecraft.renderer.Camera;
 import ru.mycubecraft.renderer.Cube;
@@ -29,7 +27,6 @@ public class LevelScene extends Scene {
         renderer = new Renderer();
         camera = new Camera();
         player = new Player();
-        hud = new Hud();
         world = new World(new BasicGen(1));
 
         System.out.println("WORLD GEND");
@@ -53,8 +50,8 @@ public class LevelScene extends Scene {
     }
 
     @Override
-    public void init() throws Exception {
-
+    public void init() {
+        hud = new Hud("ALPHA 0.1.0");
     }
 
     @Override
@@ -98,7 +95,7 @@ public class LevelScene extends Scene {
         world.generate();
         skyBox.setScale(100);
         hud.updateSize(window);
-        renderer.render(window, gameItems, world, camera, skyBox, hud);
+        renderer.render(window, gameItems, world, camera, skyBox, this, hud);
         //renderer.renderScene(window, camera, this);
 
     }

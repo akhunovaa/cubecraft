@@ -334,5 +334,6 @@
             <artifactId>lwjgl-openal</artifactId>
             <version>${lwjgl.version}</version>
         </dependency>
+
     </dependencies>
 </project>

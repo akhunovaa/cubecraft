@@ -138,16 +138,16 @@ public class Window {
         glCullFace(GL_BACK);
         glfwSetInputMode(this.glfwWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 //        // Support for transparencies
-//        glEnable(GL_BLEND);
-//        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         this.changeScene(1);
         try {
             this.setupSkyBox();
+            this.setupLights();
             currentScene.init();
         } catch (Exception e) {
             e.printStackTrace();
         }
-        //this.setupLights();
 
     }
 

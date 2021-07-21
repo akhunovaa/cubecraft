@@ -23,11 +23,11 @@ import static org.lwjgl.opengl.GL30.*;
 
 public class Mesh {
 
-    private final int vaoId;
+    private int vaoId;
 
-    private final List<Integer> vboIdList;
+    private List<Integer> vboIdList;
 
-    private final int vertexCount;
+    private int vertexCount;
 
     private Material material;
 
@@ -112,6 +112,9 @@ public class Mesh {
                 MemoryUtil.memFree(indicesBuffer);
             }
         }
+    }
+
+    public Mesh() {
     }
 
     public int getVaoId() {
