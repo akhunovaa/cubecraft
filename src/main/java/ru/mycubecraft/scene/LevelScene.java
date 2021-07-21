@@ -5,6 +5,7 @@ import org.lwjgl.glfw.GLFW;
 import ru.mycubecraft.core.GameItem;
 import ru.mycubecraft.core.Mesh;
 import ru.mycubecraft.data.Hud;
+import ru.mycubecraft.engine.Timer;
 import ru.mycubecraft.player.Player;
 import ru.mycubecraft.renderer.Camera;
 import ru.mycubecraft.renderer.Cube;
@@ -51,12 +52,11 @@ public class LevelScene extends Scene {
 
     @Override
     public void init() {
-        hud = new Hud("ALPHA 0.1.0");
+        hud = new Hud();
     }
 
     @Override
     public void update(float delta) {
-        //System.out.println("Current FPS: " + (1.0f / dt) + " ");
         hud.rotateCompass(-camera.getRotation().y);
         if (keyboardListener.isKeyPressed(GLFW_KEY_W)) {
             camera.moveForward(delta);
@@ -87,14 +87,14 @@ public class LevelScene extends Scene {
             camera.rotateCamera(cursorPositionDx, cursorPositionDy, delta);
         }
 
-
     }
 
     @Override
-    public void render() {
+    public void render(float delta) {
         world.generate();
         skyBox.setScale(100);
-        hud.updateSize(window);
+        hud.updateHud(window, camera);
+        hud.updateFps(1.0f / delta);
         renderer.render(window, gameItems, world, camera, skyBox, this, hud);
         //renderer.renderScene(window, camera, this);
 

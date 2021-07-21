@@ -9,13 +9,13 @@ import org.lwjgl.opengl.GL;
 import ru.mycubecraft.data.Settings;
 import ru.mycubecraft.engine.SceneLight;
 import ru.mycubecraft.engine.SkyBox;
+import ru.mycubecraft.engine.Timer;
 import ru.mycubecraft.engine.graph.DirectionalLight;
 import ru.mycubecraft.listener.KeyboardListener;
 import ru.mycubecraft.listener.MouseListener;
 import ru.mycubecraft.scene.LevelEditorScene;
 import ru.mycubecraft.scene.LevelScene;
 import ru.mycubecraft.scene.Scene;
-import ru.mycubecraft.util.Time;
 
 import java.util.Objects;
 
@@ -25,6 +25,9 @@ import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.system.MemoryUtil.NULL;
 
 public class Window {
+
+    public static final int TARGET_FPS = 75;
+    public static final int TARGET_UPS = 30;
 
     private static Window instance;
     private final String title;
@@ -40,8 +43,15 @@ public class Window {
     private Scene currentScene;
     private boolean resized;
     private final float skyBoxScale = 50.0f;
+    private boolean vSync = true;
+    /**
+     * Used for timing calculations.
+     */
+    private final Timer timer;
+    private double lastFps;
 
     private Window() {
+        timer = new Timer();
         this.width = Settings.WIDTH;
         this.height = Settings.HEIGHT;
         this.title = Settings.WINDOW_TITLE;
@@ -58,6 +68,7 @@ public class Window {
         System.out.println("Hello LWJGL " + Version.getVersion() + "!");
 
         init();
+        lastFps = timer.getTime();
         loop();
 
         // Free the memory after the loop exists
@@ -71,6 +82,7 @@ public class Window {
 
 
     public void init() {
+        timer.init();
         // Setup an error callback
         GLFWErrorCallback.createPrint(System.err).set();
 
@@ -152,13 +164,14 @@ public class Window {
     }
 
     public void loop() {
-        float beginTime = Time.getTime();
-        float endTime;
-        float dt = -1.0f;
-        while (!glfwWindowShouldClose(this.glfwWindow)) {
+        float elapsedTime;
+        float accumulator = 0f;
+        float interval = 1f / TARGET_UPS;
 
-            // Poll events
-            glfwPollEvents();
+        while (!glfwWindowShouldClose(this.glfwWindow)) {
+            /* Get delta time and update the accumulator */
+            elapsedTime = timer.getElapsedTime();
+            accumulator += elapsedTime;
 
             glClearColor(this.red, this.green, this.blue, this.alpha);
             glClear(GL_COLOR_BUFFER_BIT);
@@ -167,18 +180,40 @@ public class Window {
                 glfwSetCursorPos(this.glfwWindow, (float) this.width / 2, (float) this.height / 2);
             }
 
-            if (dt > 0) {
-                currentScene.update(dt);
-                currentScene.render();
+            /* Update game and timer UPS if enough time has passed */
+            while (accumulator >= interval) {
+                currentScene.update(accumulator);
+                accumulator -= interval;
+            }
+
+            currentScene.render(accumulator);
+
+            if (timer.getLastLoopTime() - lastFps > 1 ){
+                lastFps = timer.getLastLoopTime();
+            }
+
+            if ( !vSync ) {
+                sync();
             }
 
             glfwSwapBuffers(this.glfwWindow);
-
-            endTime = Time.getTime();
-            dt = endTime - beginTime;
-            beginTime = endTime;
+            // Poll events
+            glfwPollEvents();
         }
     }
+
+
+    private void sync() {
+        float loopSlot = 1f / TARGET_FPS;
+        double endTime = timer.getLastLoopTime() + loopSlot;
+        while (timer.getTime() < endTime) {
+            try {
+                Thread.sleep(1);
+            } catch (InterruptedException ie) {
+            }
+        }
+    }
+
 
     public void changeScene(int scene) {
         switch (scene) {

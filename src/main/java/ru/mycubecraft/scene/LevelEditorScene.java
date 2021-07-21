@@ -20,7 +20,7 @@ public class LevelEditorScene extends Scene {
     }
 
     @Override
-    public void render() {
+    public void render(float dt) {
 
     }
 

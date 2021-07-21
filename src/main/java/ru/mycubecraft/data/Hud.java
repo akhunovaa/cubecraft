@@ -8,6 +8,7 @@ import ru.mycubecraft.engine.Material;
 import ru.mycubecraft.engine.TextItem;
 import ru.mycubecraft.engine.graph.FontTexture;
 import ru.mycubecraft.engine.graph.OBJLoader;
+import ru.mycubecraft.renderer.Camera;
 import ru.mycubecraft.window.Window;
 
 import java.awt.*;
@@ -21,15 +22,27 @@ public class Hud implements IHud {
     private final GameItem[] gameItems;
 
     private final TextItem versionTextItem;
+    private final TextItem fpsTextItem;
+    private final TextItem coordinatesTextItem;
 
     private final GameItem compassItem;
 
 
-    public Hud(String statusText) {
-
+    public Hud() {
         FontTexture fontTexture = new FontTexture(FONT, CHARSET);
-        this.versionTextItem = new TextItem(statusText, fontTexture);
-        this.versionTextItem.getMesh().getMaterial().setAmbientColour(new Vector4f(0.8f, 0.8f, 0.8f, 10f));;
+
+        String version = "ALPHA 0.1.0";
+        String fpsText = "FPS: 0";
+        String coordinatesText = "X: 0.00 Y: 0.00 Z: 0.00";
+
+        this.fpsTextItem = new TextItem(fpsText, fontTexture);
+        this.fpsTextItem.getMesh().getMaterial().setAmbientColour(new Vector4f(0.8f, 0.8f, 0.8f, 10f));
+
+        this.coordinatesTextItem = new TextItem(coordinatesText, fontTexture);
+        this.coordinatesTextItem.getMesh().getMaterial().setAmbientColour(new Vector4f(0.8f, 0.8f, 0.8f, 10f));
+
+        this.versionTextItem = new TextItem(version, fontTexture);
+        this.versionTextItem.getMesh().getMaterial().setAmbientColour(new Vector4f(0.8f, 0.8f, 0.8f, 10f));
 
         // Create compass
         Mesh mesh = null;
@@ -47,7 +60,7 @@ public class Hud implements IHud {
         // Rotate to transform it to screen coordinates
         compassItem.setRotation(0f, 0f, 180f);
         // Create list that holds the items that compose the HUD
-        gameItems = new GameItem[]{versionTextItem, compassItem};
+        gameItems = new GameItem[]{versionTextItem, compassItem, coordinatesTextItem, fpsTextItem};
     }
 
     public void rotateCompass(float angle) {
@@ -59,8 +72,18 @@ public class Hud implements IHud {
         return gameItems;
     }
 
-    public void updateSize(Window window) {
+    public void updateHud(Window window, Camera camera) {
         this.versionTextItem.setPosition(window.getWidth() - 100.0f, window.getHeight() - 20f, 0);
+
+        Vector4f cameraPosition = camera.getPosition();
+        this.coordinatesTextItem.setText(String.format("X: %s Y: %s Z: %s", cameraPosition.x, cameraPosition.y, cameraPosition.z));
+        this.coordinatesTextItem.setPosition(20.0f, 40f, 0);
+
         this.compassItem.setPosition(window.getWidth() - 40f, 50f, 0);
+    }
+
+    public void updateFps(float fps) {
+        this.fpsTextItem.setPosition(20.0f, 10f, 0);
+        this.fpsTextItem.setText(String.format("FPS: %s", (int) fps));
     }
 }
