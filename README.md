@@ -23,4 +23,4 @@ mvn -P {your OS name} clean install
 
 
 
-[![Video clip](https://i9.ytimg.com/vi/dGyNnKucaFE/mq1.jpg?sqp=CPjt3IcG&rs=AOn4CLBoUf7k7B-onTH3FS-NWhEyql4fLw)](https://youtu.be/dGyNnKucaFE "Everything Is AWESOME")
+[![Video clip](http://www.siimannuk.com/wp-content/uploads/2011/07/rubiks01.jpg)](https://youtu.be/Rg6HbAUFnRE "Everything Is AWESOME")
