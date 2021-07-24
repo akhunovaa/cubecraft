@@ -1,78 +1,60 @@
 package ru.mycubecraft.world;
 
+import lombok.extern.slf4j.Slf4j;
 import ru.mycubecraft.core.GameItem;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
+@Slf4j
 public class World {
-    public static final int WORLD_WIDTH = 18;
+
+    // 256 chunks & 4096 blocks in one chunk & totally 1 048 576 blocks
+    public static final int WORLD_WIDTH = 16;
     public static final int WORLD_HEIGHT = 16;
 
-    private final Chunk[][] chunks = new Chunk[WORLD_WIDTH][WORLD_WIDTH];
+    //    private final Chunk[][] chunks = new Chunk[WORLD_WIDTH][WORLD_WIDTH];
+    private final HashSet<Chunk> chunkSet = new HashSet<>();
+
     private final Generator generator;
 
     public World(Generator generator) {
         this.generator = generator;
-        genChunk(WORLD_WIDTH / 2, WORLD_WIDTH / 2);
-        genChunk(WORLD_WIDTH / 2 - 1, WORLD_WIDTH / 2 - 1);
-        genChunk(WORLD_WIDTH / 2, WORLD_WIDTH / 2 - 1);
-        genChunk(WORLD_WIDTH / 2 - 1, WORLD_WIDTH / 2);
-    }
-
-    public Chunk getChunk(int cX, int cZ) {
-        return chunks[cX][cZ];
-    }
-
-    private void genChunk(int cX, int cZ) {
-        if (cX < WORLD_WIDTH && cZ < WORLD_WIDTH && cX > -1 && cZ > -1) {
-            if (chunks[cX][cZ] == null) {
-                chunks[cX][cZ] = new Chunk(cX - WORLD_WIDTH / 2, cZ - WORLD_WIDTH / 2, this.generator);
-            }
-        }
+        generateChunk(1, 1);
+        generateChunk(0, 1);
     }
 
     public void render() {
-        for (int x = 0; x < WORLD_WIDTH; x++) {
-            for (int z = 0; z < WORLD_WIDTH; z++) {
-                if (chunks[x][z] != null) {
-                    chunks[x][z].render();
-                }
-            }
-        }
+        chunkSet.forEach(Chunk::render);
     }
 
-    public ArrayList<GameItem> getChunkBlockItems() {
-        ArrayList<GameItem> c = new ArrayList<>();
-        for (int x = 0; x < WORLD_WIDTH; x++) {
-            for (int z = 0; z < WORLD_WIDTH; z++) {
-                if (chunks[x][z] != null) {
-                    List<GameItem> gameItemList = chunks[x][z].getItemListForRendering();
-                    c.addAll(gameItemList);
-                }
-            }
+    public ArrayList<GameItem> getChunksBlockItems() {
+        List<GameItem> gameItemList = new ArrayList<>();
+        for (Chunk chunk : chunkSet) {
+            gameItemList.addAll(chunk.getItemListForRendering());
         }
-        return c;
+        return new ArrayList<>(gameItemList);
     }
 
     public void generate() {
-//        for (int x = 0; x < WORLD_WIDTH; x++) {
-//            for (int z = 0; z < WORLD_WIDTH; z++) {
-////                if (chunks[x][z] != null) {
-////                    chunks[x][z].continueGen();
-////                }
-//            }
-//        }
+//        generateChunk(WORLD_WIDTH / 2, WORLD_WIDTH / 2);
+//        generateChunk(WORLD_WIDTH / 2 - 1, WORLD_WIDTH / 2 - 1);
+//        generateChunk(WORLD_WIDTH / 2 - 2, WORLD_WIDTH / 2 - 2);
+//        generateChunk(1, 1);
+        //generateChunk(0, 1);
     }
 
-    public void cleanup() {
-        for (int x = 0; x < 16; x++) {
-            for (int z = 0; z < 16; z++) {
-                if (chunks[x][z] != null) {
-                    chunks[x][z].cleanup();
-                }
-            }
+    private void generateChunk(int cX, int cZ) {
+        if (cX < WORLD_WIDTH && cZ < WORLD_WIDTH) {
+            Chunk chunk = new Chunk(cX, cZ, this.generator);
+            chunk.generateBlocks();
+            chunkSet.add(chunk);
         }
+    }
 
+
+    public void cleanup() {
+        chunkSet.forEach(Chunk::cleanup);
     }
 }

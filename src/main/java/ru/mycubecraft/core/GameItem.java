@@ -1,13 +1,15 @@
 package ru.mycubecraft.core;
 
+import lombok.Getter;
 import org.joml.Vector3f;
 import org.lwjgl.opengl.GL11;
 
+@Getter
 public class GameItem implements RenderObject {
 
-    private Mesh mesh;
     private final Vector3f position;
     private final Vector3f rotation;
+    private Mesh mesh;
     private float scale;
 
     public GameItem() {
@@ -51,12 +53,12 @@ public class GameItem implements RenderObject {
         this.rotation.z = z;
     }
 
-    public void setMesh(Mesh mesh) {
-        this.mesh = mesh;
-    }
-
     public Mesh getMesh() {
         return mesh;
+    }
+
+    public void setMesh(Mesh mesh) {
+        this.mesh = mesh;
     }
 
     @Override

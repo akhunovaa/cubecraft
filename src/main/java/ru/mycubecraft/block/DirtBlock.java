@@ -1,5 +1,10 @@
 package ru.mycubecraft.block;
 
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+
+@Getter
+@EqualsAndHashCode(callSuper = false)
 public class DirtBlock extends Block {
 
     public DirtBlock(int bX, int bY, int bZ) {

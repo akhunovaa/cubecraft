@@ -17,6 +17,7 @@ import ru.mycubecraft.window.Window;
 import ru.mycubecraft.world.World;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import static org.lwjgl.opengl.GL11.*;
 
@@ -67,7 +68,8 @@ public class Renderer {
     private void renderScene(ArrayList<GameItem> gameItems, World world) {
         ArrayList<GameItem> allGameItems = new ArrayList<>(gameItems);
         if (world != null) {
-            allGameItems.addAll(world.getChunkBlockItems());
+            List<GameItem> gameItemList = world.getChunksBlockItems();
+            allGameItems.addAll(gameItemList);
         }
         shaderProgram.use();
 

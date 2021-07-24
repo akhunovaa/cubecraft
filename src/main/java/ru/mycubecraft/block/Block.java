@@ -1,9 +1,11 @@
 package ru.mycubecraft.block;
 
+import lombok.Getter;
 import org.joml.Vector3f;
 import ru.mycubecraft.core.GameItem;
 import ru.mycubecraft.renderer.Cube;
 
+@Getter
 public class Block {
 
     private final Vector3f position;
@@ -26,15 +28,8 @@ public class Block {
         this(bX, bY, bZ, "assets/textures/white.png");
     }
 
-    public Vector3f getPosition() {
-        return position;
-    }
-
-    public GameItem getGameCubeItem() {
-        return gameCubeItem;
-    }
-
     public void render() {
         gameCubeItem.render();
     }
+
 }
