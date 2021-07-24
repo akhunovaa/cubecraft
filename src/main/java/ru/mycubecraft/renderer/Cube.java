@@ -85,10 +85,10 @@ public class Cube extends GameItem {
                 0.5f, 0.5f,
 
                 // For text coords in top face
+                0.0f, 0.0f,
+                0.5f, 0.0f,
                 0.0f, 0.5f,
                 0.5f, 0.5f,
-                0.0f, 1.0f,
-                0.5f, 1.0f,
 
                 // For text coords in right face
                 0.0f, 0.0f,
