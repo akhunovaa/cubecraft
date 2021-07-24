@@ -1,6 +1,6 @@
 package ru.mycubecraft.scene;
 
-public class LevelEditorScene extends Scene {
+public class LevelEditorScene extends Scene implements Runnable {
 
     private final boolean changingScene = false;
 
@@ -26,6 +26,11 @@ public class LevelEditorScene extends Scene {
 
     @Override
     public void cleanup() {
+
+    }
+
+    @Override
+    public void run() {
 
     }
 }

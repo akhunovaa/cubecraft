@@ -15,8 +15,7 @@ public class BasicGen implements Generator {
     @Override
     public Block genBlock(int wX, int wY, int wZ, int seed) {
         int height = (int) (simp.noise(wX / 80.0, wZ / 80.0) * 5.0 + 10.0);
-        Block b = wY > height + 1 ? null : (wY > height ? new GrassBlock(wX, wY, wZ) : new DirtBlock(wX, wY, wZ));//new EmptyBlock(wX, wY,wZ):(wY>5?new GrassBlock(wX, wY,wZ):new DirtBlock(wX,wY,wZ));
-        return b;
+        return wY > height + 1 ? null : (wY > height ? new GrassBlock(wX, wY, wZ) : new DirtBlock(wX, wY, wZ));
     }
 
     @Override

@@ -67,7 +67,7 @@ public class Renderer {
     private void renderScene(ArrayList<GameItem> gameItems, World world) {
         ArrayList<GameItem> allGameItems = new ArrayList<>(gameItems);
         if (world != null) {
-            allGameItems.addAll(world.renderItems());
+            allGameItems.addAll(world.getChunkBlockItems());
         }
         shaderProgram.use();
 

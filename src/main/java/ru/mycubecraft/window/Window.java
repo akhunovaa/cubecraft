@@ -69,6 +69,7 @@ public class Window {
 
         init();
         lastFps = timer.getTime();
+
         loop();
 
         // Free the memory after the loop exists
@@ -167,8 +168,10 @@ public class Window {
         float elapsedTime;
         float accumulator = 0f;
         float interval = 1f / TARGET_UPS;
+        long current = System.currentTimeMillis();
 
         while (!glfwWindowShouldClose(this.glfwWindow)) {
+
             /* Get delta time and update the accumulator */
             elapsedTime = timer.getElapsedTime();
             accumulator += elapsedTime;
@@ -191,6 +194,9 @@ public class Window {
             if (timer.getLastLoopTime() - lastFps > 1 ){
                 lastFps = timer.getLastLoopTime();
             }
+            System.out.print("\rFps: " +
+                    1000f / (-current + (current = System.currentTimeMillis()))
+            );
 
             if ( !vSync ) {
                 sync();

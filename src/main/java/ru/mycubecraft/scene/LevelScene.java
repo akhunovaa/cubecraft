@@ -91,6 +91,8 @@ public class LevelScene extends Scene {
 
     @Override
     public void render(float delta) {
+        float xPosition = camera.getPosition().x;
+        float zPosition = camera.getPosition().z;
         world.generate();
         skyBox.setScale(100);
         hud.updateHud(window, camera);

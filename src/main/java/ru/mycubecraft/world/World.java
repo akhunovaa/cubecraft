@@ -3,15 +3,17 @@ package ru.mycubecraft.world;
 import ru.mycubecraft.core.GameItem;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class World {
-    public static final int WORLD_WIDTH = 16;
-    public static final int WORLD_HEIGHT = 64;
-    public Chunk[][] chunks = new Chunk[WORLD_WIDTH][WORLD_WIDTH];
-    public Generator gen;
+    public static final int WORLD_WIDTH = 18;
+    public static final int WORLD_HEIGHT = 16;
 
-    public World(Generator gen2) {
-        gen = gen2;
+    private final Chunk[][] chunks = new Chunk[WORLD_WIDTH][WORLD_WIDTH];
+    private final Generator generator;
+
+    public World(Generator generator) {
+        this.generator = generator;
         genChunk(WORLD_WIDTH / 2, WORLD_WIDTH / 2);
         genChunk(WORLD_WIDTH / 2 - 1, WORLD_WIDTH / 2 - 1);
         genChunk(WORLD_WIDTH / 2, WORLD_WIDTH / 2 - 1);
@@ -25,7 +27,7 @@ public class World {
     private void genChunk(int cX, int cZ) {
         if (cX < WORLD_WIDTH && cZ < WORLD_WIDTH && cX > -1 && cZ > -1) {
             if (chunks[cX][cZ] == null) {
-                chunks[cX][cZ] = new Chunk(cX - WORLD_WIDTH / 2, cZ - WORLD_WIDTH / 2, gen);
+                chunks[cX][cZ] = new Chunk(cX - WORLD_WIDTH / 2, cZ - WORLD_WIDTH / 2, this.generator);
             }
         }
     }
@@ -40,12 +42,13 @@ public class World {
         }
     }
 
-    public ArrayList<GameItem> renderItems() {
+    public ArrayList<GameItem> getChunkBlockItems() {
         ArrayList<GameItem> c = new ArrayList<>();
         for (int x = 0; x < WORLD_WIDTH; x++) {
             for (int z = 0; z < WORLD_WIDTH; z++) {
                 if (chunks[x][z] != null) {
-                    c.addAll(chunks[x][z].renderItems());
+                    List<GameItem> gameItemList = chunks[x][z].getItemListForRendering();
+                    c.addAll(gameItemList);
                 }
             }
         }
@@ -53,13 +56,13 @@ public class World {
     }
 
     public void generate() {
-        for (int x = 0; x < WORLD_WIDTH; x++) {
-            for (int z = 0; z < WORLD_WIDTH; z++) {
-                if (chunks[x][z] != null) {
-                    chunks[x][z].continueGen();
-                }
-            }
-        }
+//        for (int x = 0; x < WORLD_WIDTH; x++) {
+//            for (int z = 0; z < WORLD_WIDTH; z++) {
+////                if (chunks[x][z] != null) {
+////                    chunks[x][z].continueGen();
+////                }
+//            }
+//        }
     }
 
     public void cleanup() {

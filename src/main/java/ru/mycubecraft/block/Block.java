@@ -5,15 +5,16 @@ import ru.mycubecraft.core.GameItem;
 import ru.mycubecraft.renderer.Cube;
 
 public class Block {
+
     private final Vector3f position;
-    public GameItem model;
+    private GameItem gameCubeItem;
 
     public Block(int bX, int bY, int bZ, String texture) {
-        position = new Vector3f(bX, bY, bZ);
+        this.position = new Vector3f(bX, bY, bZ);
         try {
-            Cube cube = new Cube(new Vector3f(1.0f), texture);
-            cube.setPosition(bX, bY, bZ);
-            model = cube;
+            Cube gameCubeItem = new Cube(new Vector3f(1.0f), texture);
+            gameCubeItem.setPosition(bX, bY, bZ);
+            this.gameCubeItem = gameCubeItem;
         } catch (Exception e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
@@ -22,13 +23,18 @@ public class Block {
     }
 
     public Block(int bX, int bY, int bZ) {
-
         this(bX, bY, bZ, "assets/textures/white.png");
+    }
 
+    public Vector3f getPosition() {
+        return position;
+    }
 
+    public GameItem getGameCubeItem() {
+        return gameCubeItem;
     }
 
     public void render() {
-        model.render();
+        gameCubeItem.render();
     }
 }
