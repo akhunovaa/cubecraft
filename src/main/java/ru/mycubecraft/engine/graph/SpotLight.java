@@ -46,9 +46,9 @@ public class SpotLight {
     public void setCutOff(float cutOff) {
         this.cutOff = cutOff;
     }
-    
+
     public final void setCutOffAngle(float cutOffAngle) {
-        this.setCutOff((float)Math.cos(Math.toRadians(cutOffAngle)));
+        this.setCutOff((float) Math.cos(Math.toRadians(cutOffAngle)));
     }
 
 }

@@ -9,10 +9,9 @@ import static org.lwjgl.system.MemoryStack.*;
 import static org.lwjgl.system.libc.LibCStdlib.free;
 
 public class Sound {
+    private final String filepath;
     private int bufferId;
     private int sourceId;
-    private final String filepath;
-
     private boolean isPlaying = false;
 
     public Sound(String filepath, boolean loops) {

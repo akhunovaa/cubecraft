@@ -5,7 +5,6 @@ import org.lwjgl.glfw.GLFW;
 import ru.mycubecraft.core.GameItem;
 import ru.mycubecraft.core.Mesh;
 import ru.mycubecraft.data.Hud;
-import ru.mycubecraft.engine.Timer;
 import ru.mycubecraft.player.Player;
 import ru.mycubecraft.renderer.Camera;
 import ru.mycubecraft.renderer.Cube;
@@ -96,7 +95,7 @@ public class LevelScene extends Scene {
         world.generate();
         skyBox.setScale(100);
         hud.updateHud(window, camera);
-        hud.updateFps(1.0f / delta);
+        hud.updateFps(delta);
         renderer.render(window, gameItems, world, camera, skyBox, this, hud);
         //renderer.renderScene(window, camera, this);
 

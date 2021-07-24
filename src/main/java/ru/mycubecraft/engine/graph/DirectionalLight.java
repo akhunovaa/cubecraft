@@ -3,7 +3,7 @@ package ru.mycubecraft.engine.graph;
 import org.joml.Vector3f;
 
 public class DirectionalLight {
-    
+
     private Vector3f color;
 
     private Vector3f direction;

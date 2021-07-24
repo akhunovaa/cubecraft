@@ -4,7 +4,6 @@ import ru.mycubecraft.core.GameItem;
 import ru.mycubecraft.core.Mesh;
 import ru.mycubecraft.engine.SceneLight;
 import ru.mycubecraft.engine.SkyBox;
-import ru.mycubecraft.engine.Timer;
 import ru.mycubecraft.listener.KeyboardListener;
 import ru.mycubecraft.listener.MouseListener;
 import ru.mycubecraft.player.Player;

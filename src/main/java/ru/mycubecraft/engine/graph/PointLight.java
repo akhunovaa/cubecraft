@@ -11,7 +11,7 @@ public class PointLight {
     private float intensity;
 
     private Attenuation attenuation;
-    
+
     public PointLight(Vector3f color, Vector3f position, float intensity) {
         attenuation = new Attenuation(1, 0, 0);
         this.color = color;

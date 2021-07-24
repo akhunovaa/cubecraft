@@ -31,6 +31,12 @@ public class Window {
 
     private static Window instance;
     private final String title;
+    private final float skyBoxScale = 50.0f;
+    /**
+     * Used for timing calculations.
+     */
+    private final Timer timer;
+    private final boolean vSync = true;
     private int width;
     private int height;
     private float red = 0.0f;
@@ -42,13 +48,6 @@ public class Window {
     private MouseListener mouseListener;
     private Scene currentScene;
     private boolean resized;
-    private final float skyBoxScale = 50.0f;
-    private boolean vSync = true;
-    /**
-     * Used for timing calculations.
-     */
-    private final Timer timer;
-    private double lastFps;
 
     private Window() {
         timer = new Timer();
@@ -68,7 +67,6 @@ public class Window {
         System.out.println("Hello LWJGL " + Version.getVersion() + "!");
 
         init();
-        lastFps = timer.getTime();
 
         loop();
 
@@ -189,16 +187,14 @@ public class Window {
                 accumulator -= interval;
             }
 
-            currentScene.render(accumulator);
+            float currentFps = 1000f / (-current + (current = System.currentTimeMillis()));
 
-            if (timer.getLastLoopTime() - lastFps > 1 ){
-                lastFps = timer.getLastLoopTime();
-            }
-            System.out.print("\rFps: " +
-                    1000f / (-current + (current = System.currentTimeMillis()))
-            );
+            System.out.print("\rWithout UPS FPS: " + currentFps);
 
-            if ( !vSync ) {
+
+            currentScene.render(currentFps);
+
+            if (!vSync) {
                 sync();
             }
 

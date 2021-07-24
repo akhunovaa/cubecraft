@@ -28,7 +28,6 @@ public class SimplexNoiseOctave { // Simplex noise in 2D, 3D and 4D
     private static final double G3 = 1.0 / 6.0;
     private static final double F4 = (Math.sqrt(5.0) - 1.0) / 4.0;
     private static final double G4 = (5.0 - Math.sqrt(5.0)) / 20.0;
-    public static int RANDOMSEED = 0;
     private static final int NUMBEROFSWAPS = 400;
     private static final Grad[] grad3 = {new Grad(1, 1, 0), new Grad(-1, 1, 0),
             new Grad(1, -1, 0), new Grad(-1, -1, 0), new Grad(1, 0, 1),
@@ -71,11 +70,12 @@ public class SimplexNoiseOctave { // Simplex noise in 2D, 3D and 4D
             84, 204, 176, 115, 121, 50, 45, 127, 4, 150, 254, 138, 236, 205,
             93, 222, 114, 67, 29, 24, 72, 243, 141, 128, 195, 78, 66, 215, 61,
             156, 180};
-    private short[] p = new short[p_supply.length];
+    public static int RANDOMSEED = 0;
     // To remove the need for index wrapping, double the permutation table
     // length
     private final short[] perm = new short[512];
     private final short[] permMod12 = new short[512];
+    private short[] p = new short[p_supply.length];
 
     public SimplexNoiseOctave(int seed) {
         p = p_supply.clone();

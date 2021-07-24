@@ -1,7 +1,6 @@
 package ru.mycubecraft.renderer;
 
 import org.lwjgl.BufferUtils;
-import org.lwjgl.opengl.GL15;
 import org.lwjgl.opengl.GL20;
 import org.lwjgl.system.MemoryStack;
 
@@ -28,8 +27,8 @@ public class Texture {
 
     /**
      * Creates a texture with specified width, height and data.
-     * @param imageBuffer   Picture Data in RGBA format
      *
+     * @param imageBuffer Picture Data in RGBA format
      */
     public Texture(ByteBuffer imageBuffer) {
         ByteBuffer buf;

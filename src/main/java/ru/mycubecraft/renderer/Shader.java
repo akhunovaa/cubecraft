@@ -17,12 +17,11 @@ import static org.lwjgl.opengl.GL20.*;
 
 public class Shader {
 
+    private final String filepath;
     private int shaderProgramID;
     private boolean beingUsed = false;
-
     private String vertexSource;
     private String fragmentSource;
-    private final String filepath;
 
     public Shader(String filepath) {
         this.filepath = filepath;
@@ -117,9 +116,9 @@ public class Shader {
 
     public void use() {
 //        if (!beingUsed) {
-            // Bind shader program
-            glUseProgram(shaderProgramID);
-            beingUsed = true;
+        // Bind shader program
+        glUseProgram(shaderProgramID);
+        beingUsed = true;
 
     }
 

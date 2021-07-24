@@ -12,7 +12,7 @@ public class OBJLoader {
 
     public static Mesh loadMesh(String fileName) throws Exception {
         List<String> lines = Utils.readAllLines(fileName);
-        
+
         List<Vector3f> vertices = new ArrayList<>();
         List<Vector2f> textures = new ArrayList<>();
         List<Vector3f> normals = new ArrayList<>();
@@ -57,7 +57,7 @@ public class OBJLoader {
     }
 
     private static Mesh reorderLists(List<Vector3f> posList, List<Vector2f> textCoordList,
-            List<Vector3f> normList, List<Face> facesList) {
+                                     List<Vector3f> normList, List<Face> facesList) {
 
         List<Integer> indices = new ArrayList<>();
         // Create position array in the order it has been declared
@@ -84,8 +84,8 @@ public class OBJLoader {
     }
 
     private static void processFaceVertex(IdxGroup indices, List<Vector2f> textCoordList,
-            List<Vector3f> normList, List<Integer> indicesList,
-            float[] texCoordArr, float[] normArr) {
+                                          List<Vector3f> normList, List<Integer> indicesList,
+                                          float[] texCoordArr, float[] normArr) {
 
         // Set index for vertex coordinates
         int posIndex = indices.idxPos;
