@@ -16,7 +16,7 @@ public class Utils {
         return result;
     }
 
-    public static List<String> readAllLines(String fileName) throws Exception {
+    public static List<String> readAllLines(String fileName){
         List<String> list = new ArrayList<>();
         File file = new File(fileName);
         try (BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(file)))) {
@@ -24,6 +24,8 @@ public class Utils {
             while ((line = br.readLine()) != null) {
                 list.add(line);
             }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
         return list;
     }

@@ -10,7 +10,7 @@ import java.util.List;
 
 public class OBJLoader {
 
-    public static Mesh loadMesh(String fileName) throws Exception {
+    public static Mesh loadMesh(String fileName) {
         List<String> lines = Utils.readAllLines(fileName);
 
         List<Vector3f> vertices = new ArrayList<>();

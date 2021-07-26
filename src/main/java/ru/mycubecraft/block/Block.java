@@ -14,7 +14,7 @@ public class Block {
     public Block(int bX, int bY, int bZ, String texture) {
         this.position = new Vector3f(bX, bY, bZ);
         try {
-            Cube gameCubeItem = new Cube(new Vector3f(1.0f), texture);
+            Cube gameCubeItem = new Cube(texture);
             gameCubeItem.setPosition(bX, bY, bZ);
             this.gameCubeItem = gameCubeItem;
         } catch (Exception e) {

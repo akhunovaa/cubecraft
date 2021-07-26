@@ -1,19 +1,14 @@
 package ru.mycubecraft.scene;
 
-import org.joml.Vector3f;
 import org.lwjgl.glfw.GLFW;
 import ru.mycubecraft.core.GameItem;
-import ru.mycubecraft.core.Mesh;
 import ru.mycubecraft.data.Hud;
+import ru.mycubecraft.data.Settings;
 import ru.mycubecraft.player.Player;
 import ru.mycubecraft.renderer.Camera;
-import ru.mycubecraft.renderer.Cube;
 import ru.mycubecraft.renderer.Renderer;
 import ru.mycubecraft.world.BasicGen;
 import ru.mycubecraft.world.World;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import static org.lwjgl.glfw.GLFW.*;
 
@@ -26,31 +21,12 @@ public class LevelScene extends Scene {
         System.out.println("Entered to a Level Scene");
         renderer = new Renderer();
         camera = new Camera();
-        player = new Player();
         world = new World(new BasicGen(1));
-
-        System.out.println("WORLD GEND");
-        GameItem gameItem = new Cube(new Vector3f(1.0f, 1.0f, 1.0f), "assets/textures/dirt.png");
-        gameItem.setPosition(0, 5, 0);
-
-        gameItems.add(gameItem);
-        setGameItems(gameItems);
-
-
-    }
-
-    public void setGameItems(ArrayList<GameItem> gameItems) {
-        int numGameItems = gameItems != null ? gameItems.size() : 0;
-        for (int i = 0; i < numGameItems; i++) {
-            GameItem gameItem = gameItems.get(0);
-            Mesh mesh = gameItem.getMesh();
-            List<GameItem> list = meshMap.computeIfAbsent(mesh, k -> new ArrayList<>());
-            list.add(gameItem);
-        }
     }
 
     @Override
     public void init() {
+        System.out.println("Entering To Word");
         hud = new Hud();
     }
 
@@ -90,10 +66,10 @@ public class LevelScene extends Scene {
 
     @Override
     public void render(float delta) {
-        float xPosition = camera.getPosition().x;
-        float zPosition = camera.getPosition().z;
-        world.generate();
-        skyBox.setScale(100);
+        int xPosition = (int) camera.getPosition().x;
+        int zPosition = (int) camera.getPosition().z;
+        world.generate(xPosition, zPosition);
+        skyBox.setScale(Settings.SKY_BOX_SCALE);
         hud.updateHud(window, camera);
         hud.updateFps(delta);
         renderer.render(window, gameItems, world, camera, skyBox, this, hud);

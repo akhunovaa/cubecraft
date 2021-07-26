@@ -1,18 +1,38 @@
 package ru.mycubecraft.util;
 
+import ru.mycubecraft.core.Mesh;
 import ru.mycubecraft.data.Sound;
+import ru.mycubecraft.engine.graph.OBJLoader;
 import ru.mycubecraft.renderer.Shader;
 import ru.mycubecraft.renderer.Texture;
 
 import java.io.File;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.io.FileNotFoundException;
+import java.util.*;
 
 public class AssetPool {
+
+    private static final String DEFAULT_TEXTURE_LOCATION_FOLDER = "assets/textures";
+    private static final String DEFAULT_MODELS_LOCATION_FOLDER = "assets/models";
+
+    private static final Map<String, Mesh> meshes = new HashMap<>();
     private static final Map<String, Shader> shaders = new HashMap<>();
     private static final Map<String, Texture> textures = new HashMap<>();
     private static final Map<String, Sound> sounds = new HashMap<>();
+
+    static {
+        final File textureFolder = new File(DEFAULT_TEXTURE_LOCATION_FOLDER);
+        for (String filePath : listFilesForFolder(textureFolder)) {
+            Texture texture = new Texture();
+            texture.createTexture(filePath);
+            AssetPool.textures.put(filePath, texture);
+        }
+        final File modelsFolder = new File(DEFAULT_MODELS_LOCATION_FOLDER);
+        for (String filePath : listFilesForFolder(modelsFolder)) {
+            Mesh mesh = OBJLoader.loadMesh(filePath);
+            AssetPool.meshes.put(filePath, mesh);
+        }
+    }
 
     public static Shader getShader(String resourceName) {
         File file = new File(resourceName);
@@ -26,15 +46,21 @@ public class AssetPool {
         }
     }
 
-    public static Texture getTexture(String resourceName) {
+    public static Texture getTexture(String resourceName) throws FileNotFoundException {
         File file = new File(resourceName);
         if (AssetPool.textures.containsKey(file.getAbsolutePath())) {
             return AssetPool.textures.get(file.getAbsolutePath());
         } else {
-            Texture texture = new Texture();
-            texture.init(resourceName);
-            AssetPool.textures.put(file.getAbsolutePath(), texture);
-            return texture;
+            throw new FileNotFoundException(String.format("Texture %s not loaded!", resourceName));
+        }
+    }
+
+    public static Mesh getMesh(String resourceName) throws FileNotFoundException {
+        File file = new File(resourceName);
+        if (AssetPool.meshes.containsKey(file.getAbsolutePath())) {
+            return AssetPool.meshes.get(file.getAbsolutePath());
+        } else {
+            throw new FileNotFoundException(String.format("Mesh %s not loaded!", resourceName));
         }
     }
 
@@ -62,5 +88,17 @@ public class AssetPool {
             AssetPool.sounds.put(file.getAbsolutePath(), sound);
             return sound;
         }
+    }
+
+    public static List<String> listFilesForFolder(final File folder) {
+        List<String> pathList = new ArrayList<>();
+        File[] listOfFiles = folder.listFiles();
+        for (File file : listOfFiles != null ? listOfFiles : new File[0]) {
+            if (file.isFile()) {
+                String filePath = file.getAbsolutePath();
+                pathList.add(filePath);
+            }
+        }
+        return pathList;
     }
 }

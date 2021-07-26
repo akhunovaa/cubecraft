@@ -92,6 +92,7 @@ public class Renderer {
 
         // Unbind shader
         shaderProgram.detach();
+        allGameItems.clear();
     }
 
     private void renderSkyBox(SkyBox skyBox) {

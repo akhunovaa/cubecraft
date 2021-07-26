@@ -17,4 +17,6 @@ public final class Settings {
     public static final float MAX_LOOK = 90.0f;
     public static final float MIN_LOOK = -90.0f;
 
+    public static final float SKY_BOX_SCALE = 100;
+
 }
