@@ -1,4 +1,4 @@
-# My first Game Engine tested via my Cube Craft game
+# My Game Engine tested via my Cubecraft Game
 
 ## Install:
 
