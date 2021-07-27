@@ -21,6 +21,4 @@ mvn -P {your OS name} clean install
 
 `java -jar cubecraft-0.1.0.jar -XstartOnFirstThread`
 
-
-
-[![Video clip](http://www.siimannuk.com/wp-content/uploads/2011/07/rubiks01.jpg)](https://youtu.be/Rg6HbAUFnRE "Everything Is AWESOME")
+[![Video clip](https://user-images.githubusercontent.com/74009113/127210945-f37a2467-34e2-456d-a1c1-bf8b4d73f6a9.png)](https://www.youtube.com/watch?v=cWPpFebf12o "Everything Is AWESOME")
