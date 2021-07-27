@@ -1,4 +1,4 @@
-package ru.mycubecraft.data;
+package ru.mycubecraft;
 
 public final class Settings {
 
@@ -6,6 +6,10 @@ public final class Settings {
 
     public static final int WIDTH = 800;
     public static final int HEIGHT = 600;
+
+    public static final boolean SHOW_TRIANGLES = false;
+    public static final boolean CULL_FACE = true;
+    public static final boolean ANTIALIASING = true;
 
     public static final float MOVE_SPEED = 3.00f;
 

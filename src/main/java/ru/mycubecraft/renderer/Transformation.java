@@ -4,7 +4,7 @@ import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
 import ru.mycubecraft.core.GameItem;
-import ru.mycubecraft.data.Settings;
+import ru.mycubecraft.Settings;
 
 public class Transformation {
 

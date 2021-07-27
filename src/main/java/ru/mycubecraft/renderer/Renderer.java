@@ -51,7 +51,7 @@ public class Renderer {
     }
 
     public void clear() {
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
     }
 
     public void render(Window window, ArrayList<GameItem> gameItems, World world, Camera camera, SkyBox skyBox, Scene scene, IHud hud) {
@@ -190,6 +190,13 @@ public class Renderer {
     private void renderHud(Window window, IHud hud) {
         hudShaderProgram.use();
 
+        // GL_BLEND - the technique to implement transparency within objects
+        glEnable(GL_BLEND);
+        // GL_SRC_ALPHA - alpha component of the source color vector
+        // GL_ONE_MINUS_SRC_ALPHA - 1 = alpha of the source color vector
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        glDepthMask(false);
+
         Matrix4f ortho = transformation.getOrthoProjectionMatrix(0, window.getWidth(), window.getHeight(), 0);
         for (GameItem gameItem : hud.getGameItems()) {
             Mesh mesh = gameItem.getMesh();
@@ -201,6 +208,9 @@ public class Renderer {
 
             gameItem.render();
         }
+
+        glDisable(GL_BLEND);
+        glDepthMask(true);
 
         hudShaderProgram.detach();
     }

@@ -6,7 +6,7 @@ import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.glfw.GLFWWindowSizeCallback;
 import org.lwjgl.opengl.GL;
-import ru.mycubecraft.data.Settings;
+import ru.mycubecraft.Settings;
 import ru.mycubecraft.engine.SceneLight;
 import ru.mycubecraft.engine.SkyBox;
 import ru.mycubecraft.engine.Timer;
@@ -144,13 +144,30 @@ public class Window {
         // Set the clear color
         glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
         glEnable(GL_DEPTH_TEST);
+        glEnable(GL_STENCIL_TEST);
 
-        glEnable(GL_CULL_FACE);
-        glCullFace(GL_BACK);
+        if (Settings.SHOW_TRIANGLES) {
+            glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+        }
+
+        if (Settings.CULL_FACE) {
+            glEnable(GL_CULL_FACE);
+            glCullFace(GL_BACK);
+        }
+
+        // Antialiasing
+        if (Settings.ANTIALIASING) {
+            /*
+            GLFW_SAMPLES is used to enable multisampling. So glfwWindowHint(GLFW_SAMPLES, 4) is a way
+            to enable 4x MSAA in your application. 4x MSAA means that each pixel of the window's buffer
+            consists of 4 subsamples, which means that each pixel consists of 4 pixels so to speak.
+            Thus a buffer with the size of 200x100 pixels would actually be 800x400 pixels.
+             */
+            glfwWindowHint(GLFW_SAMPLES, 4);
+        }
+
         glfwSetInputMode(this.glfwWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-//        // Support for transparencies
-        glEnable(GL_BLEND);
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
         this.changeScene(1);
         try {
             this.setupSkyBox();
@@ -175,7 +192,6 @@ public class Window {
             accumulator += elapsedTime;
 
             glClearColor(this.red, this.green, this.blue, this.alpha);
-            glClear(GL_COLOR_BUFFER_BIT);
 
             if (this.keyboardListener.isKeyPressed(GLFW_PRESS)) {
                 glfwSetCursorPos(this.glfwWindow, (float) this.width / 2, (float) this.height / 2);
@@ -299,5 +315,15 @@ public class Window {
 
     public int getHeight() {
         return height;
+    }
+
+    public void restoreState() {
+        glEnable(GL_DEPTH_TEST);
+        glEnable(GL_STENCIL_TEST);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        if (Settings.CULL_FACE) {
+            glEnable(GL_CULL_FACE);
+            glCullFace(GL_BACK);
+        }
     }
 }

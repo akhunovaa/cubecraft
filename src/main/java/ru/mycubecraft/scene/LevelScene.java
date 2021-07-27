@@ -4,7 +4,7 @@ import org.joml.Vector2f;
 import org.joml.Vector3f;
 import ru.mycubecraft.core.GameItem;
 import ru.mycubecraft.data.Hud;
-import ru.mycubecraft.data.Settings;
+import ru.mycubecraft.Settings;
 import ru.mycubecraft.renderer.Camera;
 import ru.mycubecraft.renderer.Renderer;
 import ru.mycubecraft.world.BasicGen;

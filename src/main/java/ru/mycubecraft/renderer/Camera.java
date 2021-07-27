@@ -1,9 +1,8 @@
 package ru.mycubecraft.renderer;
 
-import org.joml.Quaternionf;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
-import ru.mycubecraft.data.Settings;
+import ru.mycubecraft.Settings;
 import ru.mycubecraft.util.MathUtil;
 
 public class Camera {
