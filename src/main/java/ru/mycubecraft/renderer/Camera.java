@@ -17,71 +17,6 @@ public class Camera {
         this.rotation = new Vector3f(0, 0, 0);
     }
 
-    public void moveForward(float delta) {
-        movePosition(position.x * CAMERA_POS_STEP, position.x * CAMERA_POS_STEP, position.x * CAMERA_POS_STEP);
-
-//        Vector4f directionVector = new Vector4f(0f, 0f, delta * Settings.MOVE_SPEED, Settings.FOV);
-//        directionVector.rotate(viewDirection);
-//        this.position.add(directionVector);
-    }
-
-    public void moveBackward(float delta) {
-        movePosition(position.x * CAMERA_POS_STEP, position.x * CAMERA_POS_STEP, position.x * CAMERA_POS_STEP);
-
-//        Quaternionf viewDirection = new Quaternionf();
-//        viewDirection.setEulerAnglesXYZ(0.0f, (float) Math.toRadians(rotation.y), 0.0f);
-//
-//        Vector4f directionVector = new Vector4f(0f, 0f, -delta * Settings.MOVE_SPEED, Settings.FOV);
-//        directionVector.rotate(viewDirection);
-//        this.position.add(directionVector);
-    }
-
-    public void moveLeft(float delta) {
-        movePosition(position.x * CAMERA_POS_STEP, position.x * CAMERA_POS_STEP, position.x * CAMERA_POS_STEP);
-
-//        Quaternionf viewDirection = new Quaternionf();
-//        viewDirection.setEulerAnglesXYZ(0.0f, (float) Math.toRadians(rotation.y), 0.0f);
-//
-//        Vector4f directionVector = new Vector4f(-delta * Settings.MOVE_SPEED, 0.0f, 0.0f, Settings.FOV);
-//        directionVector.rotate(viewDirection);
-//        this.position.add(directionVector);
-    }
-
-    public void moveRight(float delta) {
-        movePosition(position.x * CAMERA_POS_STEP, position.x * CAMERA_POS_STEP, position.x * CAMERA_POS_STEP);
-
-//        Quaternionf viewDirection = new Quaternionf();
-//        viewDirection.setEulerAnglesXYZ(0.0f, (float) Math.toRadians(rotation.y), 0.0f);
-//
-//        Vector4f directionVector = new Vector4f(delta * Settings.MOVE_SPEED, 0.0f, 0.0f, Settings.FOV);
-//        directionVector.rotate(viewDirection);
-//        this.position.add(directionVector);
-    }
-
-    public void jump(float delta) {
-        Vector4f cameraUp = new Vector4f(0f, delta * Settings.MOVE_SPEED, 0f, Settings.FOV);
-        this.position.add(cameraUp);
-    }
-
-    public void sitDown(float delta) {
-        Vector4f cameraDown = new Vector4f(0f, -delta * Settings.MOVE_SPEED, 0f, Settings.FOV);
-        this.position.add(cameraDown);
-    }
-
-    public void rotateCamera(float mouseDx, float mouseDy, float delta) {
-        this.rotation.x = MathUtil.clamp(this.rotation.x, Settings.MIN_LOOK, Settings.MAX_LOOK);
-        float xRotation = this.rotation.x;
-        float yRotation = this.rotation.y;
-        if (xRotation >= Settings.MIN_LOOK) {
-            rotation.x -= mouseDy * delta;
-            rotation.y -= mouseDx * delta;
-        } else {
-            rotation.x += mouseDy * delta;
-            rotation.y += mouseDx * delta;
-        }
-
-    }
-
     public Vector4f getPosition() {
         return position;
     }
@@ -106,6 +41,7 @@ public class Camera {
         rotation.x += offsetX;
         rotation.y += offsetY;
         rotation.z += offsetZ;
+        rotation.x = MathUtil.clamp(rotation.x, Settings.MIN_LOOK, Settings.MAX_LOOK);
     }
 
     public void movePosition(float offsetX, float offsetY, float offsetZ) {
