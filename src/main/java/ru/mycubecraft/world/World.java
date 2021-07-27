@@ -27,9 +27,9 @@ public class World {
         this.generator = generator;
 
         // spawn chunks
-        generateChunk(-1, -1);
         generateChunk(0, 0);
-        generateChunk(1, 1);
+        generateChunk(1, 0);
+        generateChunk(0, 1);
 
 //        generateChunk(0, -1);
 //        generateChunk(-1, 0);

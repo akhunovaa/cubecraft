@@ -44,7 +44,7 @@ public class LevelScene extends Scene {
         Vector2f rotVec = mouseListener.getDisplVec();
         camera.moveRotation(rotVec.x * Settings.MOUSE_SENSITIVITY, rotVec.y * Settings.MOUSE_SENSITIVITY, 0);
 
-        camera.movePosition(cameraInc.x * Settings.MOUSE_SENSITIVITY, cameraInc.y * Settings.MOUSE_SENSITIVITY, cameraInc.z * Settings.MOUSE_SENSITIVITY);
+        camera.movePosition(cameraInc.x * Settings.MOVE_SPEED, cameraInc.y * Settings.MOVE_SPEED, cameraInc.z * Settings.MOVE_SPEED);
 
     }
 

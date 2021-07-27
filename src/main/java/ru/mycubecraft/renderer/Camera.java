@@ -41,7 +41,7 @@ public class Camera {
         rotation.x += offsetX;
         rotation.y += offsetY;
         rotation.z += offsetZ;
-        rotation.x = MathUtil.clamp(rotation.x, Settings.MIN_LOOK, Settings.MAX_LOOK);
+//        rotation.x = MathUtil.clamp(rotation.x, Settings.MIN_LOOK, Settings.MAX_LOOK);
     }
 
     public void movePosition(float offsetX, float offsetY, float offsetZ) {
