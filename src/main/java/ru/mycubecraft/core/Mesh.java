@@ -1,5 +1,7 @@
 package ru.mycubecraft.core;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL15;
 import org.lwjgl.opengl.GL20;
@@ -22,6 +24,8 @@ import static org.lwjgl.opengl.GL20.glDisableVertexAttribArray;
 import static org.lwjgl.opengl.GL30.glBindVertexArray;
 import static org.lwjgl.opengl.GL30.glDeleteVertexArrays;
 
+@Getter
+@Setter
 public class Mesh {
 
     private int vaoId;
@@ -31,6 +35,8 @@ public class Mesh {
     private int vertexCount;
 
     private Material material;
+
+    private float boundingRadius;
 
     public Mesh(float[] positions, float[] textCoords, float[] normals, int[] indices) {
         FloatBuffer posBuffer = null;

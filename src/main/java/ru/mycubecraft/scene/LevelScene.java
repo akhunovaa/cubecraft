@@ -1,10 +1,10 @@
 package ru.mycubecraft.scene;
 
-import org.lwjgl.glfw.GLFW;
+import org.joml.Vector2f;
+import org.joml.Vector3f;
 import ru.mycubecraft.core.GameItem;
 import ru.mycubecraft.data.Hud;
 import ru.mycubecraft.data.Settings;
-import ru.mycubecraft.player.Player;
 import ru.mycubecraft.renderer.Camera;
 import ru.mycubecraft.renderer.Renderer;
 import ru.mycubecraft.world.BasicGen;
@@ -14,14 +14,21 @@ import static org.lwjgl.glfw.GLFW.*;
 
 public class LevelScene extends Scene {
 
-    private static final float CAMERA_POS_STEP = 0.05f;
+    private final Vector3f cameraInc;
     private Hud hud;
+    private float angleInc;
+    private float lightAngle;
+    private boolean firstTime;
+    private boolean sceneChanged;
+    private final Vector3f pointLightPos;
 
     public LevelScene() {
         System.out.println("Entered to a Level Scene");
         renderer = new Renderer();
         camera = new Camera();
         world = new World(new BasicGen(1));
+        cameraInc = new Vector3f(0.0f, 0.0f, 0.0f);
+        pointLightPos = new Vector3f(0.0f, 25.0f, 0.0f);
     }
 
     @Override
@@ -33,36 +40,47 @@ public class LevelScene extends Scene {
     @Override
     public void update(float delta) {
         hud.rotateCompass(-camera.getRotation().y);
-        if (keyboardListener.isKeyPressed(GLFW_KEY_W)) {
-            camera.moveForward(delta);
-        } else if (keyboardListener.isKeyPressed(GLFW_KEY_S)) {
-            camera.moveBackward(delta);
-        } else if (keyboardListener.isKeyPressed(GLFW_KEY_A)) {
-            camera.moveLeft(delta);
-        } else if (keyboardListener.isKeyPressed(GLFW_KEY_D)) {
-            camera.moveRight(delta);
-        } else if (keyboardListener.isKeyPressed(GLFW_KEY_SPACE)) {
-            camera.jump(delta);
-        } else if (keyboardListener.isKeyPressed(GLFW.GLFW_KEY_LEFT_SHIFT) || keyboardListener.isKeyPressed(GLFW.GLFW_KEY_RIGHT_SHIFT)) {
-            camera.sitDown(delta);
-        }
 
+        Vector2f rotVec = mouseListener.getDisplVec();
+        camera.moveRotation(rotVec.x * Settings.MOUSE_SENSITIVITY, rotVec.y * Settings.MOUSE_SENSITIVITY, 0);
 
-        float cursorPositionX = mouseListener.getxPosition();
-        float cursorPositionLastX = (float) mouseListener.getxLastPosition();
-        float cursorPositionDx = mouseListener.getDx();
-
-        float cursorPositionY = mouseListener.getyPosition();
-        float cursorPositionLastY = (float) mouseListener.getyLastPosition();
-        float cursorPositionDy = mouseListener.getDy();
-
-        boolean isOnWindow = mouseListener.isInWindow();
-
-        if (isOnWindow && cursorPositionX != cursorPositionLastX && cursorPositionY != cursorPositionLastY && cursorPositionDx != 0.0f && cursorPositionDy != 0.0f) {
-            camera.rotateCamera(cursorPositionDx, cursorPositionDy, delta);
-        }
+        camera.movePosition(cameraInc.x * Settings.MOUSE_SENSITIVITY, cameraInc.y * Settings.MOUSE_SENSITIVITY, cameraInc.z * Settings.MOUSE_SENSITIVITY);
 
     }
+
+    @Override
+    public void input() {
+        cameraInc.set(0, 0, 0);
+        if (keyboardListener.isKeyPressed(GLFW_KEY_W)) {
+            cameraInc.z = -1;
+        } else if (keyboardListener.isKeyPressed(GLFW_KEY_S)) {
+            cameraInc.z = 1;
+        }
+        if (keyboardListener.isKeyPressed(GLFW_KEY_A)) {
+            cameraInc.x = -1;
+        } else if (keyboardListener.isKeyPressed(GLFW_KEY_D)) {
+            cameraInc.x = 1;
+        }
+        if (keyboardListener.isKeyPressed(GLFW_KEY_Z) || keyboardListener.isKeyPressed(GLFW_KEY_LEFT_SHIFT)) {
+            cameraInc.y = -1;
+        } else if (keyboardListener.isKeyPressed(GLFW_KEY_X) || keyboardListener.isKeyPressed(GLFW_KEY_SPACE)) {
+            cameraInc.y = 1;
+        }
+        if (keyboardListener.isKeyPressed(GLFW_KEY_LEFT)) {
+            angleInc -= 0.05f;
+        } else if (keyboardListener.isKeyPressed(GLFW_KEY_RIGHT)) {
+            angleInc += 0.05f;
+        } else {
+            angleInc = 0;
+        }
+
+        if (keyboardListener.isKeyPressed(GLFW_KEY_UP)) {
+            pointLightPos.y += 0.5f;
+        } else if (keyboardListener.isKeyPressed(GLFW_KEY_DOWN)) {
+            pointLightPos.y -= 0.5f;
+        }
+    }
+
 
     @Override
     public void render(float delta) {

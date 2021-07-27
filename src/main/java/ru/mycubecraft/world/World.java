@@ -61,32 +61,27 @@ public class World {
     }
 
     private void generateChunk(int xOffset, int zOffset) {
-        String chunkKey = String.format("%s:%s", xOffset, zOffset);
-        if (!chunkMap.containsKey(chunkKey)){
             if (xOffset < WORLD_WIDTH && zOffset < WORLD_WIDTH) {
-                executorService.execute(new Runnable() {
-                    public void run() {
-                        System.out.println("Chunk Generating Task Execute Started");
-                        Chunk chunk = new Chunk(xOffset, zOffset, new BasicGen(1));
-                        chunk.generateBlocks();
-                        chunkMap.put(chunkKey, chunk);
-                    }
-                });
+                String chunkKey = String.format("%s:%s", xOffset, zOffset);
+                if (!chunkMap.containsKey(chunkKey)) {
+                    Chunk chunk = new Chunk(xOffset, zOffset, new BasicGen(1));
+                    chunkMap.put(chunkKey, chunk);
+                    System.out.println("Chunk Generating Task has been Started");
+                    executorService.execute(new Runnable() {
+                        public void run() {
+                            chunk.generateBlocks();
+                        }
+                    });
+
+                }
             }
         }
-    }
 
     private void removeChunk(int xOffset, int zOffset) {
         String chunkKey = String.format("%s:%s", xOffset, zOffset);
         if (chunkMap.containsKey(chunkKey)){
-            if (xOffset < WORLD_WIDTH && zOffset < WORLD_WIDTH) {
-                executorService.execute(new Runnable() {
-                    public void run() {
-                        System.out.println("Chunk Removing Task Execute Started");
-                        chunkMap.remove(chunkKey);
-                    }
-                });
-            }
+            System.out.println("Chunk Removing Task has been Started");
+            chunkMap.remove(chunkKey);
         }
     }
 

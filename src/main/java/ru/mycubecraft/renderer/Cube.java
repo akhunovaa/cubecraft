@@ -23,6 +23,7 @@ public class Cube extends GameItem {
         super(null);
         Texture texture = AssetPool.getTexture(texturePath);
         Mesh mesh = AssetPool.getMesh(DEFAULT_MODEL_FILE_PATH);
+        mesh.setBoundingRadius(1);
         mesh.setMaterial(new Material(texture, 0.0f));
         this.mesh = mesh;
         this.position = new Vector3f(0, 0, 0);

@@ -1,10 +1,12 @@
 package ru.mycubecraft.core;
 
 import lombok.Getter;
+import lombok.Setter;
 import org.joml.Vector3f;
 import org.lwjgl.opengl.GL11;
 
 @Getter
+@Setter
 public class GameItem implements RenderObject {
 
     private final Vector3f position;
@@ -12,10 +14,15 @@ public class GameItem implements RenderObject {
     private Mesh mesh;
     private float scale;
 
+    private boolean disableFrustumCulling;
+    private boolean insideFrustum;
+
     public GameItem() {
         position = new Vector3f();
         scale = 1;
         rotation = new Vector3f();
+        insideFrustum = true;
+        disableFrustumCulling = false;
     }
 
     public GameItem(Mesh mesh) {

@@ -8,48 +8,55 @@ import ru.mycubecraft.util.MathUtil;
 
 public class Camera {
 
+    private static final float CAMERA_POS_STEP = 0.65f;
+
     public Vector4f position;
     public Vector3f rotation;
 
     public Camera() {
-        position = new Vector4f(2f, 15f, 0.0f, 1);
-        rotation = new Vector3f(0, 0, 0);
+        this.position = new Vector4f(0.0f, 15f, 0.0f, 1);
+        this.rotation = new Vector3f(0, 0, 0);
     }
 
     public void moveForward(float delta) {
-        Quaternionf viewDirection = new Quaternionf();
-        viewDirection.setEulerAnglesXYZ(0.0f, (float) Math.toRadians(rotation.y), 0.0f);
+        movePosition(position.x * CAMERA_POS_STEP, position.x * CAMERA_POS_STEP, position.x * CAMERA_POS_STEP);
 
-        Vector4f directionVector = new Vector4f(0f, 0f, delta * Settings.MOVE_SPEED, Settings.FOV);
-        directionVector.rotate(viewDirection);
-        this.position.add(directionVector);
+//        Vector4f directionVector = new Vector4f(0f, 0f, delta * Settings.MOVE_SPEED, Settings.FOV);
+//        directionVector.rotate(viewDirection);
+//        this.position.add(directionVector);
     }
 
     public void moveBackward(float delta) {
-        Quaternionf viewDirection = new Quaternionf();
-        viewDirection.setEulerAnglesXYZ(0.0f, (float) Math.toRadians(rotation.y), 0.0f);
+        movePosition(position.x * CAMERA_POS_STEP, position.x * CAMERA_POS_STEP, position.x * CAMERA_POS_STEP);
 
-        Vector4f directionVector = new Vector4f(0f, 0f, -delta * Settings.MOVE_SPEED, Settings.FOV);
-        directionVector.rotate(viewDirection);
-        this.position.add(directionVector);
+//        Quaternionf viewDirection = new Quaternionf();
+//        viewDirection.setEulerAnglesXYZ(0.0f, (float) Math.toRadians(rotation.y), 0.0f);
+//
+//        Vector4f directionVector = new Vector4f(0f, 0f, -delta * Settings.MOVE_SPEED, Settings.FOV);
+//        directionVector.rotate(viewDirection);
+//        this.position.add(directionVector);
     }
 
     public void moveLeft(float delta) {
-        Quaternionf viewDirection = new Quaternionf();
-        viewDirection.setEulerAnglesXYZ(0.0f, (float) Math.toRadians(rotation.y), 0.0f);
+        movePosition(position.x * CAMERA_POS_STEP, position.x * CAMERA_POS_STEP, position.x * CAMERA_POS_STEP);
 
-        Vector4f directionVector = new Vector4f(-delta * Settings.MOVE_SPEED, 0.0f, 0.0f, Settings.FOV);
-        directionVector.rotate(viewDirection);
-        this.position.add(directionVector);
+//        Quaternionf viewDirection = new Quaternionf();
+//        viewDirection.setEulerAnglesXYZ(0.0f, (float) Math.toRadians(rotation.y), 0.0f);
+//
+//        Vector4f directionVector = new Vector4f(-delta * Settings.MOVE_SPEED, 0.0f, 0.0f, Settings.FOV);
+//        directionVector.rotate(viewDirection);
+//        this.position.add(directionVector);
     }
 
     public void moveRight(float delta) {
-        Quaternionf viewDirection = new Quaternionf();
-        viewDirection.setEulerAnglesXYZ(0.0f, (float) Math.toRadians(rotation.y), 0.0f);
+        movePosition(position.x * CAMERA_POS_STEP, position.x * CAMERA_POS_STEP, position.x * CAMERA_POS_STEP);
 
-        Vector4f directionVector = new Vector4f(delta * Settings.MOVE_SPEED, 0.0f, 0.0f, Settings.FOV);
-        directionVector.rotate(viewDirection);
-        this.position.add(directionVector);
+//        Quaternionf viewDirection = new Quaternionf();
+//        viewDirection.setEulerAnglesXYZ(0.0f, (float) Math.toRadians(rotation.y), 0.0f);
+//
+//        Vector4f directionVector = new Vector4f(delta * Settings.MOVE_SPEED, 0.0f, 0.0f, Settings.FOV);
+//        directionVector.rotate(viewDirection);
+//        this.position.add(directionVector);
     }
 
     public void jump(float delta) {

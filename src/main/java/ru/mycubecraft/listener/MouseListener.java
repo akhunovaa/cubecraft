@@ -1,8 +1,14 @@
 package ru.mycubecraft.listener;
 
+import lombok.Getter;
+import lombok.Setter;
+import org.joml.Vector2f;
+
 import static org.lwjgl.glfw.GLFW.GLFW_PRESS;
 import static org.lwjgl.glfw.GLFW.GLFW_RELEASE;
 
+@Getter
+@Setter
 public class MouseListener {
 
     private static MouseListener instance;
@@ -12,6 +18,7 @@ public class MouseListener {
     private double xPosition, yPosition, xLastPosition, yLastPosition;
     private boolean dragging;
     private boolean inWindow = false;
+    private final Vector2f displVec;
 
     private MouseListener() {
         this.scrollX = 0.0;
@@ -20,6 +27,7 @@ public class MouseListener {
         this.yPosition = 0.0;
         this.xLastPosition = 0.0;
         this.yLastPosition = 0.0;
+        this.displVec = new Vector2f();
     }
 
     public static synchronized MouseListener getInstance() {
@@ -53,10 +61,27 @@ public class MouseListener {
     }
 
     public void mousePositionCallback(long window, double xPosition, double yPosition) {
+        this.displVec.x = 0;
+        this.displVec.y = 0;
         this.xLastPosition = instance.xPosition;
         this.yLastPosition = instance.yPosition;
         this.xPosition = xPosition;
         this.yPosition = yPosition;
+
+        if (xLastPosition > 0 && yLastPosition > 0 && inWindow) {
+            double deltax = xPosition - xLastPosition;
+            double deltay = yPosition - yLastPosition;
+            boolean rotateX = deltax != 0;
+            boolean rotateY = deltay != 0;
+            if (rotateX) {
+                displVec.y = (float) deltax;
+            }
+            if (rotateY) {
+                displVec.x = (float) deltay;
+            }
+        }
+
+
         this.dragging = this.mouseButtonPressed[0] || this.mouseButtonPressed[1] || this.mouseButtonPressed[2];
     }
 

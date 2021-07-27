@@ -9,6 +9,7 @@ import ru.mycubecraft.engine.IHud;
 import ru.mycubecraft.engine.SceneLight;
 import ru.mycubecraft.engine.SkyBox;
 import ru.mycubecraft.engine.graph.DirectionalLight;
+import ru.mycubecraft.engine.graph.FrustumCullingFilter;
 import ru.mycubecraft.engine.graph.PointLight;
 import ru.mycubecraft.engine.graph.SpotLight;
 import ru.mycubecraft.scene.Scene;
@@ -30,9 +31,14 @@ public class Renderer {
     private Shader sceneShaderProgram;
     private Shader hudShaderProgram;
 
+    private final FrustumCullingFilter frustumFilter;
+    private final List<GameItem> filteredItems;
+
     public Renderer() {
         transformation = new Transformation();
         specularPower = 10f;
+        frustumFilter = new FrustumCullingFilter();
+        filteredItems = new ArrayList<>();
         init();
     }
 
@@ -71,18 +77,33 @@ public class Renderer {
             List<GameItem> gameItemList = world.getChunksBlockItems();
             allGameItems.addAll(gameItemList);
         }
+        boolean frustumCulling = true;
+        Matrix4f projectionMatrix = transformation.getProjectionMatrix();
+        Matrix4f viewMatrix = transformation.getViewMatrix();
+
+        if (frustumCulling) {
+            frustumFilter.updateFrustum(projectionMatrix, viewMatrix);
+            frustumFilter.filter(allGameItems);
+        }
+
         shaderProgram.use();
 
-        // Update projection Matrix
-        Matrix4f projectionMatrix = transformation.getProjectionMatrix();
         shaderProgram.uploadMat4f("projectionMatrix", projectionMatrix);
         shaderProgram.uploadTexture("texture_sampler", 0);
 
-        Matrix4f viewMatrix = transformation.getViewMatrix();
         shaderProgram.uploadMat4f("viewMatrix", viewMatrix);
-        // Render each gameItem
-        for (GameItem gameItem : allGameItems) {
 
+        // clearing for the frustum filter game item list
+        filteredItems.clear();
+
+        for (GameItem gameItem : allGameItems) {
+            if (gameItem.isInsideFrustum()) {
+                filteredItems.add(gameItem);
+            }
+        }
+
+        // Render each filtered in frustum game item
+        for (GameItem gameItem : filteredItems) {
             // Set world matrix for this item
             Matrix4f modelMatrix = transformation.getModelMatrix(gameItem.getPosition(), gameItem.getRotation(), gameItem.getScale());
             shaderProgram.uploadMat4f("modelMatrix", modelMatrix);
@@ -104,9 +125,9 @@ public class Renderer {
         skyBoxShaderProgram.uploadMat4f("projectionMatrix", projectionMatrix);
 
         Matrix4f viewMatrix = transformation.getViewMatrix();
-        viewMatrix.m30 = 0;
-        viewMatrix.m31 = 0;
-        viewMatrix.m32 = 0;
+        viewMatrix.m30(0);
+        viewMatrix.m31(0);
+        viewMatrix.m32(0);
 
         Matrix4f modelViewMatrix = transformation.buildModelViewMatrix(skyBox, viewMatrix);
         skyBoxShaderProgram.uploadMat4f("modelViewMatrix", modelViewMatrix);

@@ -181,6 +181,7 @@ public class Window {
                 glfwSetCursorPos(this.glfwWindow, (float) this.width / 2, (float) this.height / 2);
             }
 
+            currentScene.input();
             /* Update game and timer UPS if enough time has passed */
             while (accumulator >= interval) {
                 currentScene.update(accumulator);

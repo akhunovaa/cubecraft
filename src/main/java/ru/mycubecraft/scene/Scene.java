@@ -33,6 +33,8 @@ public abstract class Scene {
 
     public abstract void cleanup();
 
+    public abstract void input();
+
     public SkyBox getSkyBox() {
         return skyBox;
     }
