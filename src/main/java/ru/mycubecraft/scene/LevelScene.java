@@ -39,7 +39,7 @@ public class LevelScene extends Scene {
 
     @Override
     public void update(float delta) {
-        hud.rotateCompass(-camera.getRotation().y);
+        hud.rotateCompass(camera.getRotation().y);
 
         Vector2f rotVec = mouseListener.getDisplVec();
         camera.moveRotation(rotVec.x * Settings.MOUSE_SENSITIVITY, rotVec.y * Settings.MOUSE_SENSITIVITY, 0);
