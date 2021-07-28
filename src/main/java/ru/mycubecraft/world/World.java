@@ -34,8 +34,7 @@ public class World {
         generateChunk(-2, 0);
 
         // spawn chunks to left-center
-        generateChunk(0, -1);
-        generateChunk(0, -2);
+        generateChunk(0, 1);
 
         // spawn chunks to right
         generateChunk(1, 0);
