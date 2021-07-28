@@ -7,8 +7,6 @@ import org.joml.Vector2f;
 import static org.lwjgl.glfw.GLFW.GLFW_PRESS;
 import static org.lwjgl.glfw.GLFW.GLFW_RELEASE;
 
-@Getter
-@Setter
 public class MouseListener {
 
     private static MouseListener instance;
@@ -145,5 +143,9 @@ public class MouseListener {
 
     public void mouseGetWindow(long l, boolean inWindow) {
         this.inWindow = inWindow;
+    }
+
+    public Vector2f getDisplVec() {
+        return displVec;
     }
 }

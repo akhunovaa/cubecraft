@@ -31,9 +31,6 @@ public class World {
         generateChunk(1, 0);
         generateChunk(0, 1);
 
-//        generateChunk(0, -1);
-//        generateChunk(-1, 0);
-
     }
 
     public void render() {
