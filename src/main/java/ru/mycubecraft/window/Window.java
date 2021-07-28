@@ -193,10 +193,6 @@ public class Window {
 
             glClearColor(this.red, this.green, this.blue, this.alpha);
 
-            if (this.keyboardListener.isKeyPressed(GLFW_PRESS)) {
-                glfwSetCursorPos(this.glfwWindow, (float) this.width / 2, (float) this.height / 2);
-            }
-
             currentScene.input();
             /* Update game and timer UPS if enough time has passed */
             while (accumulator >= interval) {

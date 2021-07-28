@@ -17,10 +17,10 @@ public final class Settings {
     public static final float Z_NEAR = 0.01f;
     public static final float Z_FAR = 1000.0f;
 
-    public static final float MOUSE_SENSITIVITY = 0.15f;
+    public static final float MOUSE_SENSITIVITY = 0.095f;
 
-    public static final float MAX_LOOK = 100.0f;
-    public static final float MIN_LOOK = -100.0f;
+    public static final float MAX_LOOK = 90.0f;
+    public static final float MIN_LOOK = -90.0f;
 
     public static final float SKY_BOX_SCALE = 100;
 

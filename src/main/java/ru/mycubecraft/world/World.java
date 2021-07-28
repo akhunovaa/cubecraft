@@ -25,29 +25,7 @@ public class World {
 
     public World(Generator generator) {
         this.generator = generator;
-
-        // spawn center chunk
-        generateChunk(0, 0);
-
-        // spawn chunks to left
-        generateChunk(-1, 0);
-        generateChunk(-2, 0);
-
-        // spawn chunks to left-center
-        generateChunk(0, 1);
-
-        // spawn chunks to right
-        generateChunk(1, 0);
-        generateChunk(2, 0);
-
-        // spawn chunks to forward
-        generateChunk(0, -1);
-        generateChunk(0, -2);
-
-        // spawn chunks to backward
-        generateChunk(0, 1);
-        generateChunk(0, 2);
-
+        generateStartChunks();
     }
 
     public void render() {
@@ -66,6 +44,43 @@ public class World {
 
 //        generateChunk(xOffset + 1, zOffset + 1);
 //        removeChunk(xOffset - 1, zOffset - 1);
+    }
+
+    private void generateStartChunks() {
+        // spawn center chunk
+        generateChunk(0, 0);
+        // spawn chunks to left
+        generateChunk(-1, 0);
+        generateChunk(-2, 0);
+        //spawn chunks to left-front
+        generateChunk(-1, -1);
+        generateChunk(-2, -1);
+        generateChunk(-1, -2);
+        generateChunk(-2, -2);
+        //spawn chunks to left-backward
+        generateChunk(-1, 1);
+        generateChunk(-2, 1);
+        generateChunk(-1, 2);
+        generateChunk(-2, 2);
+        // spawn chunks to right
+        generateChunk(1, 0);
+        generateChunk(2, 0);
+        //spawn chunks to right-front
+        generateChunk(1, -1);
+        generateChunk(2, -1);
+        generateChunk(1, -2);
+        generateChunk(2, -2);
+        //spawn chunks to right-backward
+        generateChunk(1, 1);
+        generateChunk(2, 1);
+        generateChunk(1, 2);
+        generateChunk(2, 2);
+        // spawn chunks to forward
+        generateChunk(0, -1);
+        generateChunk(0, -2);
+        // spawn chunks to backward
+        generateChunk(0, 1);
+        generateChunk(0, 2);
     }
 
     private void generateChunk(int xOffset, int zOffset) {

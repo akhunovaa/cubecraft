@@ -2,9 +2,9 @@ package ru.mycubecraft.scene;
 
 import org.joml.Vector2f;
 import org.joml.Vector3f;
+import ru.mycubecraft.Settings;
 import ru.mycubecraft.core.GameItem;
 import ru.mycubecraft.data.Hud;
-import ru.mycubecraft.Settings;
 import ru.mycubecraft.renderer.Camera;
 import ru.mycubecraft.renderer.Renderer;
 import ru.mycubecraft.world.BasicGen;
@@ -15,12 +15,12 @@ import static org.lwjgl.glfw.GLFW.*;
 public class LevelScene extends Scene {
 
     private final Vector3f cameraInc;
+    private final Vector3f pointLightPos;
     private Hud hud;
     private float angleInc;
     private float lightAngle;
     private boolean firstTime;
     private boolean sceneChanged;
-    private final Vector3f pointLightPos;
 
     public LevelScene() {
         System.out.println("Entered to a Level Scene");
