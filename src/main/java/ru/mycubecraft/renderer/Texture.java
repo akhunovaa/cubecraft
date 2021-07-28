@@ -99,9 +99,6 @@ public class Texture {
         IntBuffer height = BufferUtils.createIntBuffer(1);
         IntBuffer channels = BufferUtils.createIntBuffer(1);
 
-        // flips the image vertically, so the first pixel in the output array
-        // is the bottom left.
-        stbi_set_flip_vertically_on_load(true);
         ByteBuffer image = stbi_load(filepath, width, height, channels, 0);
 
         if (image != null) {
@@ -122,7 +119,7 @@ public class Texture {
         } else {
             assert false : "Error: (Texture) Could not load image '" + filepath + "'";
         }
-        stbi_set_flip_vertically_on_load(false);
+
         stbi_image_free(image);
     }
 
