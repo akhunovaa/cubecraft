@@ -1,5 +1,6 @@
 package ru.mycubecraft.data;
 
+import org.joml.Vector3f;
 import org.joml.Vector4f;
 import ru.mycubecraft.core.GameItem;
 import ru.mycubecraft.core.Mesh;
@@ -24,6 +25,7 @@ public class Hud implements IHud {
     private final TextItem versionTextItem;
     private final TextItem fpsTextItem;
     private final TextItem coordinatesTextItem;
+    private final TextItem rotationTextItem;
 
     private final GameItem compassItem;
 
@@ -40,6 +42,9 @@ public class Hud implements IHud {
 
         this.coordinatesTextItem = new TextItem(coordinatesText, fontTexture);
         this.coordinatesTextItem.getMesh().getMaterial().setAmbientColour(new Vector4f(0.8f, 0.8f, 0.8f, 10f));
+
+        this.rotationTextItem = new TextItem(coordinatesText, fontTexture);
+        this.rotationTextItem.getMesh().getMaterial().setAmbientColour(new Vector4f(0.8f, 0.8f, 0.8f, 10f));
 
         this.versionTextItem = new TextItem(version, fontTexture);
         this.versionTextItem.getMesh().getMaterial().setAmbientColour(new Vector4f(0.8f, 0.8f, 0.8f, 10f));
@@ -60,7 +65,8 @@ public class Hud implements IHud {
         // Rotate to transform it to screen coordinates
         compassItem.setRotation(0f, 0f, 180f);
         // Create list that holds the items that compose the HUD
-        gameItems = new GameItem[]{versionTextItem, compassItem, coordinatesTextItem, fpsTextItem};
+        gameItems = new GameItem[]{versionTextItem, compassItem,
+                coordinatesTextItem, fpsTextItem, rotationTextItem};
     }
 
     public void rotateCompass(float angle) {
@@ -76,8 +82,13 @@ public class Hud implements IHud {
         this.versionTextItem.setPosition(window.getWidth() - 100.0f, window.getHeight() - 20f, 0);
 
         Vector4f cameraPosition = camera.getPosition();
-        this.coordinatesTextItem.setText(String.format("X: %s Y: %s Z: %s", cameraPosition.x, cameraPosition.y, cameraPosition.z));
+        Vector3f cameraRotation = camera.getRotation();
+
+        this.coordinatesTextItem.setText(String.format("Position [X: %s Y: %s Z: %s]", cameraPosition.x, cameraPosition.y, cameraPosition.z));
         this.coordinatesTextItem.setPosition(20.0f, 40f, 0);
+
+        this.rotationTextItem.setText(String.format("Rotation [X: %s Y: %s Z: %s]", cameraRotation.x, cameraRotation.y, cameraRotation.z));
+        this.rotationTextItem.setPosition(20.0f, 70f, 0);
 
         this.compassItem.setPosition(window.getWidth() - 40f, 50f, 0);
     }
