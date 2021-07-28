@@ -26,10 +26,28 @@ public class World {
     public World(Generator generator) {
         this.generator = generator;
 
-        // spawn chunks
+        // spawn center chunk
         generateChunk(0, 0);
+
+        // spawn chunks to left
+        generateChunk(-1, 0);
+        generateChunk(-2, 0);
+
+        // spawn chunks to left-center
+        generateChunk(0, -1);
+        generateChunk(0, -2);
+
+        // spawn chunks to right
         generateChunk(1, 0);
+        generateChunk(2, 0);
+
+        // spawn chunks to forward
+        generateChunk(0, -1);
+        generateChunk(0, -2);
+
+        // spawn chunks to backward
         generateChunk(0, 1);
+        generateChunk(0, 2);
 
     }
 
@@ -47,14 +65,8 @@ public class World {
         int xOffset = xPosition / WORLD_WIDTH;
         int zOffset = zPosition / WORLD_WIDTH;
 
-        generateChunk(xOffset + 1, zOffset + 1);
-        removeChunk(xOffset - 1, zOffset - 1);
-
-        generateChunk(xOffset, zOffset + 1);
-        removeChunk(xOffset, zOffset - 1);
-
-        generateChunk(xOffset + 1, zOffset);
-        removeChunk(xOffset - 1, zOffset);
+//        generateChunk(xOffset + 1, zOffset + 1);
+//        removeChunk(xOffset - 1, zOffset - 1);
     }
 
     private void generateChunk(int xOffset, int zOffset) {

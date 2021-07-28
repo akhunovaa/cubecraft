@@ -59,8 +59,6 @@ public class MouseListener {
     }
 
     public void mousePositionCallback(long window, double xPosition, double yPosition) {
-        this.displVec.x = 0;
-        this.displVec.y = 0;
         this.xLastPosition = instance.xPosition;
         this.yLastPosition = instance.yPosition;
         this.xPosition = xPosition;
