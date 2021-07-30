@@ -11,6 +11,7 @@ import ru.mycubecraft.engine.graph.FontTexture;
 import ru.mycubecraft.engine.graph.OBJLoader;
 import ru.mycubecraft.renderer.Camera;
 import ru.mycubecraft.window.Window;
+import ru.mycubecraft.world.World;
 
 import java.awt.*;
 
@@ -26,6 +27,9 @@ public class Hud implements IHud {
     private final TextItem fpsTextItem;
     private final TextItem coordinatesTextItem;
     private final TextItem rotationTextItem;
+    private final TextItem chunkSizeTextItem;
+    private final TextItem filteredBlockSizeTextItem;
+    private final TextItem blockSizeTextItem;
 
     private final GameItem compassItem;
 
@@ -36,6 +40,9 @@ public class Hud implements IHud {
         String version = "ALPHA 0.1.0";
         String fpsText = "FPS: 0";
         String coordinatesText = "X: 0.00 Y: 0.00 Z: 0.00";
+        String createdChunksSizeText = "CHUNKS: 0";
+        String filteredBlockSizeText = "FILTERED BLOCKS: 0";
+        String createdBlocksSizeText = "BLOCKS: 0";
 
         this.fpsTextItem = new TextItem(fpsText, fontTexture);
         this.fpsTextItem.getMesh().getMaterial().setAmbientColour(new Vector4f(0.8f, 0.8f, 0.8f, 10f));
@@ -45,6 +52,15 @@ public class Hud implements IHud {
 
         this.rotationTextItem = new TextItem(coordinatesText, fontTexture);
         this.rotationTextItem.getMesh().getMaterial().setAmbientColour(new Vector4f(0.8f, 0.8f, 0.8f, 10f));
+
+        this.chunkSizeTextItem = new TextItem(createdChunksSizeText, fontTexture);
+        this.chunkSizeTextItem.getMesh().getMaterial().setAmbientColour(new Vector4f(0.8f, 0.8f, 0.8f, 10f));
+
+        this.filteredBlockSizeTextItem = new TextItem(filteredBlockSizeText, fontTexture);
+        this.filteredBlockSizeTextItem.getMesh().getMaterial().setAmbientColour(new Vector4f(0.8f, 0.8f, 0.8f, 10f));
+
+        this.blockSizeTextItem = new TextItem(createdBlocksSizeText, fontTexture);
+        this.blockSizeTextItem.getMesh().getMaterial().setAmbientColour(new Vector4f(0.8f, 0.8f, 0.8f, 10f));
 
         this.versionTextItem = new TextItem(version, fontTexture);
         this.versionTextItem.getMesh().getMaterial().setAmbientColour(new Vector4f(0.8f, 0.8f, 0.8f, 10f));
@@ -66,7 +82,8 @@ public class Hud implements IHud {
         compassItem.setRotation(0f, 0f, 180f);
         // Create list that holds the items that compose the HUD
         gameItems = new GameItem[]{versionTextItem, compassItem,
-                coordinatesTextItem, fpsTextItem, rotationTextItem};
+                coordinatesTextItem, fpsTextItem, rotationTextItem,
+        chunkSizeTextItem, blockSizeTextItem, filteredBlockSizeTextItem};
     }
 
     public void rotateCompass(float angle) {
@@ -78,7 +95,7 @@ public class Hud implements IHud {
         return gameItems;
     }
 
-    public void updateHud(Window window, Camera camera) {
+    public void updateHud(Window window, Camera camera, World world, int filteredBlocksCount) {
         this.versionTextItem.setPosition(window.getWidth() - 100.0f, window.getHeight() - 20f, 0);
 
         Vector4f cameraPosition = camera.getPosition();
@@ -89,6 +106,15 @@ public class Hud implements IHud {
 
         this.rotationTextItem.setText(String.format("Rotation [X: %s Y: %s Z: %s]", cameraRotation.x, cameraRotation.y, cameraRotation.z));
         this.rotationTextItem.setPosition(20.0f, 70f, 0);
+
+        this.chunkSizeTextItem.setText(String.format("CHUNKS: [%s]", world.getChunkMap().size()));
+        this.chunkSizeTextItem.setPosition(20.0f, 100f, 0);
+
+        this.filteredBlockSizeTextItem.setText(String.format("FILTERED BLOCKS: [%s]", filteredBlocksCount));
+        this.filteredBlockSizeTextItem.setPosition(20.0f, 130f, 0);
+
+        this.blockSizeTextItem.setText(String.format("TOTAL BLOCKS: [%s]", world.getChunkMap().size() * 8 * 16 * 8));
+        this.blockSizeTextItem.setPosition(20.0f, 160f, 0);
 
         this.compassItem.setPosition(window.getWidth() - 40f, 50f, 0);
     }

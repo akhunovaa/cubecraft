@@ -94,9 +94,10 @@ public class LevelScene extends Scene {
         int xPosition = (int) camera.getPosition().x;
         int zPosition = (int) camera.getPosition().z;
         world.generate(xPosition, zPosition);
-        hud.updateHud(window, camera);
         hud.updateFps(delta);
         renderer.render(window, gameItems, world, camera, skyBox, this, hud);
+        int filteredBlocksCount = renderer.getFilteredItems().size();
+        hud.updateHud(window, camera, world, filteredBlocksCount);
         //renderer.renderScene(window, camera, this);
 
     }

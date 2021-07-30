@@ -226,4 +226,8 @@ public class Renderer {
             hudShaderProgram.detach();
         }
     }
+
+    public List<GameItem> getFilteredItems() {
+        return filteredItems;
+    }
 }

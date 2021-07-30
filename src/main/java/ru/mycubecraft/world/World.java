@@ -42,28 +42,17 @@ public class World {
         int xOffset = xPosition / 8;
         int zOffset = zPosition / 8;
 
-        generateChunk(-xOffset + 1, zOffset - 1);
-        generateChunk(xOffset + 1, zOffset + 1);
-
-        generateChunk(xOffset - 1, -zOffset + 1);
-        generateChunk(xOffset + 1, zOffset + 1);
-
-//        generateChunk(xOffset, -zOffset);
-//        generateChunk(-xOffset, zOffset);
-
-//        generateChunk(xOffset, zOffset - 1);
-//        generateChunk(xOffset - 1, zOffset);
-//
-//        generateChunk(xOffset, zOffset + 1);
-//        generateChunk(xOffset + 1, zOffset);
-//
-//        generateChunk(xOffset - 1, zOffset - 1);
-//        generateChunk(xOffset + 1, zOffset + 1);
-
-
-
-//        generateChunk(xOffset + 1, zOffset + 1);
-//        removeChunk(xOffset - 1, zOffset - 1);
+//        generateChunk(-xOffset - 1, zOffset - 1);
+        // spawn center chunk
+        generateChunk(xOffset, zOffset);
+        // spawn chunks to left
+        generateChunk(-xOffset, zOffset);
+        // spawn chunks to right
+        generateChunk(xOffset, zOffset);
+        // spawn chunks to backward
+        generateChunk(xOffset, -zOffset);
+        // spawn chunks to forward
+        generateChunk(xOffset, zOffset);
     }
 
     private void generateStartChunks() {
@@ -132,5 +121,9 @@ public class World {
     public void cleanup() {
         chunkMap.forEach((key, value) -> value.cleanup());
         this.chunkMap.clear();
+    }
+
+    public Map<String, Chunk> getChunkMap() {
+        return chunkMap;
     }
 }
