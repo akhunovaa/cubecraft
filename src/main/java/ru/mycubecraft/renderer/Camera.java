@@ -14,7 +14,7 @@ public class Camera {
 
     public Camera() {
         this.position = new Vector4f(8.0f, 16.0f, 8.0f, 1);
-        this.rotation = new Vector3f(0, 0, 0);
+        this.rotation = new Vector3f(3.0f, 0, 13.0f);
     }
 
     public Vector4f getPosition() {
@@ -37,7 +37,7 @@ public class Camera {
         this.rotation.z = z;
     }
 
-    public void moveRotation(float offsetX, float offsetY, float offsetZ) {
+    public void moveRotation(double offsetX, double offsetY, double offsetZ) {
         rotation.x += offsetX;
         rotation.y += offsetY;
         rotation.z += offsetZ;

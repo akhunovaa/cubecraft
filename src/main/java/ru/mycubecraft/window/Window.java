@@ -31,7 +31,7 @@ public class Window {
 
     private static Window instance;
     private final String title;
-    private final float skyBoxScale = 50.0f;
+
     /**
      * Used for timing calculations.
      */
@@ -116,11 +116,11 @@ public class Window {
             }
         });
 
-        this.mouseListener = MouseListener.getInstance();
-        glfwSetCursorPosCallback(this.glfwWindow, this.mouseListener::mousePositionCallback);
-        glfwSetCursorEnterCallback(this.glfwWindow, this.mouseListener::mouseGetWindow);
-        glfwSetMouseButtonCallback(this.glfwWindow, this.mouseListener::mouseButtonCallback);
-        glfwSetScrollCallback(this.glfwWindow, this.mouseListener::mouseScrollCallback);
+        //this.mouseListener = MouseListener.getInstance();
+//        glfwSetCursorPosCallback(this.glfwWindow, this.mouseListener::mousePositionCallback);
+//        glfwSetCursorEnterCallback(this.glfwWindow, this.mouseListener::mouseGetWindow);
+//        glfwSetMouseButtonCallback(this.glfwWindow, this.mouseListener::mouseButtonCallback);
+//        glfwSetScrollCallback(this.glfwWindow, this.mouseListener::mouseScrollCallback);
 
         this.keyboardListener = KeyboardListener.getInstance();
         glfwSetKeyCallback(this.glfwWindow, this.keyboardListener::keyCallback);
@@ -247,7 +247,7 @@ public class Window {
 
         // Setup  SkyBox
         SkyBox skyBox = new SkyBox("assets/models/skybox.obj", "assets/textures/skybox.png");
-        skyBox.setScale(skyBoxScale);
+        skyBox.setScale(Settings.SKY_BOX_SCALE);
         currentScene.setSkyBox(skyBox);
 
     }
@@ -311,6 +311,14 @@ public class Window {
 
     public int getHeight() {
         return height;
+    }
+
+    public long getGlfwWindow() {
+        return glfwWindow;
+    }
+
+    public void setGlfwWindow(long glfwWindow) {
+        this.glfwWindow = glfwWindow;
     }
 
     public void restoreState() {

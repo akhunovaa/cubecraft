@@ -5,6 +5,7 @@ import org.joml.Vector3f;
 import ru.mycubecraft.Settings;
 import ru.mycubecraft.core.GameItem;
 import ru.mycubecraft.data.Hud;
+import ru.mycubecraft.listener.MouseInput;
 import ru.mycubecraft.renderer.Camera;
 import ru.mycubecraft.renderer.Renderer;
 import ru.mycubecraft.world.BasicGen;
@@ -21,6 +22,7 @@ public class LevelScene extends Scene {
     private float lightAngle;
     private boolean firstTime;
     private boolean sceneChanged;
+    private final MouseInput mouseInput;
 
     public LevelScene() {
         System.out.println("Entered to a Level Scene");
@@ -29,11 +31,13 @@ public class LevelScene extends Scene {
         world = new World(new BasicGen(1));
         cameraInc = new Vector3f(0.0f, 0.0f, 0.0f);
         pointLightPos = new Vector3f(0.0f, 25.0f, 0.0f);
+        mouseInput = new MouseInput();
     }
 
     @Override
     public void init() {
         System.out.println("Entering To Word");
+        mouseInput.init();
         hud = new Hud();
     }
 
@@ -41,7 +45,7 @@ public class LevelScene extends Scene {
     public void update(float delta) {
         hud.rotateCompass(camera.getRotation().y);
 
-        Vector2f rotVec = mouseListener.getDisplVec();
+        Vector2f rotVec = mouseInput.getDisplVec();
         camera.moveRotation(rotVec.x * Settings.MOUSE_SENSITIVITY, rotVec.y * Settings.MOUSE_SENSITIVITY, 0);
 
         camera.movePosition(cameraInc.x * Settings.MOVE_SPEED, cameraInc.y * Settings.MOVE_SPEED, cameraInc.z * Settings.MOVE_SPEED);
@@ -50,6 +54,7 @@ public class LevelScene extends Scene {
 
     @Override
     public void input() {
+        mouseInput.input();
         cameraInc.set(0, 0, 0);
         if (keyboardListener.isKeyPressed(GLFW_KEY_W)) {
             cameraInc.z = -1;
@@ -84,10 +89,11 @@ public class LevelScene extends Scene {
 
     @Override
     public void render(float delta) {
+//        glfwSetCursorPos(Window.getInstance().getGlfwWindow(), (float) Settings.WIDTH / 2, (float) Settings.HEIGHT / 2);
+
         int xPosition = (int) camera.getPosition().x;
         int zPosition = (int) camera.getPosition().z;
         world.generate(xPosition, zPosition);
-        skyBox.setScale(Settings.SKY_BOX_SCALE);
         hud.updateHud(window, camera);
         hud.updateFps(delta);
         renderer.render(window, gameItems, world, camera, skyBox, this, hud);

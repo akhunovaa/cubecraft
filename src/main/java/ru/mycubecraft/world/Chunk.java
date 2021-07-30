@@ -11,7 +11,7 @@ import java.util.ArrayList;
 @EqualsAndHashCode
 public class Chunk {
 
-    private static final int BLOCKS_COUNT = 16;
+    private static final int BLOCKS_COUNT = 8;
 
     private final int cx; //offset to x (1 offset * 16 block count)
     private final int cz; //offset to z (1 offset * 16 block count)
@@ -60,8 +60,8 @@ public class Chunk {
 
     public void render() {
         for (int y = 0; y < World.WORLD_HEIGHT; y++) {
-            for (int x = 0; x < 16; x++) {
-                for (int z = 0; z < 16; z++) {
+            for (int x = 0; x < 8; x++) {
+                for (int z = 0; z < 8; z++) {
                     if (this.blocks[x][y][z] != null) {
                         this.blocks[x][y][z].render();
                     }
@@ -74,8 +74,8 @@ public class Chunk {
     public ArrayList<GameItem> getItemListForRendering() {
         ArrayList<GameItem> gameItemList = new ArrayList<>();
         for (int y = 0; y < World.WORLD_HEIGHT; y++) {
-            for (int x = 0; x < 16; x++) {
-                for (int z = 0; z < 16; z++) {
+            for (int x = 0; x < 8; x++) {
+                for (int z = 0; z < 8; z++) {
                     if (this.blocks[x][y][z] != null) {
                         GameItem gameItem = this.blocks[x][y][z].getGameCubeItem();
                         gameItemList.add(gameItem);
@@ -88,8 +88,8 @@ public class Chunk {
 
     public void cleanup() {
         for (int y = 0; y < World.WORLD_HEIGHT; y++) {
-            for (int x = 0; x < 16; x++) {
-                for (int z = 0; z < 16; z++) {
+            for (int x = 0; x < 8; x++) {
+                for (int z = 0; z < 8; z++) {
                     if (this.blocks[x][y][z] != null) {
                         GameItem gameItem = this.blocks[x][y][z].getGameCubeItem();
                         gameItem.cleanup();
