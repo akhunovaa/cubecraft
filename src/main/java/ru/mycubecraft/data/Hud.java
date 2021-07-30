@@ -110,7 +110,7 @@ public class Hud implements IHud {
         this.chunkSizeTextItem.setText(String.format("CHUNKS: [%s]", world.getChunkMap().size()));
         this.chunkSizeTextItem.setPosition(20.0f, 100f, 0);
 
-        this.filteredBlockSizeTextItem.setText(String.format("FILTERED BLOCKS: [%s]", filteredBlocksCount));
+        this.filteredBlockSizeTextItem.setText(String.format("CULLED BLOCKS: [%s]", filteredBlocksCount));
         this.filteredBlockSizeTextItem.setPosition(20.0f, 130f, 0);
 
         this.blockSizeTextItem.setText(String.format("TOTAL BLOCKS: [%s]", world.getChunkMap().size() * 8 * 16 * 8));

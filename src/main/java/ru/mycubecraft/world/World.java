@@ -2,6 +2,7 @@ package ru.mycubecraft.world;
 
 import lombok.extern.slf4j.Slf4j;
 import ru.mycubecraft.core.GameItem;
+import ru.mycubecraft.util.MathUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,8 +17,9 @@ public class World {
     // 256 chunks & 4096 blocks in one chunk & totally 1 048 576 blocks
     public static final int WORLD_WIDTH = 16;
     public static final int WORLD_HEIGHT = 16;
+    public static final int WORLD_SIZE = 5 * 8;
 
-    private final ExecutorService executorService = Executors.newFixedThreadPool(4);
+    private final ExecutorService executorService = Executors.newFixedThreadPool(5);
 
     private final Map<String, Chunk> chunkMap = new ConcurrentHashMap<>();
 
@@ -39,81 +41,33 @@ public class World {
     }
 
     public void generate(int xPosition, int zPosition) {
-        int xOffset = xPosition / 8;
-        int zOffset = zPosition / 8;
-
-//        generateChunk(-xOffset - 1, zOffset - 1);
-        // spawn center chunk
-        generateChunk(xOffset, zOffset);
-        // spawn chunks to left
-        generateChunk(-xOffset, zOffset);
-        // spawn chunks to right
-        generateChunk(xOffset, zOffset);
-        // spawn chunks to backward
-        generateChunk(xOffset, -zOffset);
-        // spawn chunks to forward
-        generateChunk(xOffset, zOffset);
+        generateChunk(xPosition, zPosition);
     }
 
     private void generateStartChunks() {
-        // spawn center chunk
         generateChunk(0, 0);
-        // spawn chunks to left
         generateChunk(-1, 0);
-//        generateChunk(-2, 0);
-        //spawn chunks to left-front
-        //generateChunk(-1, -1);
-//        generateChunk(-2, -1);
-        //generateChunk(-1, -2);
-//        generateChunk(-2, -2);
-        //spawn chunks to left-backward
-        //generateChunk(-1, 1);
-//        generateChunk(-2, 1);
-        //generateChunk(-1, 2);
-//        generateChunk(-2, 2);
-        // spawn chunks to right
         generateChunk(1, 0);
-        //generateChunk(2, 0);
-        //spawn chunks to right-front
-        //generateChunk(1, -1);
-//        generateChunk(2, -1);
-        //generateChunk(1, -2);
-//        generateChunk(2, -2);
-        //spawn chunks to right-backward
-        //  generateChunk(1, 1);
-//        generateChunk(2, 1);
-        //generateChunk(1, 2);
-//        generateChunk(2, 2);
-        // spawn chunks to backward
         generateChunk(0, -1);
-//        generateChunk(0, -2);
-        // spawn chunks to forward
         generateChunk(0, 1);
-//        generateChunk(0, 2);
     }
 
-    private void generateChunk(int xOffset, int zOffset) {
-        if (xOffset < WORLD_WIDTH && zOffset < WORLD_WIDTH) {
-            String chunkKey = String.format("%s:%s", xOffset, zOffset);
-            if (!chunkMap.containsKey(chunkKey)) {
-                Chunk chunk = new Chunk(xOffset, zOffset, new BasicGen(1));
-                chunkMap.put(chunkKey, chunk);
-                System.out.println("Chunk Generating Task has been Started");
-                executorService.execute(new Runnable() {
-                    public void run() {
-                        chunk.generateBlocks();
+    private void generateChunk(int xPosition, int zPosition) {
+        if (xPosition < WORLD_SIZE && zPosition < WORLD_SIZE) {
+            executorService.execute(new Runnable() {
+                public void run() {
+                    for (int x = (xPosition - WORLD_SIZE) / 8; x < (xPosition + WORLD_SIZE) / 8; x++) {
+                        for (int z = (zPosition - WORLD_SIZE) / 8; z < (zPosition + WORLD_SIZE) / 8; z++) {
+                            String chunkKey = String.format("%s:%s", x, z);
+                            if (!chunkMap.containsKey(chunkKey)) {
+                                Chunk chunk = new Chunk(x, z, new BasicGen(1));
+                                chunkMap.put(chunkKey, chunk);
+                                chunk.generateBlocks();
+                            }
+                        }
                     }
-                });
-
-            }
-        }
-    }
-
-    private void removeChunk(int xOffset, int zOffset) {
-        String chunkKey = String.format("%s:%s", xOffset, zOffset);
-        if (chunkMap.containsKey(chunkKey)) {
-            System.out.println("Chunk Removing Task has been Started");
-            chunkMap.remove(chunkKey);
+                }
+            });
         }
     }
 
