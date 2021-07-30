@@ -23,10 +23,7 @@ public class World {
 
     private final Map<String, Chunk> chunkMap = new ConcurrentHashMap<>();
 
-    private final Generator generator;
-
     public World(Generator generator) {
-        this.generator = generator;
         generateStartChunks();
     }
 
@@ -60,7 +57,7 @@ public class World {
                         for (int z = (zPosition - WORLD_SIZE) / 8; z < (zPosition + WORLD_SIZE) / 8; z++) {
                             String chunkKey = String.format("%s:%s", x, z);
                             if (!chunkMap.containsKey(chunkKey)) {
-                                Chunk chunk = new Chunk(x, z, new BasicGen(1));
+                                Chunk chunk = new Chunk(x, z, new BasicGen(3));
                                 chunkMap.put(chunkKey, chunk);
                                 chunk.generateBlocks();
                             }

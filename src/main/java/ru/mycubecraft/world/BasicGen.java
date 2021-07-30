@@ -6,6 +6,7 @@ import ru.mycubecraft.block.DirtBlock;
 import ru.mycubecraft.block.GrassBlock;
 
 public class BasicGen implements Generator {
+
     public SimplexNoiseOctave simp;
 
     public BasicGen(int seed) {
