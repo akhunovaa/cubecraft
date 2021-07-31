@@ -26,13 +26,12 @@ public class Renderer {
 
     private final Transformation transformation;
     private final float specularPower;
+    private final FrustumCullingFilter frustumFilter;
+    private final List<GameItem> filteredItems;
     private Shader shaderProgram;
     private Shader skyBoxShaderProgram;
     private Shader sceneShaderProgram;
     private Shader hudShaderProgram;
-
-    private final FrustumCullingFilter frustumFilter;
-    private final List<GameItem> filteredItems;
 
     public Renderer() {
         transformation = new Transformation();

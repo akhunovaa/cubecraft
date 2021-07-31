@@ -19,8 +19,8 @@ public final class Settings {
 
     public static final float MOUSE_SENSITIVITY = 0.095f;
 
-    public static final float MAX_LOOK = 180.0f;
-    public static final float MIN_LOOK = -180.0f;
+    public static final float MAX_LOOK = 120.0f;
+    public static final float MIN_LOOK = -120.0f;
 
     public static final float SKY_BOX_SCALE = 100;
 

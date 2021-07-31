@@ -27,10 +27,7 @@ public class FrustumCullingFilter {
     }
 
     public void filter(ArrayList<GameItem> gameItems) {
-        for (GameItem gameItem : gameItems) {
-            float meshBoundingRadius = gameItem.getMesh().getBoundingRadius();
-            filter(gameItem, meshBoundingRadius);
-        }
+        gameItems.parallelStream().forEach(gameItem ->  filter(gameItem, gameItem.getMesh().getBoundingRadius()));
     }
 
     public void filter(GameItem gameItem, float meshBoundingRadius) {
@@ -39,9 +36,9 @@ public class FrustumCullingFilter {
         if (!gameItem.isDisableFrustumCulling()) {
             boundingRadius = gameItem.getScale() * meshBoundingRadius;
             pos = gameItem.getPosition();
-            gameItem.setInsideFrustum(insideFrustum(pos.x, pos.y, pos.z, boundingRadius));
+            boolean insideTheFrustum = insideFrustum(pos.x, pos.y, pos.z, boundingRadius);
+            gameItem.setInsideFrustum(insideTheFrustum);
         }
-
     }
 
     public boolean insideFrustum(float x0, float y0, float z0, float boundingRadius) {

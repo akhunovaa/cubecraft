@@ -6,6 +6,9 @@ import ru.mycubecraft.window.Window;
 public class Game {
 
     public static void main(String[] args) {
+
+        System.setProperty("java.util.concurrent.ForkJoinPool.common.parallelism","6");
+
         /*
         Headless mode is mainly useful in those systems that don't have a graphical display, typically the servers.
         Many applications use graphical displays to do things that are not necessarily needed to be seen, for instance drawing an image and then saving it to disk.
