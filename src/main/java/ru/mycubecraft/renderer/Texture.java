@@ -2,6 +2,7 @@ package ru.mycubecraft.renderer;
 
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL20;
+import org.lwjgl.opengl.GL30;
 import org.lwjgl.system.MemoryStack;
 
 import java.nio.ByteBuffer;
@@ -70,7 +71,7 @@ public class Texture {
         GL20.glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0,
                 GL_RGBA, GL_UNSIGNED_BYTE, buf);
         // Generate Mip Map
-        glGenerateMipmap(GL_TEXTURE_2D);
+        GL30.glGenerateMipmap(GL_TEXTURE_2D);
 
         return textureId;
     }
@@ -85,7 +86,6 @@ public class Texture {
         // Tell OpenGL how to unpack the RGBA bytes. Each component is 1 byte size
         GL20.glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
-//
         // Set texture parameters
         // Repeat image in both directions
         GL20.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
@@ -107,11 +107,11 @@ public class Texture {
 
             if (channels.get(0) == 3) {
                 // Upload the texture data
-                glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width.get(0), height.get(0),
+                GL20.glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width.get(0), height.get(0),
                         0, GL_RGB, GL_UNSIGNED_BYTE, image);
             } else if (channels.get(0) == 4) {
                 // Upload the texture data
-                glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width.get(0), height.get(0),
+                GL20.glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width.get(0), height.get(0),
                         0, GL_RGBA, GL_UNSIGNED_BYTE, image);
             } else {
                 assert false : "Error: (Texture) Unknown number of channel '" + channels.get(0) + "'";

@@ -2,6 +2,7 @@ package ru.mycubecraft.renderer;
 
 import org.joml.*;
 import org.lwjgl.BufferUtils;
+import org.lwjgl.opengl.GL20;
 import ru.mycubecraft.engine.Material;
 import ru.mycubecraft.engine.graph.DirectionalLight;
 import ru.mycubecraft.engine.graph.PointLight;
@@ -132,7 +133,7 @@ public class Shader {
         use();
         FloatBuffer matBuffer = BufferUtils.createFloatBuffer(16);
         mat4.get(matBuffer);
-        glUniformMatrix4fv(varLocation, false, matBuffer);
+        GL20.glUniformMatrix4fv(varLocation, false, matBuffer);
     }
 
     public void uploadMat3f(String varName, Matrix3f mat3) {
@@ -140,7 +141,7 @@ public class Shader {
         use();
         FloatBuffer matBuffer = BufferUtils.createFloatBuffer(9);
         mat3.get(matBuffer);
-        glUniformMatrix3fv(varLocation, false, matBuffer);
+        GL20.glUniformMatrix3fv(varLocation, false, matBuffer);
     }
 
     public void uploadVec4f(String varName, Vector4f vec) {

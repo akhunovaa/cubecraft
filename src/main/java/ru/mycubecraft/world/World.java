@@ -19,7 +19,7 @@ public class World {
     public static final int WORLD_HEIGHT = 16;
     public static final int WORLD_SIZE = 5 * 8;
 
-    private final ExecutorService executorService = Executors.newFixedThreadPool(5);
+    private final ExecutorService executorService = Executors.newFixedThreadPool(10);
 
     private final Map<String, Chunk> chunkMap = new ConcurrentHashMap<>();
 
