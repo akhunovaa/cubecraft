@@ -1,7 +1,7 @@
 package ru.mycubecraft.scene;
 
+import lombok.Getter;
 import ru.mycubecraft.core.GameItem;
-import ru.mycubecraft.engine.SceneLight;
 import ru.mycubecraft.engine.SkyBox;
 import ru.mycubecraft.listener.KeyboardListener;
 import ru.mycubecraft.listener.MouseListener;
@@ -12,12 +12,12 @@ import ru.mycubecraft.world.World;
 
 import java.util.ArrayList;
 
+@Getter
 public abstract class Scene {
 
     public World world;
     protected Window window = Window.getInstance();
     protected SkyBox skyBox;
-    protected SceneLight sceneLight;
     protected Renderer renderer;
     protected Camera camera;
     protected ArrayList<GameItem> gameItems = new ArrayList<>();
@@ -41,14 +41,6 @@ public abstract class Scene {
 
     public void setSkyBox(SkyBox skyBox) {
         this.skyBox = skyBox;
-    }
-
-    public SceneLight getSceneLight() {
-        return sceneLight;
-    }
-
-    public void setSceneLight(SceneLight sceneLight) {
-        this.sceneLight = sceneLight;
     }
 
 }

@@ -7,7 +7,7 @@ public class Game {
 
     public static void main(String[] args) {
 
-        System.setProperty("java.util.concurrent.ForkJoinPool.common.parallelism","8");
+        System.setProperty("java.util.concurrent.ForkJoinPool.common.parallelism","14");
 
         /*
         Headless mode is mainly useful in those systems that don't have a graphical display, typically the servers.

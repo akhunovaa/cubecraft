@@ -1,10 +1,12 @@
 package ru.mycubecraft.scene;
 
+import lombok.Getter;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 import ru.mycubecraft.Settings;
 import ru.mycubecraft.core.GameItem;
 import ru.mycubecraft.data.Hud;
+import ru.mycubecraft.engine.graph.PointLight;
 import ru.mycubecraft.listener.MouseInput;
 import ru.mycubecraft.renderer.Camera;
 import ru.mycubecraft.renderer.Renderer;
@@ -13,16 +15,18 @@ import ru.mycubecraft.world.World;
 
 import static org.lwjgl.glfw.GLFW.*;
 
+@Getter
 public class LevelScene extends Scene {
 
     private final Vector3f cameraInc;
-    private final Vector3f pointLightPos;
     private Hud hud;
     private float angleInc;
     private float lightAngle;
     private boolean firstTime;
     private boolean sceneChanged;
     private final MouseInput mouseInput;
+    private Vector3f ambientLight;
+    private PointLight pointLight;
 
     public LevelScene() {
         System.out.println("Entered to a Level Scene");
@@ -30,26 +34,37 @@ public class LevelScene extends Scene {
         camera = new Camera();
         world = new World(new BasicGen(1));
         cameraInc = new Vector3f(0.0f, 0.0f, 0.0f);
-        pointLightPos = new Vector3f(0.0f, 25.0f, 0.0f);
         mouseInput = new MouseInput();
     }
 
     @Override
     public void init() {
         System.out.println("Entering To Word");
+        ambientLight = new Vector3f(0.1f, 0.1f, 0.1f);
+        Vector3f lightColour = new Vector3f(1, 1, 1);
+        Vector3f lightPosition = new Vector3f(0, 20.0f, 1.0f);
+        float lightIntensity = 100.0f;
+        pointLight = new PointLight(lightColour, lightPosition, lightIntensity);
+        PointLight.Attenuation att = new PointLight.Attenuation(0.0f, 0.0f, 1.0f);
+        pointLight.setAttenuation(att);
+
         mouseInput.init();
         hud = new Hud();
+
     }
 
     @Override
     public void update(float delta) {
         hud.rotateCompass(camera.getRotation().y);
-
+        pointLight.setPosition(new Vector3f(camera.getPosition().x + 1.5f, camera.getPosition().y, camera.getPosition().z + 1.5f));
         Vector2f rotVec = mouseInput.getDisplVec();
         camera.moveRotation(rotVec.x * Settings.MOUSE_SENSITIVITY, rotVec.y * Settings.MOUSE_SENSITIVITY, 0);
 
         camera.movePosition(cameraInc.x * Settings.MOVE_SPEED, cameraInc.y * Settings.MOVE_SPEED, cameraInc.z * Settings.MOVE_SPEED);
 
+        int xPosition = (int) camera.getPosition().x;
+        int zPosition = (int) camera.getPosition().z;
+        world.generate(xPosition, zPosition);
     }
 
     @Override
@@ -79,27 +94,25 @@ public class LevelScene extends Scene {
             angleInc = 0;
         }
 
-        if (keyboardListener.isKeyPressed(GLFW_KEY_UP)) {
-            pointLightPos.y += 0.5f;
-        } else if (keyboardListener.isKeyPressed(GLFW_KEY_DOWN)) {
-            pointLightPos.y -= 0.5f;
+        float lightPos = pointLight.getPosition().z;
+        if (keyboardListener.isKeyPressed(GLFW_KEY_N)) {
+            System.out.println("\nCurrent light position: " + lightPos);
+            this.pointLight.getPosition().z = lightPos + 2.1f;
+            System.out.println("Moved light position: " + this.pointLight.getPosition().z);
+        } else if (keyboardListener.isKeyPressed(GLFW_KEY_M)) {
+            System.out.println("\nCurrent light position: " + lightPos);
+            this.pointLight.getPosition().z = lightPos - 2.1f;
+            System.out.println("Moved light position: " + this.pointLight.getPosition().z);
         }
     }
 
 
     @Override
     public void render(float delta) {
-//        glfwSetCursorPos(Window.getInstance().getGlfwWindow(), (float) Settings.WIDTH / 2, (float) Settings.HEIGHT / 2);
-
-        int xPosition = (int) camera.getPosition().x;
-        int zPosition = (int) camera.getPosition().z;
-        world.generate(xPosition, zPosition);
+        renderer.render(window, gameItems, world, camera, skyBox, this, hud, ambientLight, pointLight);
         hud.updateFps(delta);
-        renderer.render(window, gameItems, world, camera, skyBox, this, hud);
         int filteredBlocksCount = renderer.getFilteredItems().size();
         hud.updateHud(window, camera, world, filteredBlocksCount);
-        //renderer.renderScene(window, camera, this);
-
     }
 
     @Override

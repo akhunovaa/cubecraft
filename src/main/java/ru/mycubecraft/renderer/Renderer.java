@@ -6,12 +6,9 @@ import org.joml.Vector4f;
 import ru.mycubecraft.core.GameItem;
 import ru.mycubecraft.core.Mesh;
 import ru.mycubecraft.engine.IHud;
-import ru.mycubecraft.engine.SceneLight;
 import ru.mycubecraft.engine.SkyBox;
-import ru.mycubecraft.engine.graph.DirectionalLight;
 import ru.mycubecraft.engine.graph.FrustumCullingFilter;
 import ru.mycubecraft.engine.graph.PointLight;
-import ru.mycubecraft.engine.graph.SpotLight;
 import ru.mycubecraft.scene.Scene;
 import ru.mycubecraft.util.AssetPool;
 import ru.mycubecraft.window.Window;
@@ -53,7 +50,8 @@ public class Renderer {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
     }
 
-    public void render(Window window, ArrayList<GameItem> gameItems, World world, Camera camera, SkyBox skyBox, Scene scene, IHud hud) {
+    public void render(Window window, ArrayList<GameItem> gameItems, World world, Camera camera,
+                       SkyBox skyBox, Scene scene, IHud hud, Vector3f ambientLight, PointLight pointLight) {
         clear();
         if (window.isResized()) {
             glViewport(0, 0, window.getWidth(), window.getHeight());
@@ -64,13 +62,15 @@ public class Renderer {
         transformation.updateProjectionMatrix(window.getWidth(), window.getHeight());
         transformation.updateViewMatrix(camera);
 
-        renderScene(gameItems, world);
-        renderSkyBox(skyBox);
-        renderLights(scene.getSceneLight());
+        renderScene(gameItems, world, scene, ambientLight, pointLight);
+        //renderSkyBox(skyBox);
+
         renderHud(window, hud);
     }
 
-    private void renderScene(ArrayList<GameItem> gameItems, World world) {
+    private void renderScene(ArrayList<GameItem> gameItems, World world, Scene scene, Vector3f ambientLight, PointLight pointLight) {
+        // clearing for the frustum filter game item list
+        filteredItems.clear();
         ArrayList<GameItem> allGameItems = new ArrayList<>(gameItems);
         if (world != null) {
             List<GameItem> gameItemList = world.getChunksBlockItems();
@@ -82,18 +82,27 @@ public class Renderer {
 
         if (frustumCulling) {
             frustumFilter.updateFrustum(projectionMatrix, viewMatrix);
-            frustumFilter.filter(allGameItems);
+            frustumFilter.filter(allGameItems, scene.getCamera());
         }
 
-        shaderProgram.use();
+        sceneShaderProgram.use();
 
-        shaderProgram.uploadMat4f("projectionMatrix", projectionMatrix);
-        shaderProgram.uploadTexture("texture_sampler", 0);
+        sceneShaderProgram.uploadMat4f("projectionMatrix", projectionMatrix);
 
-        shaderProgram.uploadMat4f("viewMatrix", viewMatrix);
-
-        // clearing for the frustum filter game item list
-        filteredItems.clear();
+        // Update Light Uniforms
+        sceneShaderProgram.uploadVec3f("ambientLight", ambientLight);
+        sceneShaderProgram.uploadFloat("specularPower", specularPower);
+        sceneShaderProgram.uploadTexture("texture_sampler", 0);
+        // Get a copy of the light object and transform its position to view coordinates
+        PointLight currPointLight = new PointLight(pointLight);
+        Vector3f lightPos = currPointLight.getPosition();
+        Vector4f aux = new Vector4f(lightPos, 1);
+        aux.mul(viewMatrix);
+        lightPos.x = aux.x;
+        lightPos.y = aux.y;
+        lightPos.z = aux.z;
+        sceneShaderProgram.setUniform("material", allGameItems.get(0).getMesh().getMaterial());
+        sceneShaderProgram.setUniform("pointLight", currPointLight);
 
         for (GameItem gameItem : allGameItems) {
             if (gameItem.isInsideFrustum()) {
@@ -104,15 +113,17 @@ public class Renderer {
         // Render each filtered in frustum game item
         for (GameItem gameItem : filteredItems) {
             // Set world matrix for this item
-            Matrix4f modelMatrix = transformation.getModelMatrix(gameItem.getPosition(), gameItem.getRotation(), gameItem.getScale());
-            shaderProgram.uploadMat4f("modelMatrix", modelMatrix);
+            Matrix4f modelViewMatrix = transformation.buildModelViewMatrix(gameItem, viewMatrix);
+            sceneShaderProgram.uploadMat4f("modelViewMatrix", modelViewMatrix);
             // Render the mesh for this game item
             gameItem.render();
         }
 
+
+
         // Unbind shader
-        shaderProgram.detach();
-        allGameItems.clear();
+        sceneShaderProgram.detach();
+        //allGameItems.clear();
     }
 
     private void renderSkyBox(SkyBox skyBox) {
@@ -135,56 +146,6 @@ public class Renderer {
 
         skyBoxShaderProgram.detach();
     }
-
-
-    private void renderLights(SceneLight sceneLight) {
-
-        sceneShaderProgram.uploadVec3f("ambientLight", sceneLight.getAmbientLight());
-        sceneShaderProgram.uploadFloat("specularPower", specularPower);
-        Matrix4f viewMatrix = transformation.getViewMatrix();
-        // Process Point Lights
-        PointLight[] pointLightList = sceneLight.getPointLightList();
-        int numLights = pointLightList != null ? pointLightList.length : 0;
-        for (int i = 0; i < numLights; i++) {
-            // Get a copy of the point light object and transform its position to view coordinates
-            PointLight currPointLight = new PointLight(pointLightList[i]);
-            Vector3f lightPos = currPointLight.getPosition();
-            Vector4f aux = new Vector4f(lightPos, 1);
-            aux.mul(viewMatrix);
-            lightPos.x = aux.x;
-            lightPos.y = aux.y;
-            lightPos.z = aux.z;
-            sceneShaderProgram.setUniform("pointLights", currPointLight, i);
-        }
-
-        // Process Spot Ligths
-        SpotLight[] spotLightList = sceneLight.getSpotLightList();
-        numLights = spotLightList != null ? spotLightList.length : 0;
-        for (int i = 0; i < numLights; i++) {
-            // Get a copy of the spot light object and transform its position and cone direction to view coordinates
-            SpotLight currSpotLight = new SpotLight(spotLightList[i]);
-            Vector4f dir = new Vector4f(currSpotLight.getConeDirection(), 0);
-            dir.mul(viewMatrix);
-            currSpotLight.setConeDirection(new Vector3f(dir.x, dir.y, dir.z));
-
-            Vector3f lightPos = currSpotLight.getPointLight().getPosition();
-            Vector4f aux = new Vector4f(lightPos, 1);
-            aux.mul(viewMatrix);
-            lightPos.x = aux.x;
-            lightPos.y = aux.y;
-            lightPos.z = aux.z;
-
-            sceneShaderProgram.setUniform("spotLights", currSpotLight, i);
-        }
-
-        // Get a copy of the directional light object and transform its position to view coordinates
-        DirectionalLight currDirLight = new DirectionalLight(sceneLight.getDirectionalLight());
-        Vector4f dir = new Vector4f(currDirLight.getDirection(), 0);
-        dir.mul(viewMatrix);
-        currDirLight.setDirection(new Vector3f(dir.x, dir.y, dir.z));
-        sceneShaderProgram.setUniform("directionalLight", currDirLight);
-    }
-
 
     private void renderHud(Window window, IHud hud) {
         hudShaderProgram.use();
@@ -220,6 +181,9 @@ public class Renderer {
         }
         if (skyBoxShaderProgram != null) {
             skyBoxShaderProgram.detach();
+        }
+        if (sceneShaderProgram != null) {
+            sceneShaderProgram.detach();
         }
         if (hudShaderProgram != null) {
             hudShaderProgram.detach();

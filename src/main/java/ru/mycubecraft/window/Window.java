@@ -171,7 +171,6 @@ public class Window {
         this.changeScene(1);
         try {
             this.setupSkyBox();
-            this.setupLights();
             currentScene.init();
         } catch (Exception e) {
             e.printStackTrace();
@@ -250,19 +249,6 @@ public class Window {
         skyBox.setScale(Settings.SKY_BOX_SCALE);
         currentScene.setSkyBox(skyBox);
 
-    }
-
-    private void setupLights() {
-        SceneLight sceneLight = new SceneLight();
-        currentScene.setSceneLight(sceneLight);
-
-        // Ambient Light
-        sceneLight.setAmbientLight(new Vector3f(1.0f, 1.0f, 1.0f));
-
-        // Directional Light
-        float lightIntensity = 1.0f;
-        Vector3f lightPosition = new Vector3f(-1, 0, 0);
-        sceneLight.setDirectionalLight(new DirectionalLight(new Vector3f(1, 1, 1), lightPosition, lightIntensity));
     }
 
     public boolean isResized() {
