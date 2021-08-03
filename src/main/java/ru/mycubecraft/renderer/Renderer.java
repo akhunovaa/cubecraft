@@ -69,8 +69,6 @@ public class Renderer {
     }
 
     private void renderScene(ArrayList<GameItem> gameItems, World world, Scene scene, Vector3f ambientLight, PointLight pointLight) {
-        // clearing for the frustum filter game item list
-        filteredItems.clear();
         ArrayList<GameItem> allGameItems = new ArrayList<>(gameItems);
         if (world != null) {
             List<GameItem> gameItemList = world.getChunksBlockItems();
@@ -103,9 +101,10 @@ public class Renderer {
         lightPos.z = aux.z;
         sceneShaderProgram.setUniform("material", allGameItems.get(0).getMesh().getMaterial());
         sceneShaderProgram.setUniform("pointLight", currPointLight);
-
+        // clearing for the frustum filter game item list
+        filteredItems.clear();
         for (GameItem gameItem : allGameItems) {
-            if (gameItem.isInsideFrustum()) {
+            if (gameItem!= null && gameItem.isInsideFrustum()) {
                 filteredItems.add(gameItem);
             }
         }

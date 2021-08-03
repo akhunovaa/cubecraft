@@ -31,10 +31,10 @@ public class World {
         chunkMap.forEach((key, value) -> value.render());
     }
 
-    public ArrayList<GameItem> getChunksBlockItems() {
+    public List<GameItem> getChunksBlockItems() {
         List<GameItem> gameItemList = new ArrayList<>();
         chunkMap.forEach((key, value) -> gameItemList.addAll(value.getItemListForRendering()));
-        return new ArrayList<>(gameItemList);
+        return gameItemList;
     }
 
     public void generate(int xPosition, int zPosition) {
