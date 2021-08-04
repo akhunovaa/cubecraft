@@ -42,7 +42,7 @@ public class LevelScene extends Scene {
     @Override
     public void init() {
         System.out.println("Entering To Word");
-        ambientLight = new Vector3f(0.21f, 0.31f, 0.41f);
+        ambientLight = new Vector3f(0.1f, 0.1f, 0.1f);
         Vector3f lightColour = new Vector3f(1, 1, 1);
         Vector3f lightPosition = new Vector3f(0, 20.0f, 1.0f);
         float lightIntensity = 100.0f;
@@ -84,7 +84,7 @@ public class LevelScene extends Scene {
                 Window.blue += stage;
             }
         }
-        if (ambientLight.x >= 1.0f || ambientLight.y >= 1.0f  || ambientLight.z >= 1.0f ) {
+        if (ambientLight.x >= 0.79f || ambientLight.y >= 0.91f  || ambientLight.z >= 0.96f ) {
             dayCycle = true;
         } else if (ambientLight.x <= 0 || ambientLight.y <= 0  || ambientLight.z <= 0 ) {
             dayCycle = false;
