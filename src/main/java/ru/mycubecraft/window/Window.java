@@ -17,6 +17,7 @@ import ru.mycubecraft.scene.LevelEditorScene;
 import ru.mycubecraft.scene.LevelScene;
 import ru.mycubecraft.scene.Scene;
 
+import java.io.FileNotFoundException;
 import java.util.Objects;
 
 import static org.lwjgl.glfw.Callbacks.glfwFreeCallbacks;
@@ -168,8 +169,9 @@ public class Window {
 
         glfwSetInputMode(this.glfwWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
-        this.changeScene(1);
+
         try {
+            this.changeScene(1);
             this.setupSkyBox();
             currentScene.init();
         } catch (Exception e) {
@@ -190,7 +192,7 @@ public class Window {
             elapsedTime = timer.getElapsedTime();
             accumulator += elapsedTime;
 
-            glClearColor(this.red, this.green, this.blue, this.alpha);
+            glClearColor(red, green, blue, this.alpha);
 
             currentScene.input();
             /* Update game and timer UPS if enough time has passed */
@@ -229,7 +231,7 @@ public class Window {
     }
 
 
-    public void changeScene(int scene) {
+    public void changeScene(int scene) throws FileNotFoundException {
         switch (scene) {
             case 0:
                 currentScene = new LevelEditorScene();

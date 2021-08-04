@@ -4,6 +4,7 @@ import lombok.Getter;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 import ru.mycubecraft.Settings;
+import ru.mycubecraft.block.Block;
 import ru.mycubecraft.core.GameItem;
 import ru.mycubecraft.data.Hud;
 import ru.mycubecraft.engine.graph.DirectionalLight;
@@ -11,10 +12,13 @@ import ru.mycubecraft.engine.graph.PointLight;
 import ru.mycubecraft.engine.graph.SpotLight;
 import ru.mycubecraft.listener.MouseInput;
 import ru.mycubecraft.renderer.Camera;
+import ru.mycubecraft.renderer.Cube;
 import ru.mycubecraft.renderer.Renderer;
 import ru.mycubecraft.window.Window;
 import ru.mycubecraft.world.BasicGen;
 import ru.mycubecraft.world.World;
+
+import java.io.FileNotFoundException;
 
 import static org.lwjgl.glfw.GLFW.*;
 
@@ -23,6 +27,8 @@ public class LevelScene extends Scene {
 
     private final Vector3f cameraInc;
     private final MouseInput mouseInput;
+    private final Block sun;
+    private final boolean dayCycle = false;
     private Hud hud;
     private boolean firstTime;
     private boolean sceneChanged;
@@ -30,14 +36,11 @@ public class LevelScene extends Scene {
     private PointLight[] pointLightList;
     private SpotLight[] spotLightList;
     private DirectionalLight directionalLight;
-
     private float lightAngle;
     private float spotAngle = 0;
     private float spotInc = 1;
 
-    private boolean dayCycle = false;
-
-    public LevelScene() {
+    public LevelScene() throws FileNotFoundException {
         System.out.println("Entered to a Level Scene");
         renderer = new Renderer();
         camera = new Camera();
@@ -45,12 +48,14 @@ public class LevelScene extends Scene {
         cameraInc = new Vector3f(0.0f, 0.0f, 0.0f);
         mouseInput = new MouseInput();
         lightAngle = -90;
+        sun = new Block(0, 0, 0, "assets/textures/white.png");
     }
 
     @Override
     public void init() {
         System.out.println("Entering To Word");
-
+        sun.getGameCubeItem().setScale(3f);
+        sun.getGameCubeItem().setPosition(-3000, 0.0f, 0F);
         ambientLight = new Vector3f(0.21f, 0.21f, 0.26f);
 
         // Point Light
@@ -88,7 +93,7 @@ public class LevelScene extends Scene {
         camera.movePosition(cameraInc.x * Settings.MOVE_SPEED, cameraInc.y * Settings.MOVE_SPEED, cameraInc.z * Settings.MOVE_SPEED);
 
         lightUpdate(delta);
-
+        gameItems.add(sun.getGameCubeItem());
         int xPosition = (int) camera.getPosition().x;
         int zPosition = (int) camera.getPosition().z;
         world.generate(xPosition, zPosition);
@@ -105,16 +110,16 @@ public class LevelScene extends Scene {
         double spotAngleRad = Math.toRadians(spotAngle);
         Vector3f coneDir = spotLightList[0].getConeDirection();
         coneDir.y = (float) Math.sin(spotAngleRad);
-
         // Update directional light direction, intensity and colour
         lightAngle += 0.01f;
+        this.sun.getGameCubeItem().setPosition(directionalLight.getDirection().x * 1000f, directionalLight.getDirection().y * 1000f, directionalLight.getDirection().z * 1000f);
         if (lightAngle > 90) {
             directionalLight.setIntensity(0);
             if (lightAngle >= 360) {
                 lightAngle = -90;
             }
         } else if (lightAngle <= -80 || lightAngle >= 80) {
-            float factor = 1 - (float) (Math.abs(lightAngle) - 80) / 10.0f;
+            float factor = 1 - (Math.abs(lightAngle) - 80) / 10.0f;
             directionalLight.setIntensity(factor);
             directionalLight.getColor().y = Math.max(factor, 0.9f);
             directionalLight.getColor().z = Math.max(factor, 0.5f);
@@ -131,25 +136,6 @@ public class LevelScene extends Scene {
         double angRad = Math.toRadians(lightAngle);
         directionalLight.getDirection().x = (float) Math.sin(angRad);
         directionalLight.getDirection().y = (float) Math.cos(angRad);
-
-//        float stage = 0.01f;
-//        if (dayCycle) {
-//            ambientLight.sub(new Vector3f(stage, stage, stage));
-//            Window.red -= stage;
-//            Window.green -= stage;
-//            Window.blue -= stage;
-//        }
-//        ambientLight.add(new Vector3f(stage, stage, stage));
-//        if (Window.red < 0.79f && Window.green < 0.91f  && Window.blue < 0.96f ) {
-//            Window.red += stage;
-//            Window.green += stage;
-//            Window.blue += stage;
-//        }
-//        if (ambientLight.x >= 0.79f || ambientLight.y >= 0.91f  || ambientLight.z >= 0.96f ) {
-//            dayCycle = true;
-//        } else if (ambientLight.x <= 0f || ambientLight.y <= 0f  || ambientLight.z <= 0f ) {
-//            dayCycle = false;
-//        }
     }
 
     @Override

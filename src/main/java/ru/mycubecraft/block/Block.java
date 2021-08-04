@@ -8,7 +8,7 @@ import ru.mycubecraft.renderer.Cube;
 @Getter
 public class Block {
 
-    private final Vector3f position;
+    private Vector3f position;
     private GameItem gameCubeItem;
 
     public Block(int bX, int bY, int bZ, String texture) {
