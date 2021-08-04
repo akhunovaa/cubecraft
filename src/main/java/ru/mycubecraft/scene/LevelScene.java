@@ -40,7 +40,7 @@ public class LevelScene extends Scene {
     @Override
     public void init() {
         System.out.println("Entering To Word");
-        ambientLight = new Vector3f(0.1f, 0.1f, 0.1f);
+        ambientLight = new Vector3f(0.21f, 0.31f, 0.41f);
         Vector3f lightColour = new Vector3f(1, 1, 1);
         Vector3f lightPosition = new Vector3f(0, 20.0f, 1.0f);
         float lightIntensity = 100.0f;
