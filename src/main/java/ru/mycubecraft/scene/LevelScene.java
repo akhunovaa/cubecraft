@@ -10,6 +10,7 @@ import ru.mycubecraft.engine.graph.PointLight;
 import ru.mycubecraft.listener.MouseInput;
 import ru.mycubecraft.renderer.Camera;
 import ru.mycubecraft.renderer.Renderer;
+import ru.mycubecraft.window.Window;
 import ru.mycubecraft.world.BasicGen;
 import ru.mycubecraft.world.World;
 
@@ -27,6 +28,7 @@ public class LevelScene extends Scene {
     private final MouseInput mouseInput;
     private Vector3f ambientLight;
     private PointLight pointLight;
+    private boolean dayCycle = false;
 
     public LevelScene() {
         System.out.println("Entered to a Level Scene");
@@ -61,10 +63,33 @@ public class LevelScene extends Scene {
         camera.moveRotation(rotVec.x * Settings.MOUSE_SENSITIVITY, rotVec.y * Settings.MOUSE_SENSITIVITY, 0);
 
         camera.movePosition(cameraInc.x * Settings.MOVE_SPEED, cameraInc.y * Settings.MOVE_SPEED, cameraInc.z * Settings.MOVE_SPEED);
-
+        lightUpdate(delta);
         int xPosition = (int) camera.getPosition().x;
         int zPosition = (int) camera.getPosition().z;
         world.generate(xPosition, zPosition);
+    }
+
+    private void lightUpdate(float delta) {
+        float stage = 0.01f * delta;
+        if (dayCycle) {
+            ambientLight.add(new Vector3f(-stage, -stage, -stage));
+            Window.red -= stage;
+            Window.green -= stage;
+            Window.blue -= stage;
+        } else {
+            ambientLight.add(new Vector3f(stage, stage, stage));
+            if (Window.red < 0.79f || Window.green < 0.91f  || Window.blue < 0.96f ) {
+                Window.red += stage;
+                Window.green += stage;
+                Window.blue += stage;
+            }
+        }
+        if (ambientLight.x >= 1.0f || ambientLight.y >= 1.0f  || ambientLight.z >= 1.0f ) {
+            dayCycle = true;
+        } else if (ambientLight.x <= 0 || ambientLight.y <= 0  || ambientLight.z <= 0 ) {
+            dayCycle = false;
+        }
+
     }
 
     @Override

@@ -39,9 +39,9 @@ public class Window {
     private final boolean vSync = true;
     private int width;
     private int height;
-    private float red = 0.79f;
-    private float green = 0.91f;
-    private float blue = 0.96f;
+    public static float red = 0.01f;
+    public static float green = 0.01f;
+    public static float blue = 0.01f;
     private float alpha = 1.0f;
     private long glfwWindow;
     private KeyboardListener keyboardListener;
