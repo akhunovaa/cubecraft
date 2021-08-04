@@ -1,9 +1,7 @@
 package ru.mycubecraft.engine;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
 
 public class Utils {
 
@@ -42,5 +40,14 @@ public class Utils {
     public static int[] listIntToArray(List<Integer> list) {
         int[] result = list.stream().mapToInt((Integer v) -> v).toArray();
         return result;
+    }
+
+    public static <K, V> Map<K, V> createLRUMap(final int maxEntries) {
+        return Collections.synchronizedMap(new LinkedHashMap<K, V>(maxEntries*10/7, 0.7f, true) {
+            @Override
+            protected boolean removeEldestEntry(Map.Entry<K, V> eldest) {
+                return size() > maxEntries;
+            }
+        });
     }
 }
