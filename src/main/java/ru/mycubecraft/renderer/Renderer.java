@@ -7,6 +7,7 @@ import ru.mycubecraft.core.GameItem;
 import ru.mycubecraft.core.Mesh;
 import ru.mycubecraft.engine.IHud;
 import ru.mycubecraft.engine.SkyBox;
+import ru.mycubecraft.engine.graph.DirectionalLight;
 import ru.mycubecraft.engine.graph.FrustumCullingFilter;
 import ru.mycubecraft.engine.graph.PointLight;
 import ru.mycubecraft.scene.Scene;
@@ -51,7 +52,8 @@ public class Renderer {
     }
 
     public void render(Window window, ArrayList<GameItem> gameItems, World world, Camera camera,
-                       SkyBox skyBox, Scene scene, IHud hud, Vector3f ambientLight, PointLight pointLight) {
+                       SkyBox skyBox, Scene scene, IHud hud, Vector3f ambientLight,
+                       PointLight pointLight, DirectionalLight directionalLight) {
         clear();
         if (window.isResized()) {
             glViewport(0, 0, window.getWidth(), window.getHeight());
@@ -62,13 +64,15 @@ public class Renderer {
         transformation.updateProjectionMatrix(window.getWidth(), window.getHeight());
         transformation.updateViewMatrix(camera);
 
-        renderScene(gameItems, world, scene, ambientLight, pointLight);
+        renderScene(gameItems, world, scene, ambientLight, pointLight, directionalLight);
         //renderSkyBox(skyBox);
 
         renderHud(window, hud);
     }
 
-    private void renderScene(ArrayList<GameItem> gameItems, World world, Scene scene, Vector3f ambientLight, PointLight pointLight) {
+    private void renderScene(ArrayList<GameItem> gameItems, World world,
+                             Scene scene, Vector3f ambientLight,
+                             PointLight pointLight, DirectionalLight directionalLight) {
         ArrayList<GameItem> allGameItems = new ArrayList<>(gameItems);
         if (world != null) {
             List<GameItem> gameItemList = world.getChunksBlockItems();
@@ -101,6 +105,14 @@ public class Renderer {
         lightPos.z = aux.z;
         sceneShaderProgram.setUniform("material", allGameItems.get(0).getMesh().getMaterial());
         sceneShaderProgram.setUniform("pointLight", currPointLight);
+
+        // Get a copy of the directional light object and transform its position to view coordinates
+        DirectionalLight currDirLight = new DirectionalLight(directionalLight);
+        Vector4f dir = new Vector4f(currDirLight.getDirection(), 0);
+        dir.mul(viewMatrix);
+        currDirLight.setDirection(new Vector3f(dir.x, dir.y, dir.z));
+        sceneShaderProgram.setUniform("directionalLight", currDirLight);
+
         // clearing for the frustum filter game item list
         filteredItems.clear();
         for (GameItem gameItem : allGameItems) {
