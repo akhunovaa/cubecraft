@@ -10,6 +10,7 @@ import ru.mycubecraft.engine.SkyBox;
 import ru.mycubecraft.engine.graph.DirectionalLight;
 import ru.mycubecraft.engine.graph.FrustumCullingFilter;
 import ru.mycubecraft.engine.graph.PointLight;
+import ru.mycubecraft.engine.graph.SpotLight;
 import ru.mycubecraft.scene.Scene;
 import ru.mycubecraft.util.AssetPool;
 import ru.mycubecraft.window.Window;
@@ -53,7 +54,7 @@ public class Renderer {
 
     public void render(Window window, ArrayList<GameItem> gameItems, World world, Camera camera,
                        SkyBox skyBox, Scene scene, IHud hud, Vector3f ambientLight,
-                       PointLight pointLight, DirectionalLight directionalLight) {
+                       PointLight[] pointLightList, SpotLight[] spotLightList, DirectionalLight directionalLight) {
         clear();
         if (window.isResized()) {
             glViewport(0, 0, window.getWidth(), window.getHeight());
@@ -64,7 +65,7 @@ public class Renderer {
         transformation.updateProjectionMatrix(window.getWidth(), window.getHeight());
         transformation.updateViewMatrix(camera);
 
-        renderScene(gameItems, world, scene, ambientLight, pointLight, directionalLight);
+        renderScene(gameItems, world, scene, ambientLight, pointLightList, spotLightList, directionalLight);
         //renderSkyBox(skyBox);
 
         renderHud(window, hud);
@@ -72,7 +73,7 @@ public class Renderer {
 
     private void renderScene(ArrayList<GameItem> gameItems, World world,
                              Scene scene, Vector3f ambientLight,
-                             PointLight pointLight, DirectionalLight directionalLight) {
+                             PointLight[] pointLightList, SpotLight[] spotLightList, DirectionalLight directionalLight) {
         ArrayList<GameItem> allGameItems = new ArrayList<>(gameItems);
         if (world != null) {
             List<GameItem> gameItemList = world.getChunksBlockItems();
@@ -92,26 +93,10 @@ public class Renderer {
         sceneShaderProgram.uploadMat4f("projectionMatrix", projectionMatrix);
 
         // Update Light Uniforms
-        sceneShaderProgram.uploadVec3f("ambientLight", ambientLight);
-        sceneShaderProgram.uploadFloat("specularPower", specularPower);
-        sceneShaderProgram.uploadTexture("texture_sampler", 0);
-        // Get a copy of the light object and transform its position to view coordinates
-        PointLight currPointLight = new PointLight(pointLight);
-        Vector3f lightPos = currPointLight.getPosition();
-        Vector4f aux = new Vector4f(lightPos, 1);
-        aux.mul(viewMatrix);
-        lightPos.x = aux.x;
-        lightPos.y = aux.y;
-        lightPos.z = aux.z;
-        sceneShaderProgram.setUniform("material", allGameItems.get(0).getMesh().getMaterial());
-        sceneShaderProgram.setUniform("pointLight", currPointLight);
+        renderLights(viewMatrix, ambientLight, pointLightList, spotLightList, directionalLight);
 
-        // Get a copy of the directional light object and transform its position to view coordinates
-        DirectionalLight currDirLight = new DirectionalLight(directionalLight);
-        Vector4f dir = new Vector4f(currDirLight.getDirection(), 0);
-        dir.mul(viewMatrix);
-        currDirLight.setDirection(new Vector3f(dir.x, dir.y, dir.z));
-        sceneShaderProgram.setUniform("directionalLight", currDirLight);
+        sceneShaderProgram.uploadInt("texture_sampler", 0);
+        sceneShaderProgram.setUniform("material", allGameItems.get(0).getMesh().getMaterial());
 
         // clearing for the frustum filter game item list
         filteredItems.clear();
@@ -130,12 +115,58 @@ public class Renderer {
             gameItem.render();
         }
 
-
-
         // Unbind shader
         sceneShaderProgram.detach();
         //allGameItems.clear();
     }
+
+    private void renderLights(Matrix4f viewMatrix, Vector3f ambientLight,
+                              PointLight[] pointLightList, SpotLight[] spotLightList, DirectionalLight directionalLight) {
+
+        sceneShaderProgram.uploadVec3f("ambientLight", ambientLight);
+        sceneShaderProgram.uploadFloat("specularPower", specularPower);
+
+        // Process Point Lights
+        int numLights = pointLightList != null ? pointLightList.length : 0;
+        for (int i = 0; i < numLights; i++) {
+            // Get a copy of the point light object and transform its position to view coordinates
+            PointLight currPointLight = new PointLight(pointLightList[i]);
+            Vector3f lightPos = currPointLight.getPosition();
+            Vector4f aux = new Vector4f(lightPos, 1);
+            aux.mul(viewMatrix);
+            lightPos.x = aux.x;
+            lightPos.y = aux.y;
+            lightPos.z = aux.z;
+            sceneShaderProgram.setUniform("pointLights", currPointLight, i);
+        }
+
+        // Process Spot Ligths
+        numLights = spotLightList != null ? spotLightList.length : 0;
+        for (int i = 0; i < numLights; i++) {
+            // Get a copy of the spot light object and transform its position and cone direction to view coordinates
+            SpotLight currSpotLight = new SpotLight(spotLightList[i]);
+            Vector4f dir = new Vector4f(currSpotLight.getConeDirection(), 0);
+            dir.mul(viewMatrix);
+            currSpotLight.setConeDirection(new Vector3f(dir.x, dir.y, dir.z));
+            Vector3f lightPos = currSpotLight.getPointLight().getPosition();
+
+            Vector4f aux = new Vector4f(lightPos, 1);
+            aux.mul(viewMatrix);
+            lightPos.x = aux.x;
+            lightPos.y = aux.y;
+            lightPos.z = aux.z;
+
+            sceneShaderProgram.setUniform("spotLights", currSpotLight, i);
+        }
+
+        // Get a copy of the directional light object and transform its position to view coordinates
+        DirectionalLight currDirLight = new DirectionalLight(directionalLight);
+        Vector4f dir = new Vector4f(currDirLight.getDirection(), 0);
+        dir.mul(viewMatrix);
+        currDirLight.setDirection(new Vector3f(dir.x, dir.y, dir.z));
+        sceneShaderProgram.setUniform("directionalLight", currDirLight);
+    }
+
 
     private void renderSkyBox(SkyBox skyBox) {
         skyBoxShaderProgram.use();

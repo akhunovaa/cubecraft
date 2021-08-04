@@ -8,6 +8,7 @@ import ru.mycubecraft.core.GameItem;
 import ru.mycubecraft.data.Hud;
 import ru.mycubecraft.engine.graph.DirectionalLight;
 import ru.mycubecraft.engine.graph.PointLight;
+import ru.mycubecraft.engine.graph.SpotLight;
 import ru.mycubecraft.listener.MouseInput;
 import ru.mycubecraft.renderer.Camera;
 import ru.mycubecraft.renderer.Renderer;
@@ -21,15 +22,18 @@ import static org.lwjgl.glfw.GLFW.*;
 public class LevelScene extends Scene {
 
     private final Vector3f cameraInc;
+    private final MouseInput mouseInput;
     private Hud hud;
-    private float angleInc;
-    private float lightAngle;
     private boolean firstTime;
     private boolean sceneChanged;
-    private final MouseInput mouseInput;
     private Vector3f ambientLight;
-    private PointLight pointLight;
+    private PointLight[] pointLightList;
+    private SpotLight[] spotLightList;
     private DirectionalLight directionalLight;
+
+    private float lightAngle;
+    private float spotAngle = 0;
+    private float spotInc = 1;
 
     private boolean dayCycle = false;
 
@@ -47,17 +51,28 @@ public class LevelScene extends Scene {
     public void init() {
         System.out.println("Entering To Word");
 
-        ambientLight = new Vector3f(0.79f, 0.91f, 0.96f);
-        Vector3f lightColour = new Vector3f(1, 1, 1);
-        Vector3f lightPosition = new Vector3f(0, 10.0f, 1);
-        float lightIntensity = 10.0f;
-        pointLight = new PointLight(lightColour, lightPosition, lightIntensity);
+        ambientLight = new Vector3f(0.21f, 0.21f, 0.26f);
+
+        // Point Light
+        Vector3f lightPosition = new Vector3f(0, 0, 1);
+        float lightIntensity = 1.0f;
+        PointLight pointLight = new PointLight(new Vector3f(1, 1, 1), lightPosition, lightIntensity);
         PointLight.Attenuation att = new PointLight.Attenuation(0.0f, 0.0f, 1.0f);
         pointLight.setAttenuation(att);
+        pointLightList = new PointLight[]{pointLight};
+
+        // Spot Light
+        lightPosition = new Vector3f(0, 0.0f, 10f);
+        pointLight = new PointLight(new Vector3f(1, 1, 1), lightPosition, lightIntensity);
+        att = new PointLight.Attenuation(0.0f, 0.0f, 0.02f);
+        pointLight.setAttenuation(att);
+        Vector3f coneDir = new Vector3f(0, 0, -1);
+        float cutoff = (float) Math.cos(Math.toRadians(140));
+        SpotLight spotLight = new SpotLight(pointLight, coneDir, cutoff);
+        spotLightList = new SpotLight[]{spotLight, new SpotLight(spotLight)};
 
         lightPosition = new Vector3f(-1, 0, 0);
-        lightColour = new Vector3f(1, 1, 1);
-        directionalLight = new DirectionalLight(lightColour, lightPosition, lightIntensity);
+        directionalLight = new DirectionalLight(new Vector3f(1, 1, 1), lightPosition, lightIntensity);
 
         mouseInput.init();
         hud = new Hud();
@@ -67,11 +82,29 @@ public class LevelScene extends Scene {
     @Override
     public void update(float delta) {
         hud.rotateCompass(camera.getRotation().y);
-        pointLight.setPosition(new Vector3f(camera.getPosition().x + 1.5f, camera.getPosition().y, camera.getPosition().z + 1.5f));
+
         Vector2f rotVec = mouseInput.getDisplVec();
         camera.moveRotation(rotVec.x * Settings.MOUSE_SENSITIVITY, rotVec.y * Settings.MOUSE_SENSITIVITY, 0);
-
         camera.movePosition(cameraInc.x * Settings.MOVE_SPEED, cameraInc.y * Settings.MOVE_SPEED, cameraInc.z * Settings.MOVE_SPEED);
+
+        lightUpdate(delta);
+
+        int xPosition = (int) camera.getPosition().x;
+        int zPosition = (int) camera.getPosition().z;
+        world.generate(xPosition, zPosition);
+    }
+
+    private void lightUpdate(float delta) {
+        // Update spot light direction
+        spotAngle += spotInc * 0.05f;
+        if (spotAngle > 2) {
+            spotInc = -1;
+        } else if (spotAngle < -2) {
+            spotInc = 1;
+        }
+        double spotAngleRad = Math.toRadians(spotAngle);
+        Vector3f coneDir = spotLightList[0].getConeDirection();
+        coneDir.y = (float) Math.sin(spotAngleRad);
 
         // Update directional light direction, intensity and colour
         lightAngle += 0.01f;
@@ -85,6 +118,10 @@ public class LevelScene extends Scene {
             directionalLight.setIntensity(factor);
             directionalLight.getColor().y = Math.max(factor, 0.9f);
             directionalLight.getColor().z = Math.max(factor, 0.5f);
+            ambientLight = new Vector3f(Math.min(Math.max(factor, 0.79f), 0.1f), Math.min(Math.max(factor, 0.91f), 0.1f), Math.min(Math.max(factor, 0.96f), 0.1f));
+            Window.red = Math.min(factor, 0.79f);
+            Window.green = Math.min(factor, 0.91f);
+            Window.blue = Math.min(factor, 0.96f);
         } else {
             directionalLight.setIntensity(1);
             directionalLight.getColor().x = 1;
@@ -95,32 +132,24 @@ public class LevelScene extends Scene {
         directionalLight.getDirection().x = (float) Math.sin(angRad);
         directionalLight.getDirection().y = (float) Math.cos(angRad);
 
-        int xPosition = (int) camera.getPosition().x;
-        int zPosition = (int) camera.getPosition().z;
-        world.generate(xPosition, zPosition);
-    }
-
-    private void lightUpdate() {
-        float stage = 0.01f;
-        if (dayCycle) {
-            ambientLight.sub(new Vector3f(stage, stage,stage));
-            Window.red -= stage;
-            Window.green -= stage;
-            Window.blue -= stage;
-        } else {
-            ambientLight.add(new Vector3f(stage, stage, stage));
-            if (Window.red < 0.79f && Window.green < 0.91f  && Window.blue < 0.96f ) {
-                Window.red += stage;
-                Window.green += stage;
-                Window.blue += stage;
-            }
-        }
-        if (ambientLight.x >= 0.79f || ambientLight.y >= 0.91f  || ambientLight.z >= 0.96f ) {
-            dayCycle = true;
-        } else if (ambientLight.x <= 0 || ambientLight.y <= 0  || ambientLight.z <= 0 ) {
-            dayCycle = false;
-        }
-
+//        float stage = 0.01f;
+//        if (dayCycle) {
+//            ambientLight.sub(new Vector3f(stage, stage, stage));
+//            Window.red -= stage;
+//            Window.green -= stage;
+//            Window.blue -= stage;
+//        }
+//        ambientLight.add(new Vector3f(stage, stage, stage));
+//        if (Window.red < 0.79f && Window.green < 0.91f  && Window.blue < 0.96f ) {
+//            Window.red += stage;
+//            Window.green += stage;
+//            Window.blue += stage;
+//        }
+//        if (ambientLight.x >= 0.79f || ambientLight.y >= 0.91f  || ambientLight.z >= 0.96f ) {
+//            dayCycle = true;
+//        } else if (ambientLight.x <= 0f || ambientLight.y <= 0f  || ambientLight.z <= 0f ) {
+//            dayCycle = false;
+//        }
     }
 
     @Override
@@ -142,30 +171,19 @@ public class LevelScene extends Scene {
         } else if (keyboardListener.isKeyPressed(GLFW_KEY_X) || keyboardListener.isKeyPressed(GLFW_KEY_SPACE)) {
             cameraInc.y = 1;
         }
-        if (keyboardListener.isKeyPressed(GLFW_KEY_LEFT)) {
-            angleInc -= 0.05f;
-        } else if (keyboardListener.isKeyPressed(GLFW_KEY_RIGHT)) {
-            angleInc += 0.05f;
-        } else {
-            angleInc = 0;
-        }
 
-        float lightPos = pointLight.getPosition().z;
+        float lightPos = spotLightList[0].getPointLight().getPosition().z;
         if (keyboardListener.isKeyPressed(GLFW_KEY_N)) {
-            System.out.println("\nCurrent light position: " + lightPos);
-            this.pointLight.getPosition().z = lightPos + 2.1f;
-            System.out.println("Moved light position: " + this.pointLight.getPosition().z);
+            this.spotLightList[0].getPointLight().getPosition().z = lightPos + 0.1f;
         } else if (keyboardListener.isKeyPressed(GLFW_KEY_M)) {
-            System.out.println("\nCurrent light position: " + lightPos);
-            this.pointLight.getPosition().z = lightPos - 2.1f;
-            System.out.println("Moved light position: " + this.pointLight.getPosition().z);
+            this.spotLightList[0].getPointLight().getPosition().z = lightPos - 0.1f;
         }
     }
 
 
     @Override
     public void render(float delta) {
-        renderer.render(window, gameItems, world, camera, skyBox, this, hud, ambientLight, pointLight, directionalLight);
+        renderer.render(window, gameItems, world, camera, skyBox, this, hud, ambientLight, pointLightList, spotLightList, directionalLight);
         hud.updateFps(delta);
         int filteredBlocksCount = renderer.getFilteredItems().size();
         hud.updateHud(window, camera, world, filteredBlocksCount);
