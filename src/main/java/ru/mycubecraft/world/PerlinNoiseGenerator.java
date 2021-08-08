@@ -12,8 +12,8 @@ public class PerlinNoiseGenerator implements Generator {
     public static int OCTAVES = 7;
     public static float ROUGHNESS = 0.3f;
 
-    private Random random = new Random();
-    private int seed;
+    private final Random random = new Random();
+    private final int seed;
     private int xOffset = 0;
     private int zOffset = 0;
 
@@ -24,11 +24,11 @@ public class PerlinNoiseGenerator implements Generator {
     //only works with POSITIVE gridX and gridZ values!
     public PerlinNoiseGenerator(int gridX, int gridZ, int vertexCount, int seed) {
         this.seed = seed;
-        xOffset = gridX * (vertexCount-1);
-        zOffset = gridZ * (vertexCount-1);
+        xOffset = gridX * (vertexCount - 1);
+        zOffset = gridZ * (vertexCount - 1);
     }
 
-    private float getInterpolatedNoise(float x, float z){
+    private float getInterpolatedNoise(float x, float z) {
         int intX = (int) x;
         int intZ = (int) z;
         float fracX = x - intX;
@@ -43,9 +43,9 @@ public class PerlinNoiseGenerator implements Generator {
         return interpolate(i1, i2, fracZ);
     }
 
-    private float interpolate(float a, float b, float blend){
+    private float interpolate(float a, float b, float blend) {
         double theta = blend * Math.PI;
-        float f = (float)(1f - Math.cos(theta)) * 0.5f;
+        float f = (float) (1f - Math.cos(theta)) * 0.5f;
         return a * (1f - f) + b * f;
     }
 
@@ -77,11 +77,11 @@ public class PerlinNoiseGenerator implements Generator {
         wZ = wZ < 0 ? -wZ : wZ;
 
         float total = 0;
-        float d = (float) Math.pow(2, OCTAVES-1);
-        for(int i=0;i<OCTAVES;i++){
+        float d = (float) Math.pow(2, OCTAVES - 1);
+        for (int i = 0; i < OCTAVES; i++) {
             float freq = (float) (Math.pow(2, i) / d);
             float amp = (float) Math.pow(ROUGHNESS, i) * AMPLITUDE;
-            total += getInterpolatedNoise((wX+xOffset)*freq, (wZ + zOffset)*freq) * amp;
+            total += getInterpolatedNoise((wX + xOffset) * freq, (wZ + zOffset) * freq) * amp;
         }
 
         return (int) total;

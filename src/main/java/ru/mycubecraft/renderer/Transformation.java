@@ -3,8 +3,8 @@ package ru.mycubecraft.renderer;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
-import ru.mycubecraft.core.GameItem;
 import ru.mycubecraft.Settings;
+import ru.mycubecraft.core.GameItem;
 
 public class Transformation {
 
@@ -42,13 +42,12 @@ public class Transformation {
         // First do the rotation so camera rotates over its position
 //        viewMatrix.rotate((float) Math.toRadians(rotation.x), new Vector3f(1, 0, 0))
 //                .rotate((float) Math.toRadians(rotation.y), new Vector3f(0, 1, 0));
-        viewMatrix.rotationX((float)Math.toRadians(rotation.x))
-                .rotateY((float)Math.toRadians(rotation.y));
+        viewMatrix.rotationX((float) Math.toRadians(rotation.x))
+                .rotateY((float) Math.toRadians(rotation.y));
 
         // Then do the translation
         viewMatrix.translate(-cameraPos.x, -cameraPos.y, -cameraPos.z);
         return viewMatrix;
-
 
 
     }

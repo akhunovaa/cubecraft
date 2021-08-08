@@ -45,9 +45,9 @@ public class MouseInput {
     }
 
     public Vector2d getCurrentPos() {
-        return currentPos;        
+        return currentPos;
     }
-    
+
     public void input() {
         displVec.x = 0;
         displVec.y = 0;

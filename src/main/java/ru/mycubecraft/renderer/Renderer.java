@@ -101,7 +101,7 @@ public class Renderer {
         // clearing for the frustum filter game item list
         filteredItems.clear();
         for (GameItem gameItem : allGameItems) {
-            if (gameItem!= null && gameItem.isInsideFrustum()) {
+            if (gameItem != null && gameItem.isInsideFrustum()) {
                 filteredItems.add(gameItem);
             }
         }

@@ -83,7 +83,7 @@ public class Hud implements IHud {
         // Create list that holds the items that compose the HUD
         gameItems = new GameItem[]{versionTextItem, compassItem,
                 coordinatesTextItem, fpsTextItem, rotationTextItem,
-        chunkSizeTextItem, blockSizeTextItem, filteredBlockSizeTextItem};
+                chunkSizeTextItem, blockSizeTextItem, filteredBlockSizeTextItem};
     }
 
     public void rotateCompass(float angle) {

@@ -1,7 +1,5 @@
 package ru.mycubecraft.listener;
 
-import lombok.Getter;
-import lombok.Setter;
 import org.joml.Vector2f;
 
 import static org.lwjgl.glfw.GLFW.GLFW_PRESS;
@@ -11,12 +9,12 @@ public class MouseListener {
 
     private static MouseListener instance;
     private final boolean[] mouseButtonPressed = new boolean[3];
+    private final Vector2f displVec;
     private double scrollX;
     private double scrollY;
     private double xPosition, yPosition, xLastPosition, yLastPosition;
     private boolean dragging;
     private boolean inWindow = false;
-    private final Vector2f displVec;
 
     private MouseListener() {
         this.scrollX = 0.0;

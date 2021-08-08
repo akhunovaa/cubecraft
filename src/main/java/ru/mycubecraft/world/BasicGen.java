@@ -2,7 +2,6 @@ package ru.mycubecraft.world;
 
 
 import ru.mycubecraft.block.Block;
-import ru.mycubecraft.block.DirtBlock;
 import ru.mycubecraft.block.GrassBlock;
 
 public class BasicGen implements Generator {

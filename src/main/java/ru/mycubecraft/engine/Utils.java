@@ -14,7 +14,7 @@ public class Utils {
         return result;
     }
 
-    public static List<String> readAllLines(String fileName){
+    public static List<String> readAllLines(String fileName) {
         List<String> list = new ArrayList<>();
         File file = new File(fileName);
         try (BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(file)))) {
@@ -43,7 +43,7 @@ public class Utils {
     }
 
     public static <K, V> Map<K, V> createLRUMap(final int maxEntries) {
-        return new LinkedHashMap<K, V>(maxEntries*10/7, 0.7f, true) {
+        return new LinkedHashMap<K, V>(maxEntries * 10 / 7, 0.7f, true) {
             @Override
             protected boolean removeEldestEntry(Map.Entry<K, V> eldest) {
                 return size() > maxEntries;

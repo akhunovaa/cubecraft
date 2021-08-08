@@ -1,23 +1,19 @@
 package ru.mycubecraft.window;
 
-import org.joml.Vector3f;
 import org.lwjgl.Version;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.glfw.GLFWWindowSizeCallback;
 import org.lwjgl.opengl.GL;
 import ru.mycubecraft.Settings;
-import ru.mycubecraft.engine.SceneLight;
 import ru.mycubecraft.engine.SkyBox;
 import ru.mycubecraft.engine.Timer;
-import ru.mycubecraft.engine.graph.DirectionalLight;
 import ru.mycubecraft.listener.KeyboardListener;
 import ru.mycubecraft.listener.MouseListener;
 import ru.mycubecraft.scene.LevelEditorScene;
 import ru.mycubecraft.scene.LevelScene;
 import ru.mycubecraft.scene.Scene;
 
-import java.io.FileNotFoundException;
 import java.util.Objects;
 
 import static org.lwjgl.glfw.Callbacks.glfwFreeCallbacks;
@@ -29,10 +25,11 @@ public class Window {
 
     public static final int TARGET_FPS = 75;
     public static final int TARGET_UPS = 30;
-
+    public static float red = 0.79f;
+    public static float green = 0.91f;
+    public static float blue = 0.96f;
     private static Window instance;
     private final String title;
-
     /**
      * Used for timing calculations.
      */
@@ -40,9 +37,6 @@ public class Window {
     private final boolean vSync = true;
     private int width;
     private int height;
-    public static float red = 0.79f;
-    public static float green = 0.91f;
-    public static float blue = 0.96f;
     private float alpha = 1.0f;
     private long glfwWindow;
     private KeyboardListener keyboardListener;
@@ -169,9 +163,8 @@ public class Window {
 
         glfwSetInputMode(this.glfwWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
-
+        this.changeScene(1);
         try {
-            this.changeScene(1);
             this.setupSkyBox();
             currentScene.init();
         } catch (Exception e) {
@@ -231,7 +224,7 @@ public class Window {
     }
 
 
-    public void changeScene(int scene) throws FileNotFoundException {
+    public void changeScene(int scene) {
         switch (scene) {
             case 0:
                 currentScene = new LevelEditorScene();
@@ -266,7 +259,7 @@ public class Window {
     }
 
     public void setRed(float red) {
-        this.red = red;
+        Window.red = red;
     }
 
     public float getGreen() {
@@ -274,7 +267,7 @@ public class Window {
     }
 
     public void setGreen(float green) {
-        this.green = green;
+        Window.green = green;
     }
 
     public float getBlue() {
@@ -282,7 +275,7 @@ public class Window {
     }
 
     public void setBlue(float blue) {
-        this.blue = blue;
+        Window.blue = blue;
     }
 
     public float getAlpha() {

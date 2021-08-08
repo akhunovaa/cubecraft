@@ -12,13 +12,10 @@ import ru.mycubecraft.engine.graph.PointLight;
 import ru.mycubecraft.engine.graph.SpotLight;
 import ru.mycubecraft.listener.MouseInput;
 import ru.mycubecraft.renderer.Camera;
-import ru.mycubecraft.renderer.Cube;
 import ru.mycubecraft.renderer.Renderer;
 import ru.mycubecraft.window.Window;
 import ru.mycubecraft.world.BasicGen;
 import ru.mycubecraft.world.World;
-
-import java.io.FileNotFoundException;
 
 import static org.lwjgl.glfw.GLFW.*;
 
@@ -40,7 +37,7 @@ public class LevelScene extends Scene {
     private float spotAngle = 0;
     private float spotInc = 1;
 
-    public LevelScene() throws FileNotFoundException {
+    public LevelScene() {
         System.out.println("Entered to a Level Scene");
         renderer = new Renderer();
         camera = new Camera();
@@ -69,7 +66,7 @@ public class LevelScene extends Scene {
         // Spot Light
         lightPosition = new Vector3f(0, 0.0f, 10f);
         pointLight = new PointLight(new Vector3f(1, 1, 1), lightPosition, lightIntensity);
-        att = new PointLight.Attenuation(0.0f, 0.0f, 0.02f);
+        att = new PointLight.Attenuation(0.0f, 0.0f, 0.01f);
         pointLight.setAttenuation(att);
         Vector3f coneDir = new Vector3f(0, 0, -1);
         float cutoff = (float) Math.cos(Math.toRadians(140));
