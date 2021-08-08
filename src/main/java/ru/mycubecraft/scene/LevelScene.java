@@ -13,7 +13,6 @@ import ru.mycubecraft.engine.graph.SpotLight;
 import ru.mycubecraft.listener.MouseInput;
 import ru.mycubecraft.renderer.Camera;
 import ru.mycubecraft.renderer.Renderer;
-import ru.mycubecraft.window.Window;
 import ru.mycubecraft.world.BasicGen;
 import ru.mycubecraft.world.World;
 
@@ -44,7 +43,7 @@ public class LevelScene extends Scene {
         world = new World(new BasicGen(1));
         cameraInc = new Vector3f(0.0f, 0.0f, 0.0f);
         mouseInput = new MouseInput();
-        lightAngle = -90;
+        lightAngle = 90;
         sun = new Block(0, 0, 0, "assets/textures/white.png");
     }
 
@@ -119,7 +118,7 @@ public class LevelScene extends Scene {
         } else if (lightAngle <= -80 || lightAngle >= 80) {
             float factor = 1 - (Math.abs(lightAngle) - 80) / 10.0f;
             ambientLight.set(Math.min(factor, 0.79f), Math.min(factor, 0.91f), Math.min(factor, 0.96f));
-            directionalLight.setIntensity(factor);
+            directionalLight.setIntensity(Math.min(factor, 0.91f));
             directionalLight.getColor().y = Math.min(factor, 0.9f);
             directionalLight.getColor().z = Math.min(factor, 0.5f);
         } else {
