@@ -20,7 +20,7 @@ public class World {
 
     private final ExecutorService executorService = Executors.newFixedThreadPool(16);
 
-    private final Map<String, Chunk> chunkMap = Utils.createLRUMap(100);
+    private final Map<String, Chunk> chunkMap = Utils.createLRUMap(120);
 
     public World(Generator generator) {
         generateStartChunks();
@@ -41,11 +41,7 @@ public class World {
     }
 
     private void generateStartChunks() {
-        //generateChunk(0, 0);
-//        generateChunk(-1, 0);
-//        generateChunk(1, 0);
-//        generateChunk(0, -1);
-//        generateChunk(0, 1);
+
     }
 
     private void generateChunk(int xPosition, int zPosition) {
