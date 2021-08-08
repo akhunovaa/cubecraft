@@ -147,7 +147,7 @@ public class Window {
 
         if (Settings.CULL_FACE) {
             glEnable(GL_CULL_FACE);
-            glCullFace(GL_BACK);
+            glCullFace(GL_BACK_LEFT);
         }
 
         // Antialiasing
