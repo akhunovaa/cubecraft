@@ -51,21 +51,21 @@ public class LevelScene extends Scene {
     @Override
     public void init() {
         System.out.println("Entering To Word");
-        sun.getGameCubeItem().setScale(3f);
-        sun.getGameCubeItem().setPosition(-3000, 0.0f, 0F);
-        ambientLight = new Vector3f(0.21f, 0.21f, 0.26f);
+//        sun.getGameCubeItem().setScale(3f);
+//        sun.getGameCubeItem().setPosition(-3000, 0.0f, 0F);
+        ambientLight = new Vector3f(0.3f, 0.3f, 0.3f);
 
         // Point Light
         Vector3f lightPosition = new Vector3f(0, 0, 1);
-        float lightIntensity = 1.0f;
-        PointLight pointLight = new PointLight(new Vector3f(1, 1, 1), lightPosition, lightIntensity);
+        float lightIntensity = 0.80f;
+        PointLight pointLight = new PointLight(new Vector3f(0.79f, 0.91f, 0.96f), lightPosition, lightIntensity);
         PointLight.Attenuation att = new PointLight.Attenuation(0.0f, 0.0f, 1.0f);
         pointLight.setAttenuation(att);
         pointLightList = new PointLight[]{pointLight};
 
         // Spot Light
         lightPosition = new Vector3f(0, 0.0f, 10f);
-        pointLight = new PointLight(new Vector3f(1, 1, 1), lightPosition, lightIntensity);
+        pointLight = new PointLight(new Vector3f(0.79f, 0.91f, 0.96f), lightPosition, lightIntensity);
         att = new PointLight.Attenuation(0.0f, 0.0f, 0.01f);
         pointLight.setAttenuation(att);
         Vector3f coneDir = new Vector3f(0, 0, -1);
@@ -74,7 +74,7 @@ public class LevelScene extends Scene {
         spotLightList = new SpotLight[]{spotLight, new SpotLight(spotLight)};
 
         lightPosition = new Vector3f(-1, 0, 0);
-        directionalLight = new DirectionalLight(new Vector3f(1, 1, 1), lightPosition, lightIntensity);
+        directionalLight = new DirectionalLight(new Vector3f(0.79f, 0.91f, 0.96f), lightPosition, lightIntensity);
 
         mouseInput.init();
         hud = new Hud();
@@ -90,7 +90,7 @@ public class LevelScene extends Scene {
         camera.movePosition(cameraInc.x * Settings.MOVE_SPEED, cameraInc.y * Settings.MOVE_SPEED, cameraInc.z * Settings.MOVE_SPEED);
 
         lightUpdate(delta);
-        gameItems.add(sun.getGameCubeItem());
+        //gameItems.add(sun.getGameCubeItem());
         int xPosition = (int) camera.getPosition().x;
         int zPosition = (int) camera.getPosition().z;
         world.generate(xPosition, zPosition);
@@ -108,27 +108,26 @@ public class LevelScene extends Scene {
         Vector3f coneDir = spotLightList[0].getConeDirection();
         coneDir.y = (float) Math.sin(spotAngleRad);
         // Update directional light direction, intensity and colour
-        lightAngle += 0.01f;
-        this.sun.getGameCubeItem().setPosition(directionalLight.getDirection().x * 1000f, directionalLight.getDirection().y * 1000f, directionalLight.getDirection().z * 1000f);
+        lightAngle += 0.5f;
+        //this.sun.getGameCubeItem().setPosition(directionalLight.getDirection().x * 1000f, directionalLight.getDirection().y * 1000f, directionalLight.getDirection().z * 1000f);
         if (lightAngle > 90) {
             directionalLight.setIntensity(0);
             if (lightAngle >= 360) {
                 lightAngle = -90;
             }
+            ambientLight.set(0.3f, 0.3f, 0.3f);
         } else if (lightAngle <= -80 || lightAngle >= 80) {
             float factor = 1 - (Math.abs(lightAngle) - 80) / 10.0f;
+            ambientLight.set(Math.min(factor, 0.79f), Math.min(factor, 0.91f), Math.min(factor, 0.96f));
             directionalLight.setIntensity(factor);
-            directionalLight.getColor().y = Math.max(factor, 0.9f);
-            directionalLight.getColor().z = Math.max(factor, 0.5f);
-            ambientLight = new Vector3f(Math.min(Math.max(factor, 0.79f), 0.1f), Math.min(Math.max(factor, 0.91f), 0.1f), Math.min(Math.max(factor, 0.96f), 0.1f));
-            Window.red = Math.min(factor, 0.79f);
-            Window.green = Math.min(factor, 0.91f);
-            Window.blue = Math.min(factor, 0.96f);
+            directionalLight.getColor().y = Math.min(factor, 0.9f);
+            directionalLight.getColor().z = Math.min(factor, 0.5f);
         } else {
-            directionalLight.setIntensity(1);
-            directionalLight.getColor().x = 1;
-            directionalLight.getColor().y = 1;
-            directionalLight.getColor().z = 1;
+            ambientLight.set(0.79f, 0.91f, 0.96f);
+            directionalLight.setIntensity(0.91f);
+            directionalLight.getColor().x = 0.79f;
+            directionalLight.getColor().y = 0.91f;
+            directionalLight.getColor().z = 0.96f;
         }
         double angRad = Math.toRadians(lightAngle);
         directionalLight.getDirection().x = (float) Math.sin(angRad);

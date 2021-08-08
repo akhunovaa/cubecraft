@@ -66,7 +66,7 @@ public class Renderer {
         transformation.updateViewMatrix(camera);
 
         renderScene(gameItems, world, scene, ambientLight, pointLightList, spotLightList, directionalLight);
-        //renderSkyBox(skyBox);
+        renderSkyBox(skyBox, ambientLight);
 
         renderHud(window, hud);
     }
@@ -168,7 +168,7 @@ public class Renderer {
     }
 
 
-    private void renderSkyBox(SkyBox skyBox) {
+    private void renderSkyBox(SkyBox skyBox, Vector3f ambientLight) {
         skyBoxShaderProgram.use();
         skyBoxShaderProgram.uploadTexture("texture_sampler", 0);
 
@@ -183,6 +183,7 @@ public class Renderer {
 
         Matrix4f modelViewMatrix = transformation.buildModelViewMatrix(skyBox, viewMatrix);
         skyBoxShaderProgram.uploadMat4f("modelViewMatrix", modelViewMatrix);
+        skyBoxShaderProgram.setUniform("ambientLight", ambientLight);
 
         skyBox.getMesh().render();
 
