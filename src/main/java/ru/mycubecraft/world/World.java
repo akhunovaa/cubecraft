@@ -46,8 +46,8 @@ public class World {
 
     private void generateChunk(int xPosition, int zPosition) {
 //        if (xPosition < WORLD_SIZE && zPosition < WORLD_SIZE) {
-        for (int x = (xPosition - WORLD_SIZE) / 8; x < (xPosition + WORLD_SIZE) / 8; x++) {
-            for (int z = (zPosition - WORLD_SIZE) / 8; z < (zPosition + WORLD_SIZE) / 8; z++) {
+        for (int x = (xPosition - WORLD_SIZE) / 8; x < (xPosition + (WORLD_SIZE + 8)) / 8; x++) {
+            for (int z = (zPosition - WORLD_SIZE) / 8; z < (zPosition + (WORLD_SIZE + 8)) / 8; z++) {
                 String chunkKey = String.format("%s:%s", x, z);
                 if (!chunkMap.containsKey(chunkKey)) {
                     Chunk chunk = new Chunk(x, z, new BasicGen(3));
