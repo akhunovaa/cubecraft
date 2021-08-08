@@ -28,6 +28,8 @@
         <joml.version>1.10.0</joml.version>
         <version.version>1.18.20</version.version>
         <commons-lang3.version>3.12.0</commons-lang3.version>
+        <commons-collections4.version>4.4</commons-collections4.version>
+
         <slf4j.version>1.7.32</slf4j.version>
 
         <mainClass>ru.mycubecraft.Game</mainClass>
@@ -350,7 +352,7 @@
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-collections4</artifactId>
-            <version>4.1</version>
+            <version>${commons-collections4.version}</version>
         </dependency>
         <dependency>
             <groupId>org.projectlombok</groupId>
