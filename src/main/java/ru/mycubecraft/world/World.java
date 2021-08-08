@@ -16,11 +16,11 @@ public class World {
     // 256 chunks & 4096 blocks in one chunk & totally 1 048 576 blocks
     public static final int WORLD_WIDTH = 16;
     public static final int WORLD_HEIGHT = 8;
-    public static final int WORLD_SIZE = 5 * 8;
+    public static final int WORLD_SIZE = 6 * 8; // 4=64 5=100 6=144
 
     private final ExecutorService executorService = Executors.newFixedThreadPool(16);
 
-    private final Map<String, Chunk> chunkMap = Utils.createLRUMap(120);
+    private final Map<String, Chunk> chunkMap = Utils.createLRUMap(200);
 
     public World(Generator generator) {
         generateStartChunks();
@@ -37,7 +37,7 @@ public class World {
     }
 
     public void generate(int xPosition, int zPosition) {
-        generateChunk(xPosition, zPosition);
+            generateChunk(xPosition, zPosition);
     }
 
     private void generateStartChunks() {

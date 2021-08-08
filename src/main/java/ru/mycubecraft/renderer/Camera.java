@@ -13,7 +13,7 @@ public class Camera {
     public Vector3f rotation;
 
     public Camera() {
-        this.position = new Vector4f(8.0f, 16.0f, 8.0f, 1);
+        this.position = new Vector4f(8.0f, 9.0f, 8.0f, 1);
         this.rotation = new Vector3f(32.0f, 9.0f, 13.0f);
     }
 
@@ -41,7 +41,7 @@ public class Camera {
         rotation.x += offsetX;
         rotation.y += offsetY;
         rotation.z += offsetZ;
-        rotation.x = MathUtil.clamp(rotation.x, Settings.MIN_LOOK, Settings.MAX_LOOK);
+        //rotation.x = MathUtil.clamp(rotation.x, Settings.MIN_LOOK, Settings.MAX_LOOK);
     }
 
     public void movePosition(float offsetX, float offsetY, float offsetZ) {
