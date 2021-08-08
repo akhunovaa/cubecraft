@@ -48,7 +48,7 @@ public class LevelScene extends Scene {
 
     @Override
     public void init() {
-        System.out.println("Entering To Word");
+        System.out.println("Entering to the World");
 //        sun.getGameCubeItem().setScale(3f);
 //        sun.getGameCubeItem().setPosition(-3000, 0.0f, 0F);
         ambientLight = new Vector3f(1f, 1f, 1f);
@@ -132,9 +132,9 @@ public class LevelScene extends Scene {
 //            directionalLight.getColor().z = 0.96f;
 //        }
 
-        double angRad = Math.toRadians(lightAngle);
-        directionalLight.getDirection().x = (float) Math.sin(angRad);
-        directionalLight.getDirection().y = (float) Math.cos(angRad);
+//        double angRad = Math.toRadians(lightAngle);
+//        directionalLight.getDirection().x = (float) Math.sin(angRad);
+//        directionalLight.getDirection().y = (float) Math.cos(angRad);
     }
 
     @Override

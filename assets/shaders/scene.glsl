@@ -160,10 +160,10 @@ vec4 calcDirectionalLight(DirectionalLight light, vec3 position, vec3 normal) {
     return calcLightColour(light.colour, light.intensity, position, normalize(light.direction), normal);
 }
 
-vec4 calcFog(vec3 pos, vec4 colour, Fog fog, vec3 ambientLight, DirectionalLight dirLight) {
-    vec3 fogColor = fog.colour * (ambientLight);
-    float distance = length(pos);
-    float fogFactor = 1.0 / exp( (distance * fog.density)* (distance * fog.density));
+vec4 calcFog(vec3 vertexWorldPosition, vec4 colour, Fog fog, vec3 ambientLight, DirectionalLight dirLight) {
+    vec3 fogColor = fog.colour * dirLight.colour;
+    float distance = length(vertexWorldPosition);
+    float fogFactor = 1.0 / exp( (distance * fog.density) * (distance * fog.density) * (distance * fog.density));
     fogFactor = clamp( fogFactor, 0.0, 1.0 );
 
     vec3 resultColour = mix(fogColor, colour.xyz, fogFactor);
