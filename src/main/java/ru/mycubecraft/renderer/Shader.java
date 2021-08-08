@@ -7,6 +7,7 @@ import ru.mycubecraft.engine.Material;
 import ru.mycubecraft.engine.graph.DirectionalLight;
 import ru.mycubecraft.engine.graph.PointLight;
 import ru.mycubecraft.engine.graph.SpotLight;
+import ru.mycubecraft.engine.graph.weather.Fog;
 
 import java.io.IOException;
 import java.nio.FloatBuffer;
@@ -199,6 +200,11 @@ public class Shader {
         glUniform3f(varLocation, value.x, value.y, value.z);
     }
 
+    public void setUniform(String uniformName, float x, float y) {
+        int varLocation = glGetUniformLocation(shaderProgramID, uniformName);
+        use();
+        glUniform2f(varLocation, x, y);
+    }
     public void setUniform(String uniformName, DirectionalLight dirLight) {
         setUniform(uniformName + ".colour", dirLight.getColor());
         setUniform(uniformName + ".direction", dirLight.getDirection());
@@ -211,6 +217,12 @@ public class Shader {
         uploadVec4f(uniformName + ".specular", material.getSpecularColour());
         uploadInt(uniformName + ".hasTexture", material.isTextured() ? 1 : 0);
         uploadFloat(uniformName + ".reflectance", material.getReflectance());
+    }
+
+    public void setUniform(String uniformName, Fog fog) {
+        uploadInt(uniformName + ".activeFog", fog.isActive() ? 1 : 0);
+        uploadVec3f(uniformName + ".colour", fog.getColour());
+        uploadFloat(uniformName + ".density", fog.getDensity());
     }
 
     public void setUniform(String uniformName, PointLight pointLight, int pos) {

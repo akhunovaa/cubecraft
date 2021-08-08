@@ -6,6 +6,7 @@ import org.joml.Vector4f;
 import ru.mycubecraft.core.GameItem;
 import ru.mycubecraft.core.Mesh;
 import ru.mycubecraft.engine.IHud;
+import ru.mycubecraft.engine.SceneLight;
 import ru.mycubecraft.engine.SkyBox;
 import ru.mycubecraft.engine.graph.DirectionalLight;
 import ru.mycubecraft.engine.graph.FrustumCullingFilter;
@@ -46,6 +47,7 @@ public class Renderer {
         skyBoxShaderProgram = AssetPool.getShader("assets/shaders/skybox.glsl");
         sceneShaderProgram = AssetPool.getShader("assets/shaders/scene.glsl");
         hudShaderProgram = AssetPool.getShader("assets/shaders/hud.glsl");
+        //fogShaderProgram = AssetPool.getShader("assets/shaders/fog.glsl");
     }
 
     public void clear() {
@@ -66,8 +68,7 @@ public class Renderer {
         transformation.updateViewMatrix(camera);
 
         renderScene(gameItems, world, scene, ambientLight, pointLightList, spotLightList, directionalLight);
-        renderSkyBox(skyBox, ambientLight);
-
+        //renderSkyBox(scene, ambientLight, directionalLight);
         renderHud(window, hud);
     }
 
@@ -97,7 +98,7 @@ public class Renderer {
 
         sceneShaderProgram.uploadInt("texture_sampler", 0);
         sceneShaderProgram.setUniform("material", allGameItems.get(0).getMesh().getMaterial());
-
+        sceneShaderProgram.setUniform("fog", scene.getFog());
         // clearing for the frustum filter game item list
         filteredItems.clear();
         for (GameItem gameItem : allGameItems) {
@@ -168,7 +169,9 @@ public class Renderer {
     }
 
 
-    private void renderSkyBox(SkyBox skyBox, Vector3f ambientLight) {
+    private void renderSkyBox(Scene scene, Vector3f ambientLight, DirectionalLight directionalLight) {
+        SkyBox skyBox = scene.getSkyBox();
+
         skyBoxShaderProgram.use();
         skyBoxShaderProgram.uploadTexture("texture_sampler", 0);
 
@@ -184,6 +187,14 @@ public class Renderer {
         Matrix4f modelViewMatrix = transformation.buildModelViewMatrix(skyBox, viewMatrix);
         skyBoxShaderProgram.uploadMat4f("modelViewMatrix", modelViewMatrix);
         skyBoxShaderProgram.setUniform("ambientLight", ambientLight);
+        skyBoxShaderProgram.setUniform("fog", scene.getFog());
+
+        // Get a copy of the directional light object and transform its position to view coordinates
+        DirectionalLight currDirLight = new DirectionalLight(directionalLight);
+        Vector4f dir = new Vector4f(currDirLight.getDirection(), 0);
+        dir.mul(viewMatrix);
+        currDirLight.setDirection(new Vector3f(dir.x, dir.y, dir.z));
+        sceneShaderProgram.setUniform("directionalLight", currDirLight);
 
         skyBox.getMesh().render();
 

@@ -3,6 +3,7 @@ package ru.mycubecraft.scene;
 import lombok.Getter;
 import ru.mycubecraft.core.GameItem;
 import ru.mycubecraft.engine.SkyBox;
+import ru.mycubecraft.engine.graph.weather.Fog;
 import ru.mycubecraft.listener.KeyboardListener;
 import ru.mycubecraft.listener.MouseListener;
 import ru.mycubecraft.renderer.Camera;
@@ -21,6 +22,7 @@ public abstract class Scene {
     protected Renderer renderer;
     protected Camera camera;
     protected ArrayList<GameItem> gameItems = new ArrayList<>();
+    protected Fog fog;
 
     protected KeyboardListener keyboardListener = KeyboardListener.getInstance();
     protected MouseListener mouseListener = MouseListener.getInstance();
@@ -41,6 +43,21 @@ public abstract class Scene {
 
     public void setSkyBox(SkyBox skyBox) {
         this.skyBox = skyBox;
+    }
+
+
+    /**
+     * @return the fog
+     */
+    public Fog getFog() {
+        return fog;
+    }
+
+    /**
+     * @param fog the fog to set
+     */
+    public void setFog(Fog fog) {
+        this.fog = fog;
     }
 
 }

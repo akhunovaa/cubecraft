@@ -165,7 +165,7 @@ public class Window {
 
         this.changeScene(1);
         try {
-            this.setupSkyBox();
+            //this.setupSkyBox();
             currentScene.init();
         } catch (Exception e) {
             e.printStackTrace();
