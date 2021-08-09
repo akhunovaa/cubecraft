@@ -30,6 +30,7 @@ public class Hud implements IHud {
     private final TextItem chunkSizeTextItem;
     private final TextItem filteredBlockSizeTextItem;
     private final TextItem blockSizeTextItem;
+    private final TextItem crossHairTextItem;
 
     private final GameItem compassItem;
 
@@ -43,6 +44,7 @@ public class Hud implements IHud {
         String createdChunksSizeText = "CHUNKS: 0";
         String filteredBlockSizeText = "FILTERED BLOCKS: 0";
         String createdBlocksSizeText = "BLOCKS: 0";
+        String crossHair = "+";
 
         this.fpsTextItem = new TextItem(fpsText, fontTexture);
         this.fpsTextItem.getMesh().getMaterial().setAmbientColour(new Vector4f(0.8f, 0.8f, 0.8f, 10f));
@@ -65,6 +67,9 @@ public class Hud implements IHud {
         this.versionTextItem = new TextItem(version, fontTexture);
         this.versionTextItem.getMesh().getMaterial().setAmbientColour(new Vector4f(0.8f, 0.8f, 0.8f, 10f));
 
+        this.crossHairTextItem = new TextItem(crossHair, fontTexture);
+        this.crossHairTextItem.setScale(2);
+
         // Create compass
         Mesh mesh = null;
         try {
@@ -83,8 +88,10 @@ public class Hud implements IHud {
         // Create list that holds the items that compose the HUD
         gameItems = new GameItem[]{versionTextItem, compassItem,
                 coordinatesTextItem, fpsTextItem, rotationTextItem,
-                chunkSizeTextItem, blockSizeTextItem, filteredBlockSizeTextItem};
+                chunkSizeTextItem, blockSizeTextItem, filteredBlockSizeTextItem,
+                crossHairTextItem};
     }
+
 
     public void rotateCompass(float angle) {
         this.compassItem.setRotation(0, 0, 180 + angle);
@@ -115,6 +122,12 @@ public class Hud implements IHud {
 
         this.blockSizeTextItem.setText(String.format("TOTAL BLOCKS: [%s]", world.getChunkMap().size() * 8 * 16 * 8));
         this.blockSizeTextItem.setPosition(20.0f, 160f, 0);
+
+        int width = window.getWidth();
+        int height = window.getHeight();
+
+        // height/2f - 22.0f window height minus font texture height (19.0f) and element scale (3)
+        this.crossHairTextItem.setPosition(width / 2f, (height - 100.0f) / 2f, 0);
 
         this.compassItem.setPosition(window.getWidth() - 40f, 50f, 0);
     }
