@@ -9,6 +9,7 @@ import ru.mycubecraft.listener.MouseListener;
 import ru.mycubecraft.renderer.Camera;
 import ru.mycubecraft.renderer.Renderer;
 import ru.mycubecraft.window.Window;
+import ru.mycubecraft.world.MouseBoxSelectionDetector;
 import ru.mycubecraft.world.World;
 
 import java.util.ArrayList;
@@ -23,6 +24,8 @@ public abstract class Scene {
     protected Camera camera;
     protected ArrayList<GameItem> gameItems = new ArrayList<>();
     protected Fog fog;
+
+    protected MouseBoxSelectionDetector mouseBoxSelectionDetector;
 
     protected KeyboardListener keyboardListener = KeyboardListener.getInstance();
     protected MouseListener mouseListener = MouseListener.getInstance();

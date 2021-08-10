@@ -59,7 +59,7 @@ public class Window {
     }
 
     public void run() {
-        System.out.println("Hello LWJGL " + Version.getVersion() + "!");
+        System.out.println("LWJGL " + Version.getVersion());
 
         init();
 
@@ -100,7 +100,8 @@ public class Window {
         if (this.glfwWindow == NULL) {
             throw new IllegalStateException("Failed to create the GLFW window.");
         }
-
+        glfwSetCursorPos(this.glfwWindow, 0, 0);
+        glfwSetInputMode(this.glfwWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
         // Setup resize callback
         glfwSetWindowSizeCallback(this.glfwWindow, new GLFWWindowSizeCallback() {
             @Override
@@ -130,7 +131,7 @@ public class Window {
         // Make the OpenGL context current
         glfwMakeContextCurrent(this.glfwWindow);
         // Enable v-sync
-        glfwSwapInterval(1);
+//        glfwSwapInterval(1);
         // Make the window visible
         glfwShowWindow(this.glfwWindow);
 
@@ -161,7 +162,6 @@ public class Window {
             glfwWindowHint(GLFW_SAMPLES, 4);
         }
 
-        glfwSetInputMode(this.glfwWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
         this.changeScene(1);
         try {

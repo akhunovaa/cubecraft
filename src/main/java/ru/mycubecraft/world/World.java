@@ -37,7 +37,7 @@ public class World {
     }
 
     public void generate(int xPosition, int zPosition) {
-            generateChunk(xPosition, zPosition);
+        generateChunk(xPosition, zPosition);
     }
 
     private void generateStartChunks() {

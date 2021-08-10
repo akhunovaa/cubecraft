@@ -1,5 +1,6 @@
 package ru.mycubecraft.renderer;
 
+import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
 import ru.mycubecraft.Settings;
@@ -8,14 +9,24 @@ import ru.mycubecraft.util.MathUtil;
 public class Camera {
 
     private static final float CAMERA_POS_STEP = 0.65f;
-
+    private final Matrix4f viewMatrix;
     public Vector4f position;
     public Vector3f rotation;
 
     public Camera() {
         this.position = new Vector4f(8.0f, 9.0f, 8.0f, 1);
         this.rotation = new Vector3f(32.0f, 9.0f, 0.0f);
+        viewMatrix = new Matrix4f();
     }
+
+    public Matrix4f getViewMatrix() {
+        return viewMatrix;
+    }
+
+    public Matrix4f updateViewMatrix() {
+        return Transformation.updateGenericViewMatrix(new Vector3f(position.x, position.y, position.z), rotation, viewMatrix);
+    }
+
 
     public Vector4f getPosition() {
         return position;
@@ -38,10 +49,16 @@ public class Camera {
     }
 
     public void moveRotation(double offsetX, double offsetY, double offsetZ) {
-        rotation.x += offsetX;
-        rotation.y += offsetY;
+        double xRotation = rotation.x;
+        double yRotation = rotation.y;
+        yRotation += offsetY;
+        if (yRotation > 360.0f || yRotation < -360.0f) {
+            yRotation = 0.0f;
+        }
+        xRotation += offsetX;
+        rotation.y = (float) yRotation;
         rotation.z += offsetZ;
-        //rotation.x = MathUtil.clamp(rotation.x, Settings.MIN_LOOK, Settings.MAX_LOOK);
+        rotation.x = MathUtil.clamp((float) xRotation, (float) Settings.MIN_LOOK, (float) Settings.MAX_LOOK);
     }
 
     public void movePosition(float offsetX, float offsetY, float offsetZ) {

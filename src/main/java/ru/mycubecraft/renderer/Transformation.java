@@ -8,6 +8,8 @@ import ru.mycubecraft.core.GameItem;
 
 public class Transformation {
 
+    private static Transformation instance;
+
     private final Matrix4f projectionMatrix;
     private final Matrix4f viewMatrix;
     private final Matrix4f modelMatrix;
@@ -24,6 +26,20 @@ public class Transformation {
         this.orthoModelMatrix = new Matrix4f();
     }
 
+    public static synchronized Transformation getInstance() {
+        if (instance == null) {
+            instance = new Transformation();
+        }
+        return instance;
+    }
+
+    public static Matrix4f updateGenericViewMatrix(Vector3f position, Vector3f rotation, Matrix4f matrix) {
+        // First do the rotation so camera rotates over its position
+        return matrix.rotationX((float) Math.toRadians(rotation.x))
+                .rotateY((float) Math.toRadians(rotation.y))
+                .translate(-position.x, -position.y, -position.z);
+    }
+
     public Matrix4f updateProjectionMatrix(float width, float height) {
         projectionMatrix.identity();
         return projectionMatrix.setPerspective(Settings.FOV, width / height, Settings.Z_NEAR, Settings.Z_FAR);
@@ -32,7 +48,6 @@ public class Transformation {
     public Matrix4f getProjectionMatrix() {
         return projectionMatrix;
     }
-
 
     public Matrix4f updateViewMatrix(Camera camera) {
         Vector4f cameraPos = camera.getPosition();
@@ -87,7 +102,6 @@ public class Transformation {
         orthoMatrix.setOrtho2D(left, right, bottom, top);
         return orthoMatrix;
     }
-
 
     public Matrix4f buildOrthoProjModelMatrix(GameItem gameItem, Matrix4f orthoMatrix) {
         Vector3f rotation = gameItem.getRotation();

@@ -6,7 +6,6 @@ import org.joml.Vector4f;
 import ru.mycubecraft.core.GameItem;
 import ru.mycubecraft.core.Mesh;
 import ru.mycubecraft.engine.IHud;
-import ru.mycubecraft.engine.SceneLight;
 import ru.mycubecraft.engine.SkyBox;
 import ru.mycubecraft.engine.graph.DirectionalLight;
 import ru.mycubecraft.engine.graph.FrustumCullingFilter;
@@ -112,6 +111,10 @@ public class Renderer {
             // Set world matrix for this item
             Matrix4f modelViewMatrix = transformation.buildModelViewMatrix(gameItem, viewMatrix);
             sceneShaderProgram.uploadMat4f("modelViewMatrix", modelViewMatrix);
+            if (gameItem.isSelected()) {
+                sceneShaderProgram.uploadFloat("selected", gameItem.isSelected() ? 1.0f : 0.0f);
+            }
+
             // Render the mesh for this game item
             gameItem.render();
         }

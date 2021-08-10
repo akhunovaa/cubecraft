@@ -4,14 +4,11 @@ import org.joml.Vector3f;
 
 public class Fog {
 
+    public static Fog NOFOG = new Fog();
     private boolean active;
-
     private Vector3f colour;
-
     private float density;
 
-    public static Fog NOFOG = new Fog();
-    
     public Fog() {
         active = false;
         this.colour = new Vector3f();

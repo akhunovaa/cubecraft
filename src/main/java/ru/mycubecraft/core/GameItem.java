@@ -2,17 +2,21 @@ package ru.mycubecraft.core;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 import org.joml.Vector3f;
 import org.lwjgl.opengl.GL11;
 
 @Getter
 @Setter
+@ToString
 public class GameItem implements RenderObject {
 
     private final Vector3f position;
     private final Vector3f rotation;
     private Mesh mesh;
     private float scale;
+    private boolean selected;
+
 
     private boolean disableFrustumCulling;
     private boolean insideFrustum;

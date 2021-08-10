@@ -43,9 +43,9 @@ public class Utils {
     }
 
     public static <K, V> Map<K, V> createLRUMap(final int maxEntries) {
-        return new LinkedHashMap<K,V>(maxEntries * 4 / 3, 0.75f, false) {
+        return new LinkedHashMap<K, V>(maxEntries * 4 / 3, 0.75f, false) {
             @Override
-            protected boolean removeEldestEntry(Map.Entry<K,V> eldest) {
+            protected boolean removeEldestEntry(Map.Entry<K, V> eldest) {
                 return size() > maxEntries;
             }
         };

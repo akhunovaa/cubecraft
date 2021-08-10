@@ -5,7 +5,7 @@ public class LevelEditorScene extends Scene {
     private final boolean changingScene = false;
 
     public LevelEditorScene() {
-        System.out.println("Entered to a Level Editor Scene");
+        System.err.println("Entered to a Level Editor Scene");
         window.setBlue(0.2f);
     }
 

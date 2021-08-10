@@ -4,6 +4,8 @@ import lombok.Getter;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 import ru.mycubecraft.Settings;
+import ru.mycubecraft.block.Block;
+import ru.mycubecraft.block.GrassBlock;
 import ru.mycubecraft.core.GameItem;
 import ru.mycubecraft.data.Hud;
 import ru.mycubecraft.engine.graph.DirectionalLight;
@@ -14,6 +16,7 @@ import ru.mycubecraft.listener.MouseInput;
 import ru.mycubecraft.renderer.Camera;
 import ru.mycubecraft.renderer.Renderer;
 import ru.mycubecraft.world.BasicGen;
+import ru.mycubecraft.world.MouseBoxSelectionDetector;
 import ru.mycubecraft.world.World;
 
 import static org.lwjgl.glfw.GLFW.*;
@@ -34,9 +37,10 @@ public class LevelScene extends Scene {
     private float lightAngle;
     private float spotAngle = 0;
     private float spotInc = 1;
+    private boolean leftButtonPressed = false;
 
     public LevelScene() {
-        System.out.println("Entered to a Level Scene");
+        System.err.println("Entered to a Level Scene");
         renderer = new Renderer();
         camera = new Camera();
         world = new World(new BasicGen(1));
@@ -48,7 +52,7 @@ public class LevelScene extends Scene {
 
     @Override
     public void init() {
-        System.out.println("Entering to the World");
+        mouseBoxSelectionDetector = new MouseBoxSelectionDetector();
 //        sun.getGameCubeItem().setScale(3f);
 //        sun.getGameCubeItem().setPosition(-3000, 0.0f, 0F);
         ambientLight = new Vector3f(1f, 1f, 1f);
@@ -86,6 +90,7 @@ public class LevelScene extends Scene {
     @Override
     public void update(float delta) {
         hud.rotateCompass(-camera.getRotation().y);
+        mouseBoxSelectionDetector.update(camera);
 
         Vector2f rotVec = mouseInput.getDisplVec();
         camera.moveRotation(rotVec.x * Settings.MOUSE_SENSITIVITY, rotVec.y * Settings.MOUSE_SENSITIVITY, 0);
@@ -156,7 +161,14 @@ public class LevelScene extends Scene {
         } else if (keyboardListener.isKeyPressed(GLFW_KEY_X) || keyboardListener.isKeyPressed(GLFW_KEY_SPACE)) {
             cameraInc.y = 1;
         }
-
+        boolean aux = mouseInput.isLeftButtonPressed();
+        if (aux && !this.leftButtonPressed) {
+            Vector3f selectedBlockItemPosition = mouseBoxSelectionDetector.getGameItemPosition(gameItems, world.getChunksBlockItems(), camera);
+            if (selectedBlockItemPosition != null) {
+                createGameBlockItem(selectedBlockItemPosition);
+            }
+        }
+        this.leftButtonPressed = aux;
         float lightPos = spotLightList[0].getPointLight().getPosition().z;
         if (keyboardListener.isKeyPressed(GLFW_KEY_N)) {
             this.spotLightList[0].getPointLight().getPosition().z = lightPos + 0.1f;
@@ -182,6 +194,46 @@ public class LevelScene extends Scene {
         for (GameItem gameItem : gameItems) {
             gameItem.getMesh().cleanUp();
         }
+    }
+
+
+    private void createGameBlockItem(Vector3f createItemPosition) {
+        Vector3f position = generateNextBlockPosition(createItemPosition);
+        Block block = new GrassBlock(position);
+        gameItems.add(block.getGameCubeItem());
+    }
+
+    private Vector3f generateNextBlockPosition(Vector3f createItemPosition) {
+        Vector3f cam = new Vector3f(camera.getRotation());
+        Vector3f position = new Vector3f(createItemPosition);
+        double x = Math.toRadians(cam.x);
+        double y = Math.toRadians(cam.y);
+
+        if (x > 0 && y < -1) {
+            position.add(1.0f, 0.0f, 0.0f);
+        }
+
+        if (x > 0 && y > 1) {
+            position.add(-1.0f, 0.0f, 0.0f);
+        }
+
+        if (x > 0 && (y < 1 || y > -1)) {
+            position.add(0.0f, 0.0f, 1.0f);
+        }
+
+        if ((x < 1 || x > -1) && y > 2) {
+            position.add(0.0f, 0.0f, -1.0f);
+        }
+
+        if (x > 1 && y > 2) {
+            position.add(0.0f, 1.0f, 0.0f);
+        }
+
+        if (x < -1 && (y < 1 || y > -1)) {
+            position.add(0.0f, -1.0f, 0.0f);
+        }
+
+        return position;
     }
 
 }

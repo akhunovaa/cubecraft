@@ -7,9 +7,11 @@ layout (location=2) in vec3 vertexNormal;
 out vec2 outTexCoord;
 out vec3 mvVertexNormal;
 out vec3 mvVertexPos;
+out float outSelected;
 
 uniform mat4 modelViewMatrix;
 uniform mat4 projectionMatrix;
+uniform float selected;
 
 void main()
 {
@@ -18,6 +20,7 @@ void main()
     outTexCoord = texCoord;
     mvVertexNormal = normalize(modelViewMatrix * vec4(vertexNormal, 0.0)).xyz;
     mvVertexPos = mvPos.xyz;
+    outSelected = selected;
 }
 
 #type fragment
@@ -29,6 +32,7 @@ const int MAX_SPOT_LIGHTS = 5;
 in vec2 outTexCoord;
 in vec3 mvVertexNormal;
 in vec3 mvVertexPos;
+in float outSelected;
 
 out vec4 fragColor;
 
@@ -197,6 +201,8 @@ void main()
         fragColor = calcFog(mvVertexPos, ambientC * vec4(ambientLight, 1) + diffuseSpecularComp, fog, ambientLight, directionalLight);
     } else {
         fragColor = ambientC * vec4(ambientLight, 1) + diffuseSpecularComp;
-
+        if ( outSelected > 0.0f ) {
+            fragColor = vec4(fragColor.x, 1, 1, 1);
+        }
     }
 }

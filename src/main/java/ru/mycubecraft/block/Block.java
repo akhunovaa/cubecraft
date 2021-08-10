@@ -21,7 +21,17 @@ public class Block {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
+    }
 
+    public Block(Vector3f position, String texture) {
+        this.position = position;
+        try {
+            Cube gameCubeItem = new Cube(texture);
+            gameCubeItem.setPosition(position.x, position.y, position.z);
+            this.gameCubeItem = gameCubeItem;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public Block(int bX, int bY, int bZ) {

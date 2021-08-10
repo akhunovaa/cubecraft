@@ -1,11 +1,13 @@
 package ru.mycubecraft.listener;
 
+import lombok.Getter;
 import org.joml.Vector2d;
 import org.joml.Vector2f;
 import ru.mycubecraft.window.Window;
 
 import static org.lwjgl.glfw.GLFW.*;
 
+@Getter
 public class MouseInput {
 
     private final Vector2d previousPos;
@@ -49,9 +51,9 @@ public class MouseInput {
     }
 
     public void input() {
-        displVec.x = 0;
-        displVec.y = 0;
-        if (previousPos.x > 0 && previousPos.y > 0 && inWindow) {
+        displVec.x = 0f;
+        displVec.y = 0f;
+        if ((previousPos.x > 0 || previousPos.y > 0) && inWindow) {
             double deltax = currentPos.x - previousPos.x;
             double deltay = currentPos.y - previousPos.y;
             boolean rotateX = deltax != 0;
