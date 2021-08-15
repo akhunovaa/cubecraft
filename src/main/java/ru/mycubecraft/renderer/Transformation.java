@@ -55,8 +55,8 @@ public class Transformation {
 
         viewMatrix.identity();
         // First do the rotation so camera rotates over its position
-//        viewMatrix.rotate((float) Math.toRadians(rotation.x), new Vector3f(1, 0, 0))
-//                .rotate((float) Math.toRadians(rotation.y), new Vector3f(0, 1, 0));
+        viewMatrix.rotate((float) Math.toRadians(rotation.x), new Vector3f(1, 0, 0))
+                .rotate((float) Math.toRadians(rotation.y), new Vector3f(0, 1, 0));
         viewMatrix.rotationX((float) Math.toRadians(rotation.x))
                 .rotateY((float) Math.toRadians(rotation.y));
 
