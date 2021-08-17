@@ -83,7 +83,7 @@ public class LevelScene extends Scene {
 
         // Fog
         Vector3f fogColour = new Vector3f(0.49f, 0.61f, 0.66f);
-        this.fog = new Fog(true, fogColour, 0.04f);
+        //this.fog = new Fog(true, fogColour, 0.04f);
 
     }
 
@@ -163,10 +163,11 @@ public class LevelScene extends Scene {
         }
         boolean aux = mouseInput.isLeftButtonPressed();
         if (aux && !this.leftButtonPressed) {
-            Vector3f selectedBlockItemPosition = mouseBoxSelectionDetector.getGameItemPosition(gameItems, world.getChunksBlockItems(), camera);
-            if (selectedBlockItemPosition != null) {
-                createGameBlockItem(selectedBlockItemPosition);
+            Vector3f newPosition = mouseBoxSelectionDetector.getGameItemPosition(gameItems, world.getChunksBlockItems(), camera);
+            if (newPosition == null) {
+                newPosition = mouseBoxSelectionDetector.getGameItemPosition(camera);
             }
+            createGameBlockItem(newPosition);
         }
         this.leftButtonPressed = aux;
         float lightPos = spotLightList[0].getPointLight().getPosition().z;
@@ -196,44 +197,9 @@ public class LevelScene extends Scene {
         }
     }
 
-
-    private void createGameBlockItem(Vector3f createItemPosition) {
-        Vector3f position = generateNextBlockPosition(createItemPosition);
+    private void createGameBlockItem(Vector3f position) {
         Block block = new GrassBlock(position);
         gameItems.add(block.getGameCubeItem());
-    }
-
-    private Vector3f generateNextBlockPosition(Vector3f createItemPosition) {
-        Vector3f cam = new Vector3f(camera.getRotation());
-        Vector3f position = new Vector3f(createItemPosition);
-        double x = Math.toRadians(cam.x);
-        double y = Math.toRadians(cam.y);
-
-        if (x > 0 && y < -1) {
-            position.add(1.0f, 0.0f, 0.0f);
-        }
-
-        if (x > 0 && y > 1) {
-            position.add(-1.0f, 0.0f, 0.0f);
-        }
-
-        if (x > 0 && (y < 1 || y > -1)) {
-            position.add(0.0f, 0.0f, 1.0f);
-        }
-
-        if ((x < 1 || x > -1) && y > 2) {
-            position.add(0.0f, 0.0f, -1.0f);
-        }
-
-        if (x > 1 && y > 2) {
-            position.add(0.0f, 1.0f, 0.0f);
-        }
-
-        if (x < -1 && (y < 1 || y > -1)) {
-            position.add(0.0f, -1.0f, 0.0f);
-        }
-
-        return position;
     }
 
 }
