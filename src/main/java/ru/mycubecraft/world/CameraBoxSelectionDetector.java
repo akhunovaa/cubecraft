@@ -28,9 +28,12 @@ public class CameraBoxSelectionDetector {
     public GameItem selectGameItem(List<GameItem> gameItems, Vector3f camPosition, Vector3f dir) {
 
         GameItem selectedGameItem = null;
-        float closestDistance = 20.0f;
+        float closestDistance = 10.0f;
 
-        for (GameItem gameItem : gameItems) {
+        int idx = 0;
+
+        for (int i = 0; i < gameItems.size(); i++) {
+            GameItem gameItem = gameItems.get(i);
             gameItem.setSelected(false);
             min.set(gameItem.getPosition());
             max.set(gameItem.getPosition());
@@ -38,10 +41,14 @@ public class CameraBoxSelectionDetector {
             max.add(gameItem.getScale(), gameItem.getScale(), gameItem.getScale());
             if (Intersectionf.intersectRayAab(camPosition, dir, min, max, nearFar) && nearFar.x < closestDistance) {
                 closestDistance = nearFar.x;
-                gameItem.setSelected(true);
+                idx = i;
+                selectedGameItem = gameItem;
             }
         }
-
+        if (selectedGameItem != null) {
+            selectedGameItem.setSelected(true);
+            gameItems.set(idx, selectedGameItem).setSelected(true);
+        }
         return selectedGameItem;
     }
 }
