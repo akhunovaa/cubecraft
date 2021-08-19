@@ -38,6 +38,7 @@ public class LevelScene extends Scene {
     private float spotAngle = 0;
     private float spotInc = 1;
     private boolean leftButtonPressed = false;
+    private Vector3f selectedItemPosition;
 
     public LevelScene() {
         System.err.println("Entered to a Level Scene");
@@ -89,7 +90,7 @@ public class LevelScene extends Scene {
 
     @Override
     public void update(float delta) {
-        hud.rotateCompass(-camera.getRotation().y);
+        //hudUpdate(delta);
         mouseBoxSelectionDetector.update(camera);
 
         Vector2f rotVec = mouseInput.getDisplVec();
@@ -142,6 +143,16 @@ public class LevelScene extends Scene {
 //        directionalLight.getDirection().y = (float) Math.cos(angRad);
     }
 
+    private void hudUpdate(float delta) {
+        hud.rotateCompass(-camera.getRotation().y);
+        int filteredBlocksCount = renderer.getFilteredItems().size();
+        hud.updateHud(window, camera, world, filteredBlocksCount);
+        hud.updateFps(delta);
+        if(selectedItemPosition != null) {
+            hud.updateTargetObjectInfo(selectedItemPosition);
+        }
+    }
+
     @Override
     public void input() {
         mouseInput.input();
@@ -163,11 +174,7 @@ public class LevelScene extends Scene {
         }
         boolean aux = mouseInput.isLeftButtonPressed();
         if (aux && !this.leftButtonPressed) {
-            Vector3f selectedItemPosition = mouseBoxSelectionDetector.getGameItemPosition(world.getChunksBlockItems(), camera);
-            if (selectedItemPosition != null) {
-                System.out.println("\n");
-                System.out.println("X: " + selectedItemPosition.x + " Y: " + selectedItemPosition.y + " Z: " + selectedItemPosition.z);
-            }
+            selectedItemPosition = mouseBoxSelectionDetector.getGameItemPosition(world.getChunksBlockItems(), camera);
             //createGameBlockItem(newPosition);
         }
         this.leftButtonPressed = aux;
@@ -183,9 +190,7 @@ public class LevelScene extends Scene {
     @Override
     public void render(float delta) {
         renderer.render(window, gameItems, world, camera, skyBox, this, hud, ambientLight, pointLightList, spotLightList, directionalLight);
-        hud.updateFps(delta);
-        int filteredBlocksCount = renderer.getFilteredItems().size();
-        hud.updateHud(window, camera, world, filteredBlocksCount);
+        hudUpdate(delta);
     }
 
     @Override

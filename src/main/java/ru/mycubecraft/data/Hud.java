@@ -31,6 +31,7 @@ public class Hud implements IHud {
     private final TextItem filteredBlockSizeTextItem;
     private final TextItem blockSizeTextItem;
     private final TextItem crossHairTextItem;
+    private final TextItem targetObjectItem;
 
     private final GameItem compassItem;
 
@@ -45,9 +46,10 @@ public class Hud implements IHud {
         String filteredBlockSizeText = "FILTERED BLOCKS: 0";
         String createdBlocksSizeText = "BLOCKS: 0";
         String crossHair = "+";
+        String targetObjectInfo = "TARGET OBJECT [X: 0.00 Y: 0.00 Z: 0.00]";
 
         this.fpsTextItem = new TextItem(fpsText, fontTexture);
-        this.fpsTextItem.getMesh().getMaterial().setAmbientColour(new Vector4f(0.8f, 0.8f, 0.8f, 10f));
+        this.fpsTextItem.getMesh().getMaterial().setAmbientColour(new Vector4f(1f, 0f, 0f, 10f));
 
         this.coordinatesTextItem = new TextItem(coordinatesText, fontTexture);
         this.coordinatesTextItem.getMesh().getMaterial().setAmbientColour(new Vector4f(0.8f, 0.8f, 0.8f, 10f));
@@ -70,6 +72,9 @@ public class Hud implements IHud {
         this.crossHairTextItem = new TextItem(crossHair, fontTexture);
         this.crossHairTextItem.setScale(2);
 
+        this.targetObjectItem = new TextItem(targetObjectInfo, fontTexture);
+        this.targetObjectItem.setPosition(20.0f, 190f, 0);
+
         // Create compass
         Mesh mesh = null;
         try {
@@ -89,7 +94,7 @@ public class Hud implements IHud {
         gameItems = new GameItem[]{versionTextItem, compassItem,
                 coordinatesTextItem, fpsTextItem, rotationTextItem,
                 chunkSizeTextItem, blockSizeTextItem, filteredBlockSizeTextItem,
-                crossHairTextItem};
+                crossHairTextItem, targetObjectItem};
     }
 
 
@@ -135,5 +140,9 @@ public class Hud implements IHud {
     public void updateFps(float fps) {
         this.fpsTextItem.setPosition(20.0f, 10f, 0);
         this.fpsTextItem.setText(String.format("FPS: %s", (int) fps));
+    }
+    public void updateTargetObjectInfo(Vector3f vector3f) {
+        this.targetObjectItem.setPosition(20.0f, 190f, 0);
+        this.targetObjectItem.setText(String.format("TARGET OBJECT [X: %s Y: %s Z: %s]", vector3f.x, vector3f.y, vector3f.z));
     }
 }
