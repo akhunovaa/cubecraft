@@ -14,7 +14,7 @@ import java.util.concurrent.Executors;
 public class World {
 
     // 256 chunks & 4096 blocks in one chunk & totally 1 048 576 blocks
-    public static final int WORLD_WIDTH = 16;
+    public static final int WORLD_WIDTH = 8;
     public static final int WORLD_HEIGHT = 8;
     public static final int WORLD_SIZE = 5 * 8; // 4=64 5=100 6=144
 
@@ -50,9 +50,9 @@ public class World {
 
     private void generateChunk(int xPosition, int zPosition) {
 //        if (xPosition < WORLD_SIZE && zPosition < WORLD_SIZE) {
-        for (int x = (xPosition - WORLD_SIZE) / 8; x < (xPosition + (WORLD_SIZE)) / 8; x++) {
-            for (int z = (zPosition - WORLD_SIZE) / 8; z < (zPosition + (WORLD_SIZE)) / 8; z++) {
-                String chunkKey = String.format("%s:%s", x, z);
+        for (int x = (xPosition - WORLD_SIZE) / WORLD_WIDTH; x < (xPosition + (WORLD_SIZE)) / WORLD_WIDTH; x++) {
+            for (int z = (zPosition - WORLD_SIZE) / WORLD_WIDTH; z < (zPosition + (WORLD_SIZE)) / WORLD_WIDTH; z++) {
+                String chunkKey = String.format("%s:%s:%s", x, 0, z);
                 if (!chunkMap.containsKey(chunkKey)) {
                     Chunk chunk = new Chunk(x, z, new BasicGen(3));
                     chunk.generateBlocks();
@@ -60,6 +60,24 @@ public class World {
                 }
             }
         }
+    }
+
+    public boolean containsChunk(int xPosition, int yPosition, int zPosition) {
+        int xOffset = xPosition / WORLD_WIDTH;
+        int yOffset = yPosition / WORLD_WIDTH;
+        int zOffset = zPosition / WORLD_WIDTH;
+
+        String chunkKey = String.format("%s:%s:%s", xOffset, yOffset, zOffset);
+        return chunkMap.containsKey(chunkKey);
+    }
+
+    public Chunk getChunk(int xPosition, int yPosition, int zPosition) {
+        int xOffset = xPosition / WORLD_WIDTH;
+        int yOffset = yPosition / WORLD_WIDTH;
+        int zOffset = zPosition / WORLD_WIDTH;
+
+        String chunkKey = String.format("%s:%s:%s", xOffset, yOffset, zOffset);
+        return chunkMap.get(chunkKey);
     }
 
 

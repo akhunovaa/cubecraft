@@ -79,6 +79,9 @@ public class Renderer {
             List<GameItem> gameItemList = world.getChunksBlockItems();
             allGameItems.addAll(gameItemList);
         }
+        if (allGameItems.isEmpty()) {
+            return;
+        }
         boolean frustumCulling = true;
         Matrix4f projectionMatrix = transformation.getProjectionMatrix();
         Matrix4f viewMatrix = transformation.getViewMatrix();
@@ -111,8 +114,10 @@ public class Renderer {
             // Set world matrix for this item
             Matrix4f modelViewMatrix = transformation.buildModelViewMatrix(gameItem, viewMatrix);
             sceneShaderProgram.uploadMat4f("modelViewMatrix", modelViewMatrix);
-            if (gameItem.isSelected()) {
-                sceneShaderProgram.uploadFloat("selected", gameItem.isSelected() ? 1.0f : 0.0f);
+            if (!gameItem.isSelected()) {
+                sceneShaderProgram.uploadFloat("selected", 1.0f);
+            } else {
+                sceneShaderProgram.uploadFloat("selected", 0.0f);
             }
 
             // Render the mesh for this game item

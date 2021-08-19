@@ -163,11 +163,12 @@ public class LevelScene extends Scene {
         }
         boolean aux = mouseInput.isLeftButtonPressed();
         if (aux && !this.leftButtonPressed) {
-            Vector3f newPosition = mouseBoxSelectionDetector.getGameItemPosition(gameItems, world.getChunksBlockItems(), camera);
-            if (newPosition == null) {
-                newPosition = mouseBoxSelectionDetector.getGameItemPosition(camera);
+            Vector3f selectedItemPosition = mouseBoxSelectionDetector.getGameItemPosition(world.getChunksBlockItems(), camera);
+            if (selectedItemPosition != null) {
+                System.out.println("\n");
+                System.out.println("X: " + selectedItemPosition.x + " Y: " + selectedItemPosition.y + " Z: " + selectedItemPosition.z);
             }
-            createGameBlockItem(newPosition);
+            //createGameBlockItem(newPosition);
         }
         this.leftButtonPressed = aux;
         float lightPos = spotLightList[0].getPointLight().getPosition().z;

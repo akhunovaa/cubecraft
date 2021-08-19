@@ -1,6 +1,5 @@
 package ru.mycubecraft.world;
 
-
 import ru.mycubecraft.block.Block;
 import ru.mycubecraft.block.GrassBlock;
 
