@@ -48,7 +48,9 @@ public class MouseBoxSelectionDetector extends CameraBoxSelectionDetector {
 
         float x = 2f * (wdwWidth / 2f) / wdwWidth - 1.0f;
         float y = 1.0f - 2f * (wdwHeight / 2f) / wdwHeight;
-        float z = -1.0f;
+        float z = 0.0f;
+        x += 0.1f;
+        y += 0.1f;
 
         invProjectionMatrix.set(projectionMatrix);
         invProjectionMatrix.invert();
