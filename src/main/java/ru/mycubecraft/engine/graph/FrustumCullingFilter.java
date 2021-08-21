@@ -43,20 +43,7 @@ public class FrustumCullingFilter {
             boundingRadius = gameItem.getScale() * gameItem.getMesh().getBoundingRadius();
             gameItemPosition = gameItem.getPosition();
             boolean insideTheFrustum = insideFrustum(gameItemPosition.x, gameItemPosition.y, gameItemPosition.z, boundingRadius);
-            Vector3f min = new Vector3f();
-            Vector3f max = new Vector3f();
-            min.set(gameItem.getPosition());
-            max.set(gameItem.getPosition());
-            min.add(-10, -10, -10);
-            max.add(10, 10, 10);
-            float xStart = camera.getPosition().x;
-            float yStart = camera.getPosition().y;
-            float zStart = camera.getPosition().z;
-
-            Vector3f origin = new Vector3f(xStart, yStart, zStart);
-            if (Intersectionf.intersectRayAab(origin, origin.normalize(), min, max, nearFar) && nearFar.x < closestDistance) {
-                gameItem.setInsideFrustum(insideTheFrustum);
-            }
+            gameItem.setInsideFrustum(insideTheFrustum);
         }
     }
 

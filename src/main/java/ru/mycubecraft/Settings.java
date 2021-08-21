@@ -7,6 +7,7 @@ public final class Settings {
     public static final int WIDTH = 1024;
     public static final int HEIGHT = 768;
 
+    public static final boolean SHOW_FOG = false;
     public static final boolean SHOW_TRIANGLES = false;
     public static final boolean CULL_FACE = true;
     public static final boolean ANTIALIASING = false;

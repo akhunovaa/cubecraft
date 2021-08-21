@@ -84,7 +84,10 @@ public class LevelScene extends Scene {
 
         // Fog
         Vector3f fogColour = new Vector3f(0.49f, 0.61f, 0.66f);
-        //this.fog = new Fog(true, fogColour, 0.04f);
+
+        if (Settings.SHOW_FOG) {
+            this.fog = new Fog(true, fogColour, 0.04f);
+        }
 
     }
 
@@ -148,7 +151,7 @@ public class LevelScene extends Scene {
         int filteredBlocksCount = renderer.getFilteredItems().size();
         hud.updateHud(window, camera, world, filteredBlocksCount);
         hud.updateFps(delta);
-        if(selectedItemPosition != null) {
+        if (selectedItemPosition != null) {
             hud.updateTargetObjectInfo(selectedItemPosition);
         }
     }

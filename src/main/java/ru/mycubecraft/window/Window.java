@@ -198,12 +198,7 @@ public class Window {
 
             System.out.print("\rWithout UPS FPS: " + currentFps);
 
-
             currentScene.render(currentFps);
-
-            if (!vSync) {
-                sync();
-            }
 
             glfwSwapBuffers(this.glfwWindow);
             // Poll events
