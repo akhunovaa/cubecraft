@@ -14,8 +14,12 @@ public class SuperFlatGen implements Generator {
 
     @Override
     public int maxHeight(int wX, int wZ, int seed) {
-        // TODO Auto-generated method stub
-        return 7;
+        throw new RuntimeException("Not implemented here!");
+    }
+
+    @Override
+    public Block genBlock(int wX, int wY, int wZ) {
+        throw new RuntimeException("Not implemented here!");
     }
 
 }

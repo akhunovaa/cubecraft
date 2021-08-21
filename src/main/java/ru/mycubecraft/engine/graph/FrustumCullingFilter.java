@@ -4,7 +4,6 @@ import org.joml.FrustumIntersection;
 import org.joml.Matrix4f;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
-import org.joml.primitives.Intersectionf;
 import ru.mycubecraft.Settings;
 import ru.mycubecraft.core.GameItem;
 import ru.mycubecraft.renderer.Camera;
@@ -15,8 +14,8 @@ public class FrustumCullingFilter {
 
     private final Matrix4f prjViewMatrix;
     private final Vector2f nearFar;
-    private float closestDistance = Settings.Z_FAR;
     private final FrustumIntersection frustumInt;
+    private final float closestDistance = Settings.Z_FAR;
 
     public FrustumCullingFilter() {
         prjViewMatrix = new Matrix4f();

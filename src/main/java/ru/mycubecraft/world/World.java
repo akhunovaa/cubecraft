@@ -1,6 +1,7 @@
 package ru.mycubecraft.world;
 
 import lombok.extern.slf4j.Slf4j;
+import org.joml.Vector3f;
 import ru.mycubecraft.core.GameItem;
 import ru.mycubecraft.engine.Utils;
 
@@ -20,7 +21,7 @@ public class World {
 
     private final ExecutorService executorService = Executors.newFixedThreadPool(16);
 
-    private final Map<String, Chunk> chunkMap = Utils.createLRUMap(100);
+    private final Map<String, Chunk> chunkMap = Utils.createLRUMap(200);
 
     public World(Generator generator) {
         generateStartChunks();
@@ -36,8 +37,15 @@ public class World {
         return gameItemList;
     }
 
-    public void generate(int xPosition, int zPosition) {
-        generateChunk(xPosition, zPosition);
+    public void generate(int xPosition, int yPosition, int zPosition) {
+        int xOffset = xPosition / WORLD_WIDTH;
+        int yOffset = yPosition / WORLD_HEIGHT;
+        int zOffset = zPosition / WORLD_WIDTH;
+
+        String chunkKey = String.format("%s:%s:%s", xOffset, yOffset, zOffset);
+        if (!chunkMap.containsKey(chunkKey)) {
+            generateChunk(xPosition, yPosition, zPosition);
+        }
     }
 
     private void generateStartChunks() {
@@ -48,11 +56,10 @@ public class World {
 //        });
     }
 
-    private void generateChunk(int xPosition, int zPosition) {
-//        if (xPosition < WORLD_SIZE && zPosition < WORLD_SIZE) {
-        for (int x = (xPosition - WORLD_SIZE) / WORLD_WIDTH; x < (xPosition + (WORLD_SIZE)) / WORLD_WIDTH; x++) {
-            for (int z = (zPosition - WORLD_SIZE) / WORLD_WIDTH; z < (zPosition + (WORLD_SIZE)) / WORLD_WIDTH; z++) {
-                String chunkKey = String.format("%s:%s:%s", x, 0, z);
+    private void generateChunk(int xPosition, int yOffset, int zPosition) {
+        for (int x = (xPosition - WORLD_SIZE) / WORLD_WIDTH; x < (xPosition + WORLD_SIZE) / WORLD_WIDTH; x++) {
+            for (int z = (zPosition - WORLD_SIZE) / WORLD_WIDTH; z < (zPosition + WORLD_SIZE) / WORLD_WIDTH; z++) {
+                String chunkKey = String.format("%s:%s:%s", x, yOffset / WORLD_WIDTH, z);
                 if (!chunkMap.containsKey(chunkKey)) {
                     Chunk chunk = new Chunk(x, z, new BasicGen(3));
                     chunk.generateBlocks();
@@ -62,13 +69,26 @@ public class World {
         }
     }
 
+    public boolean containsChunk(Vector3f position) {
+        int xOffset = (int) position.x;
+        int yOffset = (int) position.y;
+        int zOffset = (int) position.z;
+        return containsChunk(xOffset, yOffset, zOffset);
+    }
+
     public boolean containsChunk(int xPosition, int yPosition, int zPosition) {
         int xOffset = xPosition / WORLD_WIDTH;
         int yOffset = yPosition / WORLD_WIDTH;
         int zOffset = zPosition / WORLD_WIDTH;
-
         String chunkKey = String.format("%s:%s:%s", xOffset, yOffset, zOffset);
         return chunkMap.containsKey(chunkKey);
+    }
+
+    public Chunk getChunk(Vector3f position) {
+        int xOffset = (int) position.x;
+        int yOffset = (int) position.y;
+        int zOffset = (int) position.z;
+        return getChunk(xOffset, yOffset, zOffset);
     }
 
     public Chunk getChunk(int xPosition, int yPosition, int zPosition) {
@@ -80,6 +100,23 @@ public class World {
         return chunkMap.get(chunkKey);
     }
 
+    public Chunk addChunk(Vector3f position) {
+        int xOffset = (int) position.x;
+        int yOffset = (int) position.y;
+        int zOffset = (int) position.z;
+        return addChunk(xOffset, yOffset, zOffset);
+    }
+
+    public Chunk addChunk(int xPosition, int yPosition, int zPosition) {
+        int xOffset = xPosition / WORLD_WIDTH;
+        int yOffset = yPosition / WORLD_WIDTH;
+        int zOffset = zPosition / WORLD_WIDTH;
+
+        String chunkKey = String.format("%s:%s:%s", xOffset, yOffset, zOffset);
+        Chunk chunk = new Chunk(xOffset, yOffset, zOffset);
+        chunkMap.put(chunkKey, chunk);
+        return chunk;
+    }
 
     public void cleanup() {
         chunkMap.forEach((key, value) -> value.cleanup());

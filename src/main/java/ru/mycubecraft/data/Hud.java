@@ -132,7 +132,7 @@ public class Hud implements IHud {
         int height = window.getHeight();
 
         // height/2f - 22.0f window height minus font texture height (19.0f) and element scale (3)
-        this.crossHairTextItem.setPosition(width / 2f, (height - 100.0f) / 2f, 0);
+        this.crossHairTextItem.setPosition(width / 2f, height / 2f, 0);
 
         this.compassItem.setPosition(window.getWidth() - 40f, 50f, 0);
     }
@@ -141,6 +141,7 @@ public class Hud implements IHud {
         this.fpsTextItem.setPosition(20.0f, 10f, 0);
         this.fpsTextItem.setText(String.format("FPS: %s", (int) fps));
     }
+
     public void updateTargetObjectInfo(Vector3f vector3f) {
         this.targetObjectItem.setPosition(20.0f, 190f, 0);
         this.targetObjectItem.setText(String.format("TARGET OBJECT [X: %s Y: %s Z: %s]", vector3f.x, vector3f.y, vector3f.z));

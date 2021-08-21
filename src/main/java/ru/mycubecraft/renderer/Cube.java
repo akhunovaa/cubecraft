@@ -20,7 +20,6 @@ public class Cube extends GameItem {
     private float scale;
 
     public Cube(String texturePath) throws FileNotFoundException {
-        super(null);
         Texture texture = AssetPool.getTexture(texturePath);
         Mesh mesh = AssetPool.getMesh(DEFAULT_MODEL_FILE_PATH);
         mesh.setBoundingRadius(1.0f);

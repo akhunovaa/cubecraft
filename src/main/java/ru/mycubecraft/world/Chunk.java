@@ -2,13 +2,17 @@ package ru.mycubecraft.world;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.Setter;
 import org.joml.Vector3f;
 import ru.mycubecraft.block.Block;
 import ru.mycubecraft.core.GameItem;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 @Getter
+@Setter
 @EqualsAndHashCode
 public class Chunk {
 
@@ -16,11 +20,10 @@ public class Chunk {
 
     private final int cx; //offset to x (1 offset * 8 block count)
     private final int cy; //offset to y (1 offset * 8 block count)
-    private final int cz; //offset to z (1 offset * 16 block count)
-
+    private final int cz; //offset to z (1 offset * 8 block count)
     @EqualsAndHashCode.Exclude
-    private final Block[][][] blocks;
-
+    private final Map<String, Block> blocks = new HashMap<>(512);
+    private boolean full;
     @EqualsAndHashCode.Exclude
     private Generator generator;
 
@@ -28,29 +31,26 @@ public class Chunk {
         this.cx = cx;
         this.cy = 0;
         this.cz = cz;
-        this.blocks = new Block[BLOCKS_COUNT][BLOCKS_COUNT][BLOCKS_COUNT];
-    }
-
-    public Chunk(int cx, int cz, Generator generator) {
-        this.cx = cx;
-        this.cz = cz;
-        this.cy = 0;
-        this.blocks = new Block[BLOCKS_COUNT][BLOCKS_COUNT][BLOCKS_COUNT];
-        this.generator = generator;
     }
 
     public Chunk(int cx, int cy, int cz) {
         this.cx = cx;
         this.cy = cy;
         this.cz = cz;
-        this.blocks = new Block[BLOCKS_COUNT][BLOCKS_COUNT][BLOCKS_COUNT];
+        this.generator = new BasicGen(3);
+    }
+
+    public Chunk(int cx, int cz, Generator generator) {
+        this.cx = cx;
+        this.cz = cz;
+        this.cy = 0;
+        this.generator = generator;
     }
 
     public Chunk(int cx, int cy, int cz, Generator generator) {
         this.cx = cx;
         this.cy = cy;
         this.cz = cz;
-        this.blocks = new Block[BLOCKS_COUNT][BLOCKS_COUNT][BLOCKS_COUNT];
         this.generator = generator;
     }
 
@@ -65,13 +65,11 @@ public class Chunk {
             for (int z = 0; z < BLOCKS_COUNT; z++) { // iterating & creating blocks for Z coordinate in this chunk
                 int mHeight = generator.maxHeight(wX + x, wZ + z, 0);
                 for (int y = 0; y < BLOCKS_COUNT; y++) {
+                    String blockKey = String.format("%s:%s:%s", wX + x, wY + y, wZ + z);
                     if (y < mHeight) {
                         Block block = generator.genBlock(wX + x, wY + y, wZ + z, 0);
-                        this.blocks[x][y][z] = block;
-                    } else {
-                        this.blocks[x][y][z] = null;
+                        this.blocks.put(blockKey, block);
                     }
-
                 }
             }
         }
@@ -82,7 +80,8 @@ public class Chunk {
         int yPosition = (int) position.y;
         int zPosition = (int) position.z;
 
-        return this.blocks[xPosition][yPosition][zPosition] != null;
+        String blockKey = String.format("%s:%s:%s", xPosition, yPosition, zPosition);
+        return this.blocks.containsKey(blockKey);
     }
 
     public Block addBlock(Vector3f position) {
@@ -90,8 +89,10 @@ public class Chunk {
         int yPosition = (int) position.y;
         int zPosition = (int) position.z;
 
-        Block block = generator.genBlock(xPosition, yPosition, zPosition, 0);
-        this.blocks[xPosition][yPosition][zPosition] = block;
+        String blockKey = String.format("%s:%s:%s", xPosition, yPosition, zPosition);
+        Block block = generator.genBlock(xPosition, yPosition, zPosition);
+
+        this.blocks.put(blockKey, block);
         return block;
     }
 
@@ -99,50 +100,23 @@ public class Chunk {
         int xPosition = (int) position.x;
         int yPosition = (int) position.y;
         int zPosition = (int) position.z;
-
-        this.blocks[xPosition][yPosition][zPosition] = null;
+        String blockKey = String.format("%s:%s:%s", xPosition, yPosition, zPosition);
+        this.blocks.remove(blockKey);
         return true;
     }
 
     public void render() {
-        for (int y = 0; y < World.WORLD_HEIGHT; y++) {
-            for (int x = 0; x < 8; x++) {
-                for (int z = 0; z < 8; z++) {
-                    if (this.blocks[x][y][z] != null) {
-                        this.blocks[x][y][z].render();
-                    }
-
-                }
-            }
-        }
+        this.blocks.forEach((key, value) -> value.render());
     }
 
     public ArrayList<GameItem> getItemListForRendering() {
-        ArrayList<GameItem> gameItemList = new ArrayList<>();
-        for (int y = 0; y < World.WORLD_HEIGHT; y++) {
-            for (int x = 0; x < 8; x++) {
-                for (int z = 0; z < 8; z++) {
-                    if (this.blocks[x][y][z] != null) {
-                        GameItem gameItem = this.blocks[x][y][z].getGameCubeItem();
-                        gameItemList.add(gameItem);
-                    }
-                }
-            }
-        }
+        ArrayList<GameItem> gameItemList = new ArrayList<>(this.blocks.size());
+        this.blocks.forEach((key, value) -> gameItemList.add(value.getGameCubeItem()));
         return gameItemList;
     }
 
     public void cleanup() {
-        for (int y = 0; y < World.WORLD_HEIGHT; y++) {
-            for (int x = 0; x < 8; x++) {
-                for (int z = 0; z < 8; z++) {
-                    if (this.blocks[x][y][z] != null) {
-                        GameItem gameItem = this.blocks[x][y][z].getGameCubeItem();
-                        gameItem.cleanup();
-                    }
-                }
-            }
-        }
+        this.blocks.forEach((key, value) -> value.getGameCubeItem().cleanup());
 
     }
 }

@@ -71,6 +71,11 @@ public class PerlinNoiseGenerator implements Generator {
     }
 
     @Override
+    public Block genBlock(int wX, int wY, int wZ) {
+        throw new RuntimeException("Not implemented here!");
+    }
+
+    @Override
     public int maxHeight(int wX, int wZ, int seed) {
 
         wX = wX < 0 ? -wX : wX;

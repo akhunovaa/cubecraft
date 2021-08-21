@@ -4,8 +4,6 @@ import lombok.Getter;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 import ru.mycubecraft.Settings;
-import ru.mycubecraft.block.Block;
-import ru.mycubecraft.block.GrassBlock;
 import ru.mycubecraft.core.GameItem;
 import ru.mycubecraft.data.Hud;
 import ru.mycubecraft.engine.graph.DirectionalLight;
@@ -16,6 +14,7 @@ import ru.mycubecraft.listener.MouseInput;
 import ru.mycubecraft.renderer.Camera;
 import ru.mycubecraft.renderer.Renderer;
 import ru.mycubecraft.world.BasicGen;
+import ru.mycubecraft.world.Chunk;
 import ru.mycubecraft.world.MouseBoxSelectionDetector;
 import ru.mycubecraft.world.World;
 
@@ -103,8 +102,9 @@ public class LevelScene extends Scene {
         lightUpdate(delta);
         //gameItems.add(sun.getGameCubeItem());
         int xPosition = (int) camera.getPosition().x;
+        int yPosition = (int) camera.getPosition().y;
         int zPosition = (int) camera.getPosition().z;
-        world.generate(xPosition, zPosition);
+        world.generate(xPosition, yPosition, zPosition);
     }
 
     private void lightUpdate(float delta) {
@@ -178,7 +178,9 @@ public class LevelScene extends Scene {
         boolean aux = mouseInput.isLeftButtonPressed();
         if (aux && !this.leftButtonPressed) {
             selectedItemPosition = mouseBoxSelectionDetector.getGameItemPosition(world.getChunksBlockItems(), camera);
-            //createGameBlockItem(newPosition);
+            if (selectedItemPosition != null) {
+                createGameBlockItem(selectedItemPosition);
+            }
         }
         this.leftButtonPressed = aux;
         float lightPos = spotLightList[0].getPointLight().getPosition().z;
@@ -207,8 +209,29 @@ public class LevelScene extends Scene {
     }
 
     private void createGameBlockItem(Vector3f position) {
-        Block block = new GrassBlock(position);
-        gameItems.add(block.getGameCubeItem());
-    }
+        Vector3f viewRayVector = mouseBoxSelectionDetector.rayDirection().negate();
+        Vector3f newBlockPosition = new Vector3f(position);
 
+        float xStart = (float) Math.ceil(viewRayVector.x);
+        float yStart = (float) Math.ceil(viewRayVector.y);
+        float zStart = (float) Math.ceil(viewRayVector.z);
+
+        viewRayVector.set(0f, 1.f, 0f);
+
+        newBlockPosition.add(viewRayVector);
+
+        boolean containsChunk = world.containsChunk(newBlockPosition);
+        Chunk chunk;
+        if (!containsChunk) {
+            chunk = world.addChunk(newBlockPosition);
+            chunk.addBlock(newBlockPosition);
+        } else {
+            chunk = world.getChunk(newBlockPosition);
+            chunk.addBlock(newBlockPosition);
+            boolean chunkContainsBlock = chunk.containsBlock(newBlockPosition);
+//            if (!chunkContainsBlock) {
+//                chunk.addBlock(newBlockPosition);
+//            }
+        }
+    }
 }

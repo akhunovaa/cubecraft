@@ -17,7 +17,7 @@ public class MouseBoxSelectionDetector extends CameraBoxSelectionDetector {
 
     private Matrix4f projectionMatrix;
     private Matrix4f viewMatrix;
-    private final Vector3f mouseDir;
+    private Vector3f mouseDir;
 
     public MouseBoxSelectionDetector() {
         super();
@@ -40,32 +40,7 @@ public class MouseBoxSelectionDetector extends CameraBoxSelectionDetector {
 
         Vector3f origin = new Vector3f(xStart, yStart, zStart);
 
-        Vector4f position = new Vector4f();
-        Window window = Window.getInstance();
-
-        int wdwWidth = window.getWidth();
-        int wdwHeight = window.getHeight();
-
-        float x = 2f * (wdwWidth / 2f) / wdwWidth - 1.0f;
-        float y = 1.0f - 2f * (wdwHeight / 2f) / wdwHeight;
-        float z = 0.0f;
-        x += 0.1f;
-        y += 0.1f;
-
-        invProjectionMatrix.set(projectionMatrix);
-        invProjectionMatrix.invert();
-
-        position.set(x, y, z, 1.0f);
-        position.mul(invProjectionMatrix);
-        position.z = -1.0f;
-        position.w = 0.0f;
-
-        invViewMatrix.set(viewMatrix);
-        invViewMatrix.invert();
-        position.mul(invViewMatrix);
-
-        mouseDir.set(position.x, position.y, position.z);
-
+        this.mouseDir = rayDirection();
         Vector3f newGameItemPosition = null;
 
         GameItem selectedGameItem = selectGameItem(gameItemList, origin, mouseDir);
@@ -77,9 +52,9 @@ public class MouseBoxSelectionDetector extends CameraBoxSelectionDetector {
 
     public Vector3f getGameItemPosition(Camera camera) {
 
-        float xStart = (float)Math.ceil(camera.getPosition().x);
-        float yStart = (float)Math.floor(camera.getPosition().y);
-        float zStart = (float)Math.ceil(camera.getPosition().z);
+        float xStart = (float) Math.ceil(camera.getPosition().x);
+        float yStart = (float) Math.floor(camera.getPosition().y);
+        float zStart = (float) Math.ceil(camera.getPosition().z);
 
         Vector3f origin = new Vector3f(xStart, yStart, zStart);
 
@@ -115,4 +90,35 @@ public class MouseBoxSelectionDetector extends CameraBoxSelectionDetector {
 
         return new Vector3f(position.x, position.y, position.z);
     }
+
+    public Vector3f rayDirection() {
+        Vector4f position = new Vector4f();
+        Window window = Window.getInstance();
+
+        int wdwWidth = window.getWidth();
+        int wdwHeight = window.getHeight();
+
+        float x = 2f * (wdwWidth / 2f) / wdwWidth - 1.0f;
+        float y = 1.0f - 2f * (wdwHeight / 2f) / wdwHeight;
+        float z = 0.0f;
+//        x += 0.1f;
+//        y += 0.1f;
+
+        invProjectionMatrix.set(projectionMatrix);
+        invProjectionMatrix.invert();
+
+        position.set(x, y, z, 0.0f);
+        position.mul(invProjectionMatrix);
+        position.z = -1.0f;
+        position.w = 0.0f;
+
+        invViewMatrix.set(viewMatrix);
+        invViewMatrix.invert();
+        position.mul(invViewMatrix);
+
+        mouseDir.set(position.x, position.y, position.z);
+        return mouseDir;
+
+    }
+
 }
