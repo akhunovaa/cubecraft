@@ -179,6 +179,7 @@ public class LevelScene extends Scene {
         if (aux && !this.leftButtonPressed) {
             selectedItemPosition = mouseBoxSelectionDetector.getGameItemPosition(world.getChunksBlockItems(), camera);
             if (selectedItemPosition != null) {
+                System.out.println(selectedItemPosition);
                 createGameBlockItem(selectedItemPosition);
             }
         }
@@ -212,10 +213,6 @@ public class LevelScene extends Scene {
         Vector3f viewRayVector = mouseBoxSelectionDetector.rayDirection().negate();
         Vector3f newBlockPosition = new Vector3f(position);
 
-        float xStart = (float) Math.ceil(viewRayVector.x);
-        float yStart = (float) Math.ceil(viewRayVector.y);
-        float zStart = (float) Math.ceil(viewRayVector.z);
-
         viewRayVector.set(0f, 1.f, 0f);
 
         newBlockPosition.add(viewRayVector);
@@ -229,9 +226,9 @@ public class LevelScene extends Scene {
             chunk = world.getChunk(newBlockPosition);
             chunk.addBlock(newBlockPosition);
             boolean chunkContainsBlock = chunk.containsBlock(newBlockPosition);
-//            if (!chunkContainsBlock) {
-//                chunk.addBlock(newBlockPosition);
-//            }
+            if (!chunkContainsBlock) {
+                chunk.addBlock(newBlockPosition);
+            }
         }
     }
 }

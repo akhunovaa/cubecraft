@@ -25,21 +25,23 @@ public class CameraBoxSelectionDetector {
         nearFar = new Vector2f();
     }
 
-    public GameItem selectGameItem(List<GameItem> gameItems, Vector3f camPosition, Vector3f dir) {
+    public GameItem selectGameItem(List<GameItem> gameItems, Vector3f camPosition, Vector3f mouseDir) {
 
         GameItem selectedGameItem = null;
-        float closestDistance = 10.0f;
+        float closestDistance = 20.0f;
 
         int idx = 0;
 
         for (int i = 0; i < gameItems.size(); i++) {
             GameItem gameItem = gameItems.get(i);
             gameItem.setSelected(false);
-            min.set(gameItem.getPosition());
-            max.set(gameItem.getPosition());
-            min.add(-gameItem.getScale(), -gameItem.getScale(), -gameItem.getScale());
-            max.add(gameItem.getScale(), gameItem.getScale(), gameItem.getScale());
-            if (Intersectionf.intersectRayAab(camPosition, dir, min, max, nearFar) && nearFar.x < closestDistance) {
+
+            Vector3f gamePosition = new Vector3f(gameItem.getPosition());
+            min.set(gamePosition);
+            max.set(gamePosition);
+            min.add(-gameItem.getScale() / 2, -gameItem.getScale(), -gameItem.getScale() / 2);
+            max.add(gameItem.getScale() / 2, gameItem.getScale(), gameItem.getScale() / 2);
+            if (Intersectionf.intersectRayAab(camPosition, mouseDir, min, max, nearFar) && nearFar.x < closestDistance) {
                 closestDistance = nearFar.x;
                 idx = i;
                 selectedGameItem = gameItem;

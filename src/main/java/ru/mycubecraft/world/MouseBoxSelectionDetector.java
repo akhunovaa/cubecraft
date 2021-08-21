@@ -38,11 +38,15 @@ public class MouseBoxSelectionDetector extends CameraBoxSelectionDetector {
         float yStart = camera.getPosition().y;
         float zStart = camera.getPosition().z;
 
+//        float xStart = (float) Math.floor(camera.getPosition().x);
+//        float yStart = (float) Math.floor(camera.getPosition().y);
+//        float zStart = (float) Math.floor(camera.getPosition().z);
+
         Vector3f origin = new Vector3f(xStart, yStart, zStart);
 
         this.mouseDir = rayDirection();
         Vector3f newGameItemPosition = null;
-
+        mouseDir.normalize();
         GameItem selectedGameItem = selectGameItem(gameItemList, origin, mouseDir);
         if (selectedGameItem != null) {
             newGameItemPosition = selectedGameItem.getPosition();

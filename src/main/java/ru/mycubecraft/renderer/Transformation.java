@@ -11,14 +11,13 @@ public class Transformation {
     private static Transformation instance;
 
     private final Matrix4f projectionMatrix;
-    private final Matrix4f viewMatrix;
+    private static Matrix4f viewMatrix = new Matrix4f();
     private final Matrix4f modelMatrix;
     private final Matrix4f modelViewMatrix;
     private final Matrix4f orthoMatrix;
     private final Matrix4f orthoModelMatrix;
 
     public Transformation() {
-        this.viewMatrix = new Matrix4f();
         this.projectionMatrix = new Matrix4f();
         this.modelMatrix = new Matrix4f();
         this.modelViewMatrix = new Matrix4f();
@@ -35,7 +34,7 @@ public class Transformation {
 
     public static Matrix4f updateGenericViewMatrix(Vector3f position, Vector3f rotation, Matrix4f matrix) {
         // First do the rotation so camera rotates over its position
-        return matrix.rotationX((float) Math.toRadians(rotation.x))
+        return viewMatrix.rotationX((float) Math.toRadians(rotation.x))
                 .rotateY((float) Math.toRadians(rotation.y))
                 .translate(-position.x, -position.y, -position.z);
     }
