@@ -39,8 +39,8 @@ public class CameraBoxSelectionDetector {
             Vector3f gamePosition = new Vector3f(gameItem.getPosition());
             min.set(gamePosition);
             max.set(gamePosition);
-            min.add(-gameItem.getScale() / 2, -gameItem.getScale(), -gameItem.getScale() / 2);
-            max.add(gameItem.getScale() / 2, gameItem.getScale(), gameItem.getScale() / 2);
+            min.add(-gameItem.getScale() / 2, -gameItem.getScale() / 2, -gameItem.getScale() / 2);
+            max.add(gameItem.getScale() / 2, gameItem.getScale() / 2, gameItem.getScale() / 2);
             if (Intersectionf.intersectRayAab(camPosition, mouseDir, min, max, nearFar) && nearFar.x < closestDistance) {
                 closestDistance = nearFar.x;
                 idx = i;

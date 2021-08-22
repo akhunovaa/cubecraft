@@ -105,6 +105,7 @@ public class LevelScene extends Scene {
         int yPosition = (int) camera.getPosition().y;
         int zPosition = (int) camera.getPosition().z;
         world.generate(xPosition, yPosition, zPosition);
+        selectedItemPosition = mouseBoxSelectionDetector.getGameItemPosition(world.getChunksBlockItems(), camera);
     }
 
     private void lightUpdate(float delta) {
@@ -177,9 +178,7 @@ public class LevelScene extends Scene {
         }
         boolean aux = mouseInput.isLeftButtonPressed();
         if (aux && !this.leftButtonPressed) {
-            selectedItemPosition = mouseBoxSelectionDetector.getGameItemPosition(world.getChunksBlockItems(), camera);
             if (selectedItemPosition != null) {
-                System.out.println(selectedItemPosition);
                 createGameBlockItem(selectedItemPosition);
             }
         }
@@ -210,12 +209,14 @@ public class LevelScene extends Scene {
     }
 
     private void createGameBlockItem(Vector3f position) {
-        Vector3f viewRayVector = mouseBoxSelectionDetector.rayDirection().negate();
         Vector3f newBlockPosition = new Vector3f(position);
-
+        Vector3f viewRayVector = mouseBoxSelectionDetector.rayDirection().negate();
         viewRayVector.set(0f, 1.f, 0f);
+        System.out.println("\n");
+        System.out.println("X:" + viewRayVector.x + " Y:" + viewRayVector.y + " Z:" + viewRayVector.z );
 
         newBlockPosition.add(viewRayVector);
+        System.out.println("X:" + newBlockPosition.x + " Y:" + newBlockPosition.y + " Z:" + newBlockPosition.z);
 
         boolean containsChunk = world.containsChunk(newBlockPosition);
         Chunk chunk;

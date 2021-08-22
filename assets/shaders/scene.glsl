@@ -198,7 +198,11 @@ void main()
 
 
     if ( fog.activeFog == 1 ) {
-        fragColor = calcFog(mvVertexPos, ambientC * vec4(ambientLight, 1) + diffuseSpecularComp, fog, ambientLight, directionalLight);
+        if ( outSelected > .0 ) {
+            fragColor = calcFog(mvVertexPos, ambientC * vec4(ambientLight, 1) + diffuseSpecularComp, fog, ambientLight, directionalLight);
+        } else {
+            fragColor = calcFog(mvVertexPos, vec4(1.0, 0.1, 0.1, 1.0) * ambientC * vec4(ambientLight, 1) + diffuseSpecularComp, fog, ambientLight, directionalLight);
+        }
     } else {
         if ( outSelected > .0 ) {
             fragColor = ambientC * vec4(ambientLight, 1) + diffuseSpecularComp;
