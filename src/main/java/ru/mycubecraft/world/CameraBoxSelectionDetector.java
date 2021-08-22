@@ -28,7 +28,7 @@ public class CameraBoxSelectionDetector {
     public GameItem selectGameItem(List<GameItem> gameItems, Vector3f camPosition, Vector3f mouseDir) {
 
         GameItem selectedGameItem = null;
-        float closestDistance = 20.0f;
+        float closestDistance = 30.0f;
 
         int idx = 0;
 

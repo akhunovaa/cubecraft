@@ -21,7 +21,7 @@ public class World {
 
     private final ExecutorService executorService = Executors.newFixedThreadPool(16);
 
-    private final Map<String, Chunk> chunkMap = Utils.createLRUMap(200);
+    private final Map<String, Chunk> chunkMap = Utils.createLRUMap(166);
 
     public World(Generator generator) {
         generateStartChunks();

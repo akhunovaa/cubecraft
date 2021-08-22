@@ -210,13 +210,11 @@ public class LevelScene extends Scene {
 
     private void createGameBlockItem(Vector3f position) {
         Vector3f newBlockPosition = new Vector3f(position);
-        Vector3f viewRayVector = mouseBoxSelectionDetector.rayDirection().negate();
-        viewRayVector.set(0f, 1.f, 0f);
-        System.out.println("\n");
-        System.out.println("X:" + viewRayVector.x + " Y:" + viewRayVector.y + " Z:" + viewRayVector.z );
-
-        newBlockPosition.add(viewRayVector);
-        System.out.println("X:" + newBlockPosition.x + " Y:" + newBlockPosition.y + " Z:" + newBlockPosition.z);
+        Vector3f ray = mouseBoxSelectionDetector.rayDirection().negate();
+        float xStart = (float) Math.ceil(ray.x);
+        float yStart = (float) Math.ceil(ray.y);
+        float zStart = (float) Math.ceil(ray.z);
+        newBlockPosition.add(xStart, yStart, zStart);
 
         boolean containsChunk = world.containsChunk(newBlockPosition);
         Chunk chunk;
@@ -225,11 +223,14 @@ public class LevelScene extends Scene {
             chunk.addBlock(newBlockPosition);
         } else {
             chunk = world.getChunk(newBlockPosition);
-            chunk.addBlock(newBlockPosition);
             boolean chunkContainsBlock = chunk.containsBlock(newBlockPosition);
-            if (!chunkContainsBlock) {
-                chunk.addBlock(newBlockPosition);
+            if (chunkContainsBlock) {
+                xStart = (float) Math.ceil(ray.x);
+                yStart = (float) Math.ceil(ray.y);
+                zStart = (float) Math.ceil(ray.z);
+                newBlockPosition.add(xStart, yStart, zStart);
             }
+            chunk.addBlock(newBlockPosition);
         }
     }
 }
