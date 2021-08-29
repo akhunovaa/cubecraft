@@ -2,7 +2,7 @@ package ru.mycubecraft;
 
 public final class Settings {
 
-    public static final String WINDOW_TITLE = "Cubecraft Game Engine in JAVA | Developed by Azat Akhunov";
+    public static final String WINDOW_TITLE = "Cubecraft Game Engine| JAVA | Developed by Azat Akhunov";
 
     public static final int WIDTH = 1024;
     public static final int HEIGHT = 768;
