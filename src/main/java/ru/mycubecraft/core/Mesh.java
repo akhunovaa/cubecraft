@@ -53,13 +53,11 @@ public class Mesh {
             // Position VBO
             int vboId = GL15.glGenBuffers();
             vboIdList.add(vboId);
-
             posBuffer = MemoryUtil.memAllocFloat(positions.length);
             posBuffer.put(positions).flip();
 
             GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, vboId);
-            //GL15.glBufferData(GL15.GL_ARRAY_BUFFER, posBuffer, GL15.GL_STATIC_DRAW);
-            GL15.glBufferData(GL15.GL_ARRAY_BUFFER, posBuffer, GL15.GL_DYNAMIC_DRAW);
+            GL15.glBufferData(GL15.GL_ARRAY_BUFFER, posBuffer, GL15.GL_STREAM_DRAW);
             GL20.glVertexAttribPointer(0, 3, GL11.GL_FLOAT, false, 0, 0);
 
             GL20.glEnableVertexAttribArray(0);
@@ -72,7 +70,6 @@ public class Mesh {
 
             GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, vboId);
             GL15.glBufferData(GL15.GL_ARRAY_BUFFER, textCoordsBuffer, GL15.GL_STREAM_DRAW);
-            //GL15.glBufferData(GL15.GL_ARRAY_BUFFER, textCoordsBuffer, GL15.GL_DYNAMIC_DRAW);
             GL20.glVertexAttribPointer(1, 2, GL11.GL_FLOAT, false, 0, 0);
 
             GL20.glEnableVertexAttribArray(1);
@@ -84,12 +81,11 @@ public class Mesh {
             if (vecNormalsBuffer.capacity() > 0) {
                 vecNormalsBuffer.put(normals).flip();
             } else {
-                // Create empty structure
                 vecNormalsBuffer = MemoryUtil.memAllocFloat(positions.length);
+                vecNormalsBuffer.put(positions).flip();
             }
             GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, vboId);
             GL15.glBufferData(GL15.GL_ARRAY_BUFFER, vecNormalsBuffer, GL15.GL_STREAM_DRAW);
-            //GL15.glBufferData(GL15.GL_ARRAY_BUFFER, vecNormalsBuffer, GL15.GL_DYNAMIC_DRAW);
             GL20.glVertexAttribPointer(2, 3, GL11.GL_FLOAT, false, 0, 0);
 
             GL20.glEnableVertexAttribArray(2);
@@ -101,11 +97,9 @@ public class Mesh {
             indicesBuffer.put(indices).flip();
 
             GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, vboId);
-            //GL15.glBufferData(GL15.GL_ELEMENT_ARRAY_BUFFER, indicesBuffer, GL15.GL_STATIC_DRAW);
             GL15.glBufferData(GL15.GL_ELEMENT_ARRAY_BUFFER, indicesBuffer, GL_STREAM_DRAW);
-//            GL20.glVertexAttribPointer(3, 3, GL11.GL_INT, false, 0, 0);
-//
-//            glEnableVertexAttribArray(3);
+
+            GL20.glEnableVertexAttribArray(3);
 
             GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, 0);
             GL30.glBindVertexArray(0);
@@ -220,6 +214,7 @@ public class Mesh {
         GL20.glDisableVertexAttribArray(0);
         GL20.glDisableVertexAttribArray(1);
         GL20.glDisableVertexAttribArray(2);
+        GL20.glDisableVertexAttribArray(3);
 
         // Delete the VBOs
         glBindBuffer(GL_ARRAY_BUFFER, 0);
