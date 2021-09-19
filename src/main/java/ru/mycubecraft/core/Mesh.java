@@ -60,8 +60,6 @@ public class Mesh {
             GL15.glBufferData(GL15.GL_ARRAY_BUFFER, posBuffer, GL15.GL_STREAM_DRAW);
             GL20.glVertexAttribPointer(0, 3, GL11.GL_FLOAT, false, 0, 0);
 
-            GL20.glEnableVertexAttribArray(0);
-
             // Texture coordinates VBO
             vboId = GL15.glGenBuffers();
             vboIdList.add(vboId);
@@ -71,8 +69,6 @@ public class Mesh {
             GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, vboId);
             GL15.glBufferData(GL15.GL_ARRAY_BUFFER, textCoordsBuffer, GL15.GL_STREAM_DRAW);
             GL20.glVertexAttribPointer(1, 2, GL11.GL_FLOAT, false, 0, 0);
-
-            GL20.glEnableVertexAttribArray(1);
 
             // Vertex normals VBO
             vboId = GL15.glGenBuffers();
@@ -88,8 +84,6 @@ public class Mesh {
             GL15.glBufferData(GL15.GL_ARRAY_BUFFER, vecNormalsBuffer, GL15.GL_STREAM_DRAW);
             GL20.glVertexAttribPointer(2, 3, GL11.GL_FLOAT, false, 0, 0);
 
-            GL20.glEnableVertexAttribArray(2);
-
             // Index VBO
             vboId = GL15.glGenBuffers();
             vboIdList.add(vboId);
@@ -97,10 +91,8 @@ public class Mesh {
             indicesBuffer.put(indices).flip();
 
             GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, vboId);
-            GL15.glBufferData(GL15.GL_ELEMENT_ARRAY_BUFFER, indicesBuffer, GL_STREAM_DRAW);
+            GL15.glBufferData(GL15.GL_ELEMENT_ARRAY_BUFFER, indicesBuffer, GL_STATIC_DRAW);
 
-            GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, 0);
-            GL30.glBindVertexArray(0);
         } finally {
             if (posBuffer != null) {
                 MemoryUtil.memFree(posBuffer);
@@ -197,6 +189,7 @@ public class Mesh {
         // Restore state
         glBindVertexArray(0);
         glBindTexture(GL_TEXTURE_2D, 0);
+        GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, 0);
     }
 
     public Material getMaterial() {
