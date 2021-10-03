@@ -67,7 +67,6 @@ public class Renderer {
         transformation.updateViewMatrix(camera);
 
         renderScene(gameItems, world, scene, ambientLight, pointLightList, spotLightList, directionalLight);
-        //renderSkyBox(scene, ambientLight, directionalLight);
         renderHud(window, hud);
     }
 

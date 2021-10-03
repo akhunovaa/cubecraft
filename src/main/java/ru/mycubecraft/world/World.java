@@ -10,6 +10,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+
+import static java.lang.Math.max;
 
 @Slf4j
 public class World {
@@ -19,7 +22,23 @@ public class World {
     public static final int WORLD_HEIGHT = 8;
     public static final int WORLD_SIZE = 5 * 8; // 4=64 5=100 6=144
 
-    private final ExecutorService executorService = Executors.newFixedThreadPool(16);
+    /**
+     * The width and depth of a chunk (in number of voxels).
+     */
+    private static final int CHUNK_SIZE_SHIFT = 5;
+    private static final int CHUNK_SIZE = 1 << CHUNK_SIZE_SHIFT;
+
+    /**
+     * Used to offload compute-heavy tasks, such as chunk meshing and triangulation, from the render
+     * thread to background threads.
+     */
+    protected final ExecutorService executorService = Executors.newFixedThreadPool(max(1, Runtime.getRuntime().availableProcessors() / 2), r -> {
+        Thread t = new Thread(r);
+        t.setPriority(Thread.MIN_PRIORITY);
+        t.setName("Data builder");
+        t.setDaemon(true);
+        return t;
+    });
 
     private final Map<String, Chunk> chunkMap = Utils.createLRUMap(166);
 
@@ -48,6 +67,17 @@ public class World {
         }
     }
 
+    public void ensureChunk(int xPosition, int yPosition, int zPosition) {
+        int cx = xPosition >> CHUNK_SIZE_SHIFT,
+                cz = yPosition >> CHUNK_SIZE_SHIFT;
+        String chunkKey = String.format("%s:%s", cx, cz);
+        if (!chunkMap.containsKey(chunkKey)) {
+            Chunk chunk = createChunk(xPosition, zPosition);
+            chunk.createBlockField();
+            chunkMap.put(chunkKey,chunk);
+        }
+    }
+
     private void generateStartChunks() {
 //        executorService.execute(new Runnable() {
 //            public void run() {
@@ -63,10 +93,20 @@ public class World {
                 if (!chunkMap.containsKey(chunkKey)) {
                     Chunk chunk = new Chunk(x, z, new BasicGen(3));
                     chunk.generateBlocks();
-                    chunkMap.put(chunkKey, chunk);
                 }
             }
         }
+    }
+
+    /**
+     * Create a chunk at the position <code>(cx, cz)</code> (in units of whole chunks).
+     *
+     * @param cx the x coordinate of the chunk position
+     * @param cz the z coordinate of the chunk position
+     */
+    private Chunk createChunk(int cx, int cz) {
+        Chunk chunk = new Chunk(cx, cz, new BasicGen(3));
+        return chunk;
     }
 
     public boolean containsChunk(Vector3f position) {
@@ -121,6 +161,13 @@ public class World {
     public void cleanup() {
         chunkMap.forEach((key, value) -> value.cleanup());
         this.chunkMap.clear();
+        executorService.shutdown();
+        try {
+            if (!executorService.awaitTermination(2000L, TimeUnit.MILLISECONDS))
+                throw new AssertionError();
+        } catch (Exception e) {
+            throw new AssertionError();
+        }
     }
 
     public Map<String, Chunk> getChunkMap() {

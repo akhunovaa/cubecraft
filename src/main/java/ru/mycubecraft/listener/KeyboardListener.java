@@ -6,7 +6,6 @@ public class KeyboardListener {
 
     private static KeyboardListener instance;
     private final boolean[] keyPressed = new boolean[GLFW_KEY_LAST + 1];
-    private boolean fly;
     private boolean wireframe;
     private boolean debugBoundingBoxes;
 
@@ -53,9 +52,7 @@ public class KeyboardListener {
      * array.
      */
     private void handleSpecialKeys(int key, int action) {
-        if (key == GLFW_KEY_F && action == GLFW_PRESS) {
-            fly = !fly;
-        } else if (key == GLFW_KEY_2 && action == GLFW_PRESS) {
+        if (key == GLFW_KEY_2 && action == GLFW_PRESS) {
             wireframe = !wireframe;
         } else if (key == GLFW_KEY_1 && action == GLFW_PRESS) {
             debugBoundingBoxes = !debugBoundingBoxes;

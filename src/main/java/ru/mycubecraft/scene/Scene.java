@@ -16,7 +16,10 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
+import static java.lang.Math.max;
 import static ru.mycubecraft.Game.DEBUG;
 
 @Getter
@@ -27,6 +30,7 @@ public abstract class Scene {
      * functions.
      */
     protected final Queue<DelayedRunnable> updateAndRenderRunnables = new ConcurrentLinkedQueue<>();
+
     public World world;
     //    protected Window window = Window.getInstance();
     protected SkyBox skyBox;
