@@ -6,11 +6,10 @@ public class LevelEditorScene extends Scene {
 
     public LevelEditorScene() {
         System.err.println("Entered to a Level Editor Scene");
-        window.setBlue(0.2f);
     }
 
     @Override
-    public void init() {
+    public void runUpdateAndRenderLoop() {
 
     }
 

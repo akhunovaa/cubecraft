@@ -13,8 +13,6 @@ import static org.lwjgl.stb.STBImage.*;
 
 public class Texture {
 
-    private final int numRows = 1;
-    private final int numCols = 1;
     private String filepath;
     private transient int id;
     private int width, height;

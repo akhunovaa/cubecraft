@@ -37,7 +37,6 @@ public class Renderer {
         specularPower = 10f;
         frustumFilter = new FrustumCullingFilter();
         filteredItems = new ArrayList<>();
-        init();
     }
 
     public void init() {
@@ -53,10 +52,11 @@ public class Renderer {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
     }
 
-    public void render(Window window, ArrayList<GameItem> gameItems, World world, Camera camera,
+    public void render(ArrayList<GameItem> gameItems, World world, Camera camera,
                        SkyBox skyBox, Scene scene, IHud hud, Vector3f ambientLight,
                        PointLight[] pointLightList, SpotLight[] spotLightList, DirectionalLight directionalLight) {
         clear();
+        Window window = Window.getInstance();
         if (window.isResized()) {
             glViewport(0, 0, window.getWidth(), window.getHeight());
             window.setResized(false);

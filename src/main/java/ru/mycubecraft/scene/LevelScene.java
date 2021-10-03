@@ -3,9 +3,12 @@ package ru.mycubecraft.scene;
 import lombok.Getter;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
+import org.lwjgl.opengl.GL;
+import ru.mycubecraft.DelayedRunnable;
 import ru.mycubecraft.Settings;
 import ru.mycubecraft.core.GameItem;
 import ru.mycubecraft.data.Hud;
+import ru.mycubecraft.engine.Timer;
 import ru.mycubecraft.engine.graph.DirectionalLight;
 import ru.mycubecraft.engine.graph.PointLight;
 import ru.mycubecraft.engine.graph.SpotLight;
@@ -13,22 +16,28 @@ import ru.mycubecraft.engine.graph.weather.Fog;
 import ru.mycubecraft.listener.MouseInput;
 import ru.mycubecraft.renderer.Camera;
 import ru.mycubecraft.renderer.Renderer;
+import ru.mycubecraft.window.Window;
 import ru.mycubecraft.world.BasicGen;
 import ru.mycubecraft.world.Chunk;
 import ru.mycubecraft.world.MouseBoxSelectionDetector;
 import ru.mycubecraft.world.World;
 
 import static org.lwjgl.glfw.GLFW.*;
+import static ru.mycubecraft.Game.caps;
 
 @Getter
 public class LevelScene extends Scene {
 
+    public static final int TARGET_FPS = 75;
+    public static final int TARGET_UPS = 30;
     private final Vector3f cameraInc;
     private final MouseInput mouseInput;
     private final boolean dayCycle = false;
+    /**
+     * Used for timing calculations.
+     */
+    private final Timer timer;
     private Hud hud;
-    private boolean firstTime;
-    private boolean sceneChanged;
     private Vector3f ambientLight;
     private PointLight[] pointLightList;
     private SpotLight[] spotLightList;
@@ -40,8 +49,8 @@ public class LevelScene extends Scene {
     private Vector3f selectedItemPosition;
 
     public LevelScene() {
+        timer = new Timer();
         System.err.println("Entered to a Level Scene");
-        renderer = new Renderer();
         camera = new Camera();
         world = new World(new BasicGen(1));
         cameraInc = new Vector3f(0.0f, 0.0f, 0.0f);
@@ -50,8 +59,23 @@ public class LevelScene extends Scene {
         fog = Fog.NOFOG;
     }
 
+    /**
+     * Run the "update and render" loop in a separate thread.
+     * <p>
+     * This is to decouple rendering from possibly long-blocking polling of OS/window messages (via
+     * {@link org.lwjgl.glfw.GLFW#glfwPollEvents()}).
+     */
     @Override
-    public void init() {
+    public void runUpdateAndRenderLoop() {
+        long window = Window.getInstance().getGlfwWindow();
+        glfwMakeContextCurrent(window);
+        GL.setCapabilities(caps);
+        timer.init();
+        renderer = new Renderer();
+        updateAndRenderRunnables.add(new DelayedRunnable(() -> {
+            renderer.init();
+            return null;
+        }, "Shaders creation initialize", 0));
         mouseBoxSelectionDetector = new MouseBoxSelectionDetector();
 //        sun.getGameCubeItem().setScale(3f);
 //        sun.getGameCubeItem().setPosition(-3000, 0.0f, 0F);
@@ -81,6 +105,10 @@ public class LevelScene extends Scene {
         mouseInput.init();
         hud = new Hud();
 
+        updateAndRenderRunnables.add(new DelayedRunnable(() -> {
+            hud.buildHud();
+            return null;
+        }, "HUD elements creation initialize", 0));
         // Fog
         Vector3f fogColour = new Vector3f(0.49f, 0.61f, 0.66f);
 
@@ -88,6 +116,48 @@ public class LevelScene extends Scene {
             this.fog = new Fog(true, fogColour, 0.04f);
         }
 
+
+        //long lastTime = System.nanoTime();
+
+        float elapsedTime;
+        float accumulator = 0f;
+        float interval = 1f / TARGET_UPS;
+        long current = System.currentTimeMillis();
+
+        while (!glfwWindowShouldClose(window)) {
+
+            /* Get delta time and update the accumulator */
+            elapsedTime = timer.getElapsedTime();
+            accumulator += elapsedTime;
+
+//            glClearColor(Window.red, Window.green, Window.blue, Window.alpha);
+
+            input();
+
+            /* Update game and timer UPS if enough time has passed */
+            while (accumulator >= interval) {
+                update(accumulator);
+                accumulator -= interval;
+            }
+
+            float currentFps = 1000f / (-current + (current = System.currentTimeMillis()));
+
+            System.out.print("\rWithout UPS FPS: " + currentFps);
+            /*
+             * Execute any runnables that have accumulated in the render queue. These are GL calls for
+             * created/updated chunks.
+             */
+            drainRunnables();
+
+            render(currentFps);
+            glfwSwapBuffers(window);
+
+            // Poll events
+            //glfwPollEvents();
+        }
+
+        drainRunnables();
+        GL.setCapabilities(null);
     }
 
     @Override
@@ -101,10 +171,14 @@ public class LevelScene extends Scene {
 
         lightUpdate(delta);
         //gameItems.add(sun.getGameCubeItem());
-        int xPosition = (int) camera.getPosition().x;
-        int yPosition = (int) camera.getPosition().y;
-        int zPosition = (int) camera.getPosition().z;
-        world.generate(xPosition, yPosition, zPosition);
+
+        updateAndRenderRunnables.add(new DelayedRunnable(() -> {
+            int xPosition = (int) camera.getPosition().x;
+            int yPosition = (int) camera.getPosition().y;
+            int zPosition = (int) camera.getPosition().z;
+            world.generate(xPosition, yPosition, zPosition);
+            return null;
+        }, "World generation initialize", 0));
         selectedItemPosition = mouseBoxSelectionDetector.getGameItemPosition(world.getChunksBlockItems(), camera);
     }
 
@@ -150,7 +224,7 @@ public class LevelScene extends Scene {
     private void hudUpdate(float delta) {
         hud.rotateCompass(-camera.getRotation().y);
         int filteredBlocksCount = renderer.getFilteredItems().size();
-        hud.updateHud(window, camera, world, filteredBlocksCount);
+        hud.updateHud(camera, world, filteredBlocksCount);
         hud.updateFps(delta);
         if (selectedItemPosition != null) {
             hud.updateTargetObjectInfo(selectedItemPosition);
@@ -194,7 +268,7 @@ public class LevelScene extends Scene {
 
     @Override
     public void render(float delta) {
-        renderer.render(window, gameItems, world, camera, skyBox, this, hud, ambientLight, pointLightList, spotLightList, directionalLight);
+        renderer.render(gameItems, world, camera, skyBox, this, hud, ambientLight, pointLightList, spotLightList, directionalLight);
         hudUpdate(delta);
     }
 

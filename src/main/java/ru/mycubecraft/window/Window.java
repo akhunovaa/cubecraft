@@ -1,18 +1,12 @@
 package ru.mycubecraft.window;
 
 import org.lwjgl.Version;
-import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.glfw.GLFWWindowSizeCallback;
 import org.lwjgl.opengl.GL;
 import ru.mycubecraft.Settings;
-import ru.mycubecraft.engine.SkyBox;
-import ru.mycubecraft.engine.Timer;
 import ru.mycubecraft.listener.KeyboardListener;
 import ru.mycubecraft.listener.MouseListener;
-import ru.mycubecraft.scene.LevelEditorScene;
-import ru.mycubecraft.scene.LevelScene;
-import ru.mycubecraft.scene.Scene;
 
 import java.util.Objects;
 
@@ -20,32 +14,30 @@ import static org.lwjgl.glfw.Callbacks.glfwFreeCallbacks;
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.system.MemoryUtil.NULL;
+import static ru.mycubecraft.Game.has;
 
 public class Window {
 
     public static final int TARGET_FPS = 75;
     public static final int TARGET_UPS = 30;
+    private static final boolean GRAB_CURSOR = has("grabCursor", true);
     public static float red = 0.79f;
     public static float green = 0.91f;
     public static float blue = 0.96f;
+    public static float alpha = 1.0f;
     private static Window instance;
     private final String title;
-    /**
-     * Used for timing calculations.
-     */
-    private final Timer timer;
+
     private final boolean vSync = true;
     private int width;
     private int height;
-    private float alpha = 1.0f;
+
     private long glfwWindow;
     private KeyboardListener keyboardListener;
     private MouseListener mouseListener;
-    private Scene currentScene;
     private boolean resized;
 
     private Window() {
-        timer = new Timer();
         this.width = Settings.WIDTH;
         this.height = Settings.HEIGHT;
         this.title = Settings.WINDOW_TITLE;
@@ -57,6 +49,7 @@ public class Window {
         }
         return instance;
     }
+
 
     public void run() {
         System.out.println("LWJGL " + Version.getVersion());
@@ -74,11 +67,10 @@ public class Window {
         Objects.requireNonNull(glfwSetErrorCallback(null)).free();
     }
 
-
     public void init() {
-        timer.init();
-        // Setup an error callback
-        GLFWErrorCallback.createPrint(System.err).set();
+//        timer.init();
+//        // Setup an error callback
+//        GLFWErrorCallback.createPrint(System.err).set();
 
         // Initialize GLFW
         if (!glfwInit()) {
@@ -100,6 +92,7 @@ public class Window {
         if (this.glfwWindow == NULL) {
             throw new IllegalStateException("Failed to create the GLFW window.");
         }
+        ///
         glfwSetCursorPos(this.glfwWindow, 0, 0);
         glfwSetInputMode(this.glfwWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
         // Setup resize callback
@@ -166,7 +159,7 @@ public class Window {
         this.changeScene(1);
         try {
             //this.setupSkyBox();
-            currentScene.init();
+            //currentScene.init();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -182,15 +175,15 @@ public class Window {
         while (!glfwWindowShouldClose(this.glfwWindow)) {
 
             /* Get delta time and update the accumulator */
-            elapsedTime = timer.getElapsedTime();
-            accumulator += elapsedTime;
+//            elapsedTime = timer.getElapsedTime();
+//            accumulator += elapsedTime;
 
-            glClearColor(red, green, blue, this.alpha);
+            glClearColor(red, green, blue, alpha);
 
-            currentScene.input();
+            //currentScene.input();
             /* Update game and timer UPS if enough time has passed */
             while (accumulator >= interval) {
-                currentScene.update(accumulator);
+//                currentScene.update(accumulator);
                 accumulator -= interval;
             }
 
@@ -198,7 +191,7 @@ public class Window {
 
             System.out.print("\rWithout UPS FPS: " + currentFps);
 
-            currentScene.render(currentFps);
+            //currentScene.render(currentFps);
 
             glfwSwapBuffers(this.glfwWindow);
             // Poll events
@@ -206,39 +199,17 @@ public class Window {
         }
     }
 
-
-    private void sync() {
-        float loopSlot = 1f / TARGET_FPS;
-        double endTime = timer.getLastLoopTime() + loopSlot;
-        while (timer.getTime() < endTime) {
-            try {
-                Thread.sleep(1);
-            } catch (InterruptedException ie) {
-            }
-        }
-    }
-
-
     public void changeScene(int scene) {
         switch (scene) {
             case 0:
-                currentScene = new LevelEditorScene();
+                //currentScene = new LevelEditorScene();
                 break;
             case 1:
-                currentScene = new LevelScene();
+                //currentScene = new LevelScene();
                 break;
             default:
                 throw new IllegalStateException("Scene for load is wrong!");
         }
-    }
-
-    public void setupSkyBox() throws Exception {
-
-        // Setup  SkyBox
-        SkyBox skyBox = new SkyBox("assets/models/skybox.obj", "assets/textures/skybox.png");
-        skyBox.setScale(Settings.SKY_BOX_SCALE);
-        currentScene.setSkyBox(skyBox);
-
     }
 
     public boolean isResized() {
@@ -249,36 +220,8 @@ public class Window {
         this.resized = resized;
     }
 
-    public float getRed() {
-        return red;
-    }
-
-    public void setRed(float red) {
-        Window.red = red;
-    }
-
-    public float getGreen() {
-        return green;
-    }
-
-    public void setGreen(float green) {
-        Window.green = green;
-    }
-
-    public float getBlue() {
-        return blue;
-    }
-
     public void setBlue(float blue) {
         Window.blue = blue;
-    }
-
-    public float getAlpha() {
-        return alpha;
-    }
-
-    public void setAlpha(float alpha) {
-        this.alpha = alpha;
     }
 
     public int getWidth() {
@@ -293,10 +236,6 @@ public class Window {
         return glfwWindow;
     }
 
-    public void setGlfwWindow(long glfwWindow) {
-        this.glfwWindow = glfwWindow;
-    }
-
     public void restoreState() {
         glEnable(GL_DEPTH_TEST);
         glEnable(GL_STENCIL_TEST);
@@ -305,5 +244,74 @@ public class Window {
             glEnable(GL_CULL_FACE);
             glCullFace(GL_BACK);
         }
+    }
+
+    public void createWindow() {
+
+        // Configure GLFW
+        glfwDefaultWindowHints();
+
+        glfwWindowHint(GLFW_VISIBLE, GL_FALSE); // the window will stay hidden
+        // after creation
+        glfwWindowHint(GLFW_RESIZABLE, GL_TRUE); // the window will be resizable
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+        glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+        glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+
+
+        long monitor = glfwGetPrimaryMonitor();
+        GLFWVidMode vidmode = glfwGetVideoMode(monitor);
+        width = (int) (Objects.requireNonNull(vidmode).width() * 0.8f);
+        height = (int) (vidmode.height() * 0.8f);
+        glfwWindow = glfwCreateWindow(this.width, this.height, this.title, NULL, NULL);
+        if (glfwWindow == NULL) {
+            throw new IllegalStateException("Failed to create the GLFW window.");
+        }
+        if (GRAB_CURSOR) {
+            glfwSetInputMode(glfwWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+        }
+    }
+
+    /**
+     * Register all necessary GLFW callbacks.
+     */
+    public void registerWindowCallbacks() {
+        this.keyboardListener = KeyboardListener.getInstance();
+        this.mouseListener = MouseListener.getInstance();
+        //glfwSetFramebufferSizeCallback(glfwWindow, this::onFramebufferSize);
+        glfwSetWindowSizeCallback(glfwWindow, this::onWindowSize);
+        glfwSetKeyCallback(this.glfwWindow, this.keyboardListener::onKey);
+        glfwSetCursorPosCallback(glfwWindow, this.mouseListener::onCursorPos);
+        glfwSetMouseButtonCallback(glfwWindow, this.mouseListener::onMouseButton);
+    }
+
+    /**
+     * GLFW framebuffer size callback.
+     */
+    private void onFramebufferSize(long window, int w, int h) {
+        if (w <= 0 && h <= 0)
+            return;
+//        updateAndRenderRunnables.add(new DelayedRunnable(() -> {
+//            width = w;
+//            height = h;
+//            //createFramebufferObject();
+//            glViewport(0, 0, width, height);
+//            return null;
+//        }, "Framebuffer size change", 0));
+    }
+
+    /**
+     * Setup window resize callback.
+     */
+    private void onWindowSize(long window, int width, int height) {
+        Window.this.width = width;
+        Window.this.height = height;
+        Window.this.setResized(true);
+    }
+
+    public void setWindowPosition() {
+        GLFWVidMode vidmode = glfwGetVideoMode(glfwGetPrimaryMonitor());
+        glfwSetWindowPos(this.glfwWindow, (Objects.requireNonNull(vidmode).width() - width) / 2, (vidmode.height() - height) / 2);
     }
 }
