@@ -396,21 +396,41 @@ public class LevelScene extends Scene {
                 pymin = py - Player.PLAYER_EYE_HEIGHT,
                 pzmax = pz + Player.PLAYER_WIDTH,
                 pzmin = pz - Player.PLAYER_WIDTH;
-        float xInvEntry = dx > 0f ? -pxmax : 1 - pxmin, xInvExit = dx > 0f ? 1 - pxmin : -pxmax;
+
+        float xInvEntry = dx > 0f ? -pxmax : 1 - pxmin,
+                xInvExit = dx > 0f ? 1 - pxmin : -pxmax;
+
         boolean xNotValid = dx == 0;
-        float xEntry = xNotValid ? NEGATIVE_INFINITY : xInvEntry / dx, xExit = xNotValid ? POSITIVE_INFINITY : xInvExit / dx;
-        float yInvEntry = dy > 0f ? -pymax : 1 - pymin, yInvExit = dy > 0f ? 1 - pymin : -pymax;
+
+        float xEntry = xNotValid ? NEGATIVE_INFINITY : xInvEntry / dx,
+                xExit = xNotValid ? POSITIVE_INFINITY : xInvExit / dx;
+
+        float yInvEntry = dy > 0f ? -pymax : 1 - pymin,
+                yInvExit = dy > 0f ? 1 - pymin : -pymax;
+
         boolean yNotValid = dy == 0;
-        float yEntry = yNotValid ? NEGATIVE_INFINITY : yInvEntry / dy, yExit = yNotValid ? POSITIVE_INFINITY : yInvExit / dy;
-        float zInvEntry = dz > 0f ? -pzmax : 1 - pzmin, zInvExit = dz > 0f ? 1 - pzmin : -pzmax;
+
+        float yEntry = yNotValid ? NEGATIVE_INFINITY : yInvEntry / dy,
+                yExit = yNotValid ? POSITIVE_INFINITY : yInvExit / dy;
+
+        float zInvEntry = dz > 0f ? -pzmax : 1 - pzmin,
+                zInvExit = dz > 0f ? 1 - pzmin : -pzmax;
+
         boolean zNotValid = dz == 0;
-        float zEntry = zNotValid ? NEGATIVE_INFINITY : zInvEntry / dz, zExit = zNotValid ? POSITIVE_INFINITY : zInvExit / dz;
-        float tEntry = max(max(xEntry, yEntry), zEntry), tExit = min(min(xExit, yExit), zExit);
+
+        float zEntry = zNotValid ? NEGATIVE_INFINITY : zInvEntry / dz,
+                zExit = zNotValid ? POSITIVE_INFINITY : zInvExit / dz;
+
+        float tEntry = max(max(xEntry, yEntry), zEntry),
+                tExit = min(min(xExit, yExit), zExit);
+
         if (tEntry < -.5f || tEntry > tExit) {
             return;
         }
+
         Contact c;
         contacts.add(c = new Contact(tEntry, x, y, z));
+
         if (xEntry == tEntry) {
             c.nx = dx > 0 ? -1 : 1;
         } else if (yEntry == tEntry) {
