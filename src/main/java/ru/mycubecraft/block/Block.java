@@ -18,7 +18,6 @@ public class Block {
             gameCubeItem.setPosition(bX, bY, bZ);
             this.gameCubeItem = gameCubeItem;
         } catch (Exception e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
     }

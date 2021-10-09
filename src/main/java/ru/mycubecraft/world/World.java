@@ -50,26 +50,26 @@ public class World {
         chunkMap.forEach((key, value) -> value.render());
     }
 
-    public List<GameItem> getChunksBlockItems() {
-        List<GameItem> gameItemList = new ArrayList<>();
-        chunkMap.forEach((key, value) -> gameItemList.addAll(value.getItemListForRendering()));
-        return gameItemList;
-    }
+//    public List<GameItem> getChunksBlockItems() {
+//        List<GameItem> gameItemList = new ArrayList<>();
+//        chunkMap.forEach((key, value) -> gameItemList.addAll(value.getItemListForRendering()));
+//        return gameItemList;
+//    }
 
-    public void generate(int xPosition, int yPosition, int zPosition) {
-        int xOffset = xPosition / WORLD_WIDTH;
-        int yOffset = yPosition / WORLD_HEIGHT;
-        int zOffset = zPosition / WORLD_WIDTH;
+//    public void generate(int xPosition, int yPosition, int zPosition) {
+//        int xOffset = xPosition / WORLD_WIDTH;
+//        int yOffset = yPosition / WORLD_HEIGHT;
+//        int zOffset = zPosition / WORLD_WIDTH;
+//
+//        String chunkKey = String.format("%s:%s:%s", xOffset, yOffset, zOffset);
+//        if (!chunkMap.containsKey(chunkKey)) {
+//            //generateChunk(xPosition, yPosition, zPosition);
+//        }
+//    }
 
-        String chunkKey = String.format("%s:%s:%s", xOffset, yOffset, zOffset);
-        if (!chunkMap.containsKey(chunkKey)) {
-            generateChunk(xPosition, yPosition, zPosition);
-        }
-    }
-
-    public void ensureChunk(int xPosition, int yPosition, int zPosition) {
+    public void ensureChunk(int xPosition, int zPosition) {
         int cx = xPosition >> CHUNK_SIZE_SHIFT,
-                cz = yPosition >> CHUNK_SIZE_SHIFT;
+                cz = zPosition >> CHUNK_SIZE_SHIFT;
         String chunkKey = String.format("%s:%s", cx, cz);
         if (!chunkMap.containsKey(chunkKey)) {
             Chunk chunk = createChunk(xPosition, zPosition);
@@ -86,17 +86,17 @@ public class World {
 //        });
     }
 
-    private void generateChunk(int xPosition, int yOffset, int zPosition) {
-        for (int x = (xPosition - WORLD_SIZE) / WORLD_WIDTH; x < (xPosition + WORLD_SIZE) / WORLD_WIDTH; x++) {
-            for (int z = (zPosition - WORLD_SIZE) / WORLD_WIDTH; z < (zPosition + WORLD_SIZE) / WORLD_WIDTH; z++) {
-                String chunkKey = String.format("%s:%s:%s", x, yOffset / WORLD_WIDTH, z);
-                if (!chunkMap.containsKey(chunkKey)) {
-                    Chunk chunk = new Chunk(x, z, new BasicGen(3));
-                    chunk.generateBlocks();
-                }
-            }
-        }
-    }
+//    private void generateChunk(int xPosition, int yOffset, int zPosition) {
+//        for (int x = (xPosition - WORLD_SIZE) / WORLD_WIDTH; x < (xPosition + WORLD_SIZE) / WORLD_WIDTH; x++) {
+//            for (int z = (zPosition - WORLD_SIZE) / WORLD_WIDTH; z < (zPosition + WORLD_SIZE) / WORLD_WIDTH; z++) {
+//                String chunkKey = String.format("%s:%s:%s", x, yOffset / WORLD_WIDTH, z);
+//                if (!chunkMap.containsKey(chunkKey)) {
+//                    Chunk chunk = new Chunk(x, z, new BasicGen(3));
+//                    //chunk.generateBlocks();
+//                }
+//            }
+//        }
+//    }
 
     /**
      * Create a chunk at the position <code>(cx, cz)</code> (in units of whole chunks).
@@ -105,7 +105,7 @@ public class World {
      * @param cz the z coordinate of the chunk position
      */
     private Chunk createChunk(int cx, int cz) {
-        Chunk chunk = new Chunk(cx, cz, new BasicGen(3));
+        Chunk chunk = new Chunk(cx, cz);
         return chunk;
     }
 

@@ -14,8 +14,4 @@ public class GrassBlock extends Block {
         // TODO Auto-generated constructor stub
     }
 
-    public GrassBlock(Vector3f position) {
-        super(position, "assets/textures/grass.png");
-    }
-
 }

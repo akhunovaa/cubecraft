@@ -4,6 +4,9 @@ import lombok.Getter;
 import lombok.Setter;
 import ru.mycubecraft.block.Block;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import static java.lang.Math.max;
 import static java.lang.Math.min;
 
@@ -27,9 +30,9 @@ public class BlockField {
     private int py;
 
     /**
-     * The actual block field as a flat array.
+     * The actual block field
      */
-    private Block[] field;
+    private Map<String, Block> blocks = new HashMap<>();
 
     /**
      * The number of set/active non-zero blocks. This value can be used to get a (very) rough estimate
@@ -47,7 +50,8 @@ public class BlockField {
      * @return this
      */
     private BlockField store(int x, int y, int z, Block block) {
-        field[idx(x, y, z)] = block;
+        String key = String.valueOf(idx(x, y, z));
+        blocks.put(key, block);
         /*
          * Update min/max Y coordinate so that meshing as well as frustum culling will take it into account
          */
@@ -65,7 +69,8 @@ public class BlockField {
      * @return the block value
      */
     private Block load(int x, int y, int z) {
-        return field[idx(x, y, z)];
+        String key = String.valueOf(idx(x, y, z));
+        return blocks.get(key);
     }
 
     /**

@@ -3,6 +3,7 @@ package ru.mycubecraft.renderer;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
+import ru.mycubecraft.block.Block;
 import ru.mycubecraft.core.GameItem;
 import ru.mycubecraft.core.Mesh;
 import ru.mycubecraft.engine.IHud;
@@ -14,10 +15,14 @@ import ru.mycubecraft.engine.graph.SpotLight;
 import ru.mycubecraft.scene.Scene;
 import ru.mycubecraft.util.AssetPool;
 import ru.mycubecraft.window.Window;
+import ru.mycubecraft.world.BlockField;
+import ru.mycubecraft.world.Chunk;
 import ru.mycubecraft.world.World;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import static org.lwjgl.opengl.GL11.*;
 
@@ -36,7 +41,7 @@ public class Renderer {
         transformation = new Transformation();
         specularPower = 10f;
         frustumFilter = new FrustumCullingFilter();
-        filteredItems = new ArrayList<>();
+        filteredItems = Collections.synchronizedList(new ArrayList<>());
     }
 
     public void init() {
@@ -52,10 +57,10 @@ public class Renderer {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
     }
 
-    public void render(ArrayList<GameItem> gameItems, World world, Camera camera,
-                       SkyBox skyBox, Scene scene, IHud hud, Vector3f ambientLight,
+    public void render(World world, Camera camera, Scene scene, IHud hud, Vector3f ambientLight,
                        PointLight[] pointLightList, SpotLight[] spotLightList, DirectionalLight directionalLight) {
         clear();
+        filteredItems.clear();
         Window window = Window.getInstance();
         if (window.isResized()) {
             glViewport(0, 0, window.getWidth(), window.getHeight());
@@ -66,28 +71,44 @@ public class Renderer {
         transformation.updateProjectionMatrix(window.getWidth(), window.getHeight());
         transformation.updateViewMatrix(camera);
 
-        renderScene(gameItems, world, scene, ambientLight, pointLightList, spotLightList, directionalLight);
+        renderScene(world, scene, ambientLight, pointLightList,
+                spotLightList, directionalLight);
         renderHud(window, hud);
     }
 
-    private void renderScene(ArrayList<GameItem> gameItems, World world,
-                             Scene scene, Vector3f ambientLight,
-                             PointLight[] pointLightList, SpotLight[] spotLightList, DirectionalLight directionalLight) {
-        ArrayList<GameItem> allGameItems = new ArrayList<>(gameItems);
-        if (world != null) {
-            List<GameItem> gameItemList = world.getChunksBlockItems();
-            allGameItems.addAll(gameItemList);
-        }
-        if (allGameItems.isEmpty()) {
-            return;
-        }
+    private void renderScene(World world, Scene scene, Vector3f ambientLight,
+                             PointLight[] pointLightList, SpotLight[] spotLightList,
+                             DirectionalLight directionalLight) {
+
+        Camera camera = scene.getCamera();
+
         boolean frustumCulling = true;
         Matrix4f projectionMatrix = transformation.getProjectionMatrix();
         Matrix4f viewMatrix = transformation.getViewMatrix();
 
         if (frustumCulling) {
             frustumFilter.updateFrustum(projectionMatrix, viewMatrix);
-            frustumFilter.filter(allGameItems, scene.getCamera());
+        }
+
+        if (world != null) {
+            Map<String, Chunk> worldChunkMap = world.getChunkMap();
+            for (Chunk chunk : worldChunkMap.values()) {
+                BlockField blockField = chunk.getBlockField();
+                Map<String, Block> blocks = blockField.getBlocks();
+                blocks.values()
+                        .parallelStream()
+                        .forEach(block -> {
+                            GameItem gameItem = block.getGameCubeItem();
+                            frustumFilter.filter(gameItem, camera);
+                            if (gameItem.isInsideFrustum()) {
+                                filteredItems.add(gameItem);
+                            }
+                        });
+            }
+        }
+
+        if (filteredItems.isEmpty()) {
+            return;
         }
 
         sceneShaderProgram.use();
@@ -98,34 +119,21 @@ public class Renderer {
         renderLights(viewMatrix, ambientLight, pointLightList, spotLightList, directionalLight);
 
         sceneShaderProgram.uploadInt("texture_sampler", 0);
-        sceneShaderProgram.setUniform("material", allGameItems.get(0).getMesh().getMaterial());
         sceneShaderProgram.setUniform("fog", scene.getFog());
-        // clearing for the frustum filter game item list
-        filteredItems.clear();
-        for (GameItem gameItem : allGameItems) {
-            if (gameItem != null && gameItem.isInsideFrustum()) {
-                filteredItems.add(gameItem);
-            }
-        }
-
+        sceneShaderProgram.setUniform("material", filteredItems.get(0).getMesh().getMaterial());
         // Render each filtered in frustum game item
         for (GameItem gameItem : filteredItems) {
             // Set world matrix for this item
             Matrix4f modelViewMatrix = transformation.buildModelViewMatrix(gameItem, viewMatrix);
             sceneShaderProgram.uploadMat4f("modelViewMatrix", modelViewMatrix);
-            if (!gameItem.isSelected()) {
-                sceneShaderProgram.uploadFloat("selected", 1.0f);
-            } else {
-                sceneShaderProgram.uploadFloat("selected", 0.0f);
-            }
 
             // Render the mesh for this game item
             gameItem.render();
         }
+        sceneShaderProgram.uploadFloat("selected", 1.0f);
 
         // Unbind shader
         sceneShaderProgram.detach();
-        //allGameItems.clear();
     }
 
     private void renderLights(Matrix4f viewMatrix, Vector3f ambientLight,

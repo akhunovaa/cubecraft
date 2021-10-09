@@ -7,9 +7,6 @@ import org.joml.Vector3f;
 import ru.mycubecraft.block.Block;
 import ru.mycubecraft.block.DirtBlock;
 import ru.mycubecraft.block.GrassBlock;
-import ru.mycubecraft.core.GameItem;
-
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -45,7 +42,10 @@ public class Chunk {
     private final int cy; //offset to y (1 offset * 8 block count)
     private final int cz; //offset to z (1 offset * 8 block count)
     @EqualsAndHashCode.Exclude
-    private final Map<String, Block> blocks = new HashMap<>(512);
+    private final Map<String, Block> blocks = new HashMap<>();
+    @EqualsAndHashCode.Exclude
+    private BlockField blockField;
+
     private boolean full;
     @EqualsAndHashCode.Exclude
     private Generator generator;
@@ -63,12 +63,12 @@ public class Chunk {
         this.generator = new BasicGen(3);
     }
 
-    public Chunk(int cx, int cz, Generator generator) {
-        this.cx = cx;
-        this.cz = cz;
-        this.cy = 0;
-        this.generator = generator;
-    }
+//    public Chunk(int cx, int cz, Generator generator) {
+//        this.cx = cx;
+//        this.cz = cz;
+//        this.cy = 0;
+//        this.generator = generator;
+//    }
 
     public Chunk(int cx, int cy, int cz, Generator generator) {
         this.cx = cx;
@@ -77,27 +77,27 @@ public class Chunk {
         this.generator = generator;
     }
 
-    public void generateBlocks() {
-        long time = System.currentTimeMillis();
-        int wX = this.cx * BLOCKS_COUNT; // block position where cx is offset and BLOCKS_COUNT is block count to X (1 offset * 8 block count)
-        int wY = this.cy * BLOCKS_COUNT; // block position where cy is offset and BLOCKS_COUNT is block count to Y (1 offset * 8 block count)
-        int wZ = this.cz * BLOCKS_COUNT; // block position where cz is offset and BLOCKS_COUNT is block count to Z (1 offset * 8 block count)
-
-        // every block in chunk took this (new Vector3f(wX, 0, wZ)) position
-        // time complexity is O(n^2) exclude Y coordinate (height) and O(n^3) with Y coordinate
-        for (int x = 0; x < BLOCKS_COUNT; x++) { // iterating & creating blocks for X coordinate in this chunk
-            for (int z = 0; z < BLOCKS_COUNT; z++) { // iterating & creating blocks for Z coordinate in this chunk
-                int mHeight = generator.maxHeight(wX + x, wZ + z, 0);
-                for (int y = 0; y < BLOCKS_COUNT; y++) {
-                    String blockKey = String.format("%s:%s:%s", wX + x, wY + y, wZ + z);
-                    if (y < mHeight) {
-                        Block block = generator.genBlock(wX + x, wY + y, wZ + z, 0);
-                        this.blocks.put(blockKey, block);
-                    }
-                }
-            }
-        }
-    }
+//    public void generateBlocks() {
+//        long time = System.currentTimeMillis();
+//        int wX = this.cx * BLOCKS_COUNT; // block position where cx is offset and BLOCKS_COUNT is block count to X (1 offset * 8 block count)
+//        int wY = this.cy * BLOCKS_COUNT; // block position where cy is offset and BLOCKS_COUNT is block count to Y (1 offset * 8 block count)
+//        int wZ = this.cz * BLOCKS_COUNT; // block position where cz is offset and BLOCKS_COUNT is block count to Z (1 offset * 8 block count)
+//
+//        // every block in chunk took this (new Vector3f(wX, 0, wZ)) position
+//        // time complexity is O(n^2) exclude Y coordinate (height) and O(n^3) with Y coordinate
+//        for (int x = 0; x < BLOCKS_COUNT; x++) { // iterating & creating blocks for X coordinate in this chunk
+//            for (int z = 0; z < BLOCKS_COUNT; z++) { // iterating & creating blocks for Z coordinate in this chunk
+//                int mHeight = generator.maxHeight(wX + x, wZ + z, 0);
+//                for (int y = 0; y < BLOCKS_COUNT; y++) {
+//                    String blockKey = String.format("%s:%s:%s", wX + x, wY + y, wZ + z);
+//                    if (y < mHeight) {
+//                        Block block = generator.genBlock(wX + x, wY + y, wZ + z, 0);
+//                        this.blocks.put(blockKey, block);
+//                    }
+//                }
+//            }
+//        }
+//    }
 
     public boolean containsBlock(Vector3f position) {
         int xPosition = (int) position.x;
@@ -133,19 +133,19 @@ public class Chunk {
         this.blocks.forEach((key, value) -> value.render());
     }
 
-    public ArrayList<GameItem> getItemListForRendering() {
-        ArrayList<GameItem> gameItemList = new ArrayList<>(this.blocks.size());
-        this.blocks.forEach((key, value) -> gameItemList.add(value.getGameCubeItem()));
-        return gameItemList;
-    }
+//    public ArrayList<GameItem> getItemListForRendering() {
+//        ArrayList<GameItem> gameItemList = new ArrayList<>(this.blocks.size());
+//        this.blocks.forEach((key, value) -> gameItemList.add(value.getGameCubeItem()));
+//        return gameItemList;
+//    }
 
     /**
      * Create a block field for a chunk at the given chunk position.
      */
-    public BlockField createBlockField() {
+    public void createBlockField() {
         int gx = (cx << CHUNK_SIZE_SHIFT) + GLOBAL_X,
                 gz = (cz << CHUNK_SIZE_SHIFT) + GLOBAL_Z;
-        Block[] field = new Block[(CHUNK_SIZE + 2) * (CHUNK_HEIGHT + 2) * (CHUNK_SIZE + 2)];
+        Map<String, Block> field = new HashMap<>((CHUNK_SIZE + 2) * (CHUNK_HEIGHT + 2) * (CHUNK_SIZE + 2));
         int maxY = Integer.MIN_VALUE,
                 minY = Integer.MAX_VALUE;
         int num = 0;
@@ -156,17 +156,17 @@ public class Chunk {
                 maxY = max(maxY, y);
                 minY = min(minY, y);
                 for (int y0 = -1; y0 <= y; y0++) {
-                    field[idx(x, y0, z)] = y0 == y ? new GrassBlock(x, y0, z) : new DirtBlock(x, y0, z);
+                    String key = String.valueOf(idx(x, y0, z));
+                    field.put(key, y0 == y ? new DirtBlock(x, y0, z) : new GrassBlock(x, y0, z));
                     num++;
                 }
             }
         }
-        BlockField blockField = new BlockField();
+        this.blockField = new BlockField();
         blockField.setNy(minY);
         blockField.setPy(maxY);
         blockField.setNum(num);
-        blockField.setField(field);
-        return blockField;
+        blockField.setBlocks(field);
     }
 
     /**

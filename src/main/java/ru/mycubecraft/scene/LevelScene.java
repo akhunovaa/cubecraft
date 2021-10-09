@@ -45,7 +45,7 @@ public class LevelScene extends Scene {
     /**
      * The height of a chunk (in number of voxels).
      */
-    private static final int CHUNK_HEIGHT = 256;
+    private static final int CHUNK_HEIGHT = 64;
     private final Vector3f cameraInc;
     private final MouseInput mouseInput;
     private final boolean dayCycle = false;
@@ -149,7 +149,7 @@ public class LevelScene extends Scene {
             input();
             /* Update game and timer UPS if enough time has passed */
             while (accumulator >= interval) {
-                update(interval * 1E-2f);
+                update(interval);
                 accumulator -= interval;
             }
 
@@ -164,8 +164,8 @@ public class LevelScene extends Scene {
 
             render(currentFps);
             glfwSwapBuffers(window);
-
         }
+        cleanup();
         drainRunnables();
         GL.setCapabilities(null);
     }
@@ -177,16 +177,16 @@ public class LevelScene extends Scene {
         camera.moveRotation(rotVec.x * Settings.MOUSE_SENSITIVITY, rotVec.y * Settings.MOUSE_SENSITIVITY, 0);
         camera.movePosition(cameraInc.x * Settings.MOVE_SPEED, cameraInc.y * Settings.MOVE_SPEED, cameraInc.z * Settings.MOVE_SPEED);
         if (!player.isFly()) {
-            System.out.println("\n");
-            System.out.println("cameraInc X: " + cameraInc.x + " Y: " + cameraInc.y + " Z: " + cameraInc.z);
-            handleCollisions(delta, cameraInc, camera.getPosition());
+            // System.out.println("\n");
+            //System.out.println("cameraInc X: " + cameraInc.x + " Y: " + cameraInc.y + " Z: " + cameraInc.z);
+            //handleCollisions(delta, cameraInc, camera.getPosition());
         }
         lightUpdate();
         int xPosition = (int) camera.getPosition().x;
-        int yPosition = (int) camera.getPosition().y;
         int zPosition = (int) camera.getPosition().z;
-        world.generate(xPosition, yPosition, zPosition);
-        selectedItemPosition = mouseBoxSelectionDetector.getGameItemPosition(world.getChunksBlockItems(), camera);
+        //world.generate(xPosition, yPosition, zPosition);
+        world.ensureChunk(xPosition, zPosition);
+        //selectedItemPosition = mouseBoxSelectionDetector.getGameItemPosition(world.getChunksBlockItems(), camera);
     }
 
     private void lightUpdate() {
@@ -219,7 +219,7 @@ public class LevelScene extends Scene {
         mouseInput.input();
         cameraInc.set(0, 0, 0);
 
-        boolean fly = player.isFly();
+        boolean fly = !player.isFly();
         boolean jumping = player.isJumping();
 
         float factor = fly ? 2f : 1f;
@@ -268,7 +268,7 @@ public class LevelScene extends Scene {
 
     @Override
     public void render(float delta) {
-        renderer.render(gameItems, world, camera, skyBox, this, hud, ambientLight, pointLightList, spotLightList, directionalLight);
+        renderer.render(world, camera, this, hud, ambientLight, pointLightList, spotLightList, directionalLight);
         hudUpdate(delta);
     }
 
@@ -278,6 +278,7 @@ public class LevelScene extends Scene {
         renderer.cleanup();
         world.cleanup();
         for (GameItem gameItem : gameItems) {
+            gameItem.cleanup();
             gameItem.getMesh().cleanUp();
         }
     }
@@ -340,7 +341,7 @@ public class LevelScene extends Scene {
 //                    if (load(x, y, z) == EMPTY_VOXEL)
 //                        continue;
                     /* and perform swept-aabb intersection */
-                    intersectSweptAabbAabb(x, y, z, position.x - x, position.y - y, position.z - z, dx, dy, dz, contacts);
+                    //intersectSweptAabbAabb(x, y, z, position.x - x, position.y - y, position.z - z, dx, dy, dz, contacts);
                 }
             }
         }

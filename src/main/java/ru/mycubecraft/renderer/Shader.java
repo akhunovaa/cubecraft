@@ -117,11 +117,11 @@ public class Shader {
     }
 
     public void use() {
-//        if (!beingUsed) {
-        // Bind shader program
-        glUseProgram(shaderProgramID);
-        beingUsed = true;
-
+        if (!beingUsed) {
+            // Bind shader program
+            glUseProgram(shaderProgramID);
+            beingUsed = true;
+        }
     }
 
     public void detach() {
