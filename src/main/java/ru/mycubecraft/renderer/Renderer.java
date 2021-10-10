@@ -57,8 +57,7 @@ public class Renderer {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
     }
 
-    public void render(World world, Camera camera, Scene scene, IHud hud, Vector3f ambientLight,
-                       PointLight[] pointLightList, SpotLight[] spotLightList, DirectionalLight directionalLight) {
+    public void render(World world, Camera camera, Scene scene, IHud hud, Vector3f ambientLight) {
         clear();
         filteredItems.clear();
         
@@ -72,14 +71,11 @@ public class Renderer {
         transformation.updateProjectionMatrix(window.getWidth(), window.getHeight());
         transformation.updateViewMatrix(camera);
 
-        renderScene(world, scene, ambientLight, pointLightList,
-                spotLightList, directionalLight);
+        renderScene(world, scene, ambientLight);
         renderHud(window, hud);
     }
 
-    private void renderScene(World world, Scene scene, Vector3f ambientLight,
-                             PointLight[] pointLightList, SpotLight[] spotLightList,
-                             DirectionalLight directionalLight) {
+    private void renderScene(World world, Scene scene, Vector3f ambientLight) {
 
         Camera camera = scene.getCamera();
 
@@ -118,7 +114,7 @@ public class Renderer {
         sceneShaderProgram.uploadMat4f("projectionMatrix", projectionMatrix);
 
         // Update Light Uniforms
-        renderLights(viewMatrix, ambientLight, pointLightList, spotLightList, directionalLight);
+        renderLights(ambientLight);
 
         sceneShaderProgram.uploadInt("texture_sampler", 0);
         sceneShaderProgram.setUniform("fog", scene.getFog());
@@ -138,51 +134,10 @@ public class Renderer {
         sceneShaderProgram.detach();
     }
 
-    private void renderLights(Matrix4f viewMatrix, Vector3f ambientLight,
-                              PointLight[] pointLightList, SpotLight[] spotLightList, DirectionalLight directionalLight) {
-
+    private void renderLights(Vector3f ambientLight) {
         sceneShaderProgram.uploadVec3f("ambientLight", ambientLight);
         sceneShaderProgram.uploadFloat("specularPower", specularPower);
 
-        // Process Point Lights
-        int numLights = pointLightList != null ? pointLightList.length : 0;
-        for (int i = 0; i < numLights; i++) {
-            // Get a copy of the point light object and transform its position to view coordinates
-            PointLight currPointLight = new PointLight(pointLightList[i]);
-            Vector3f lightPos = currPointLight.getPosition();
-            Vector4f aux = new Vector4f(lightPos, 1);
-            aux.mul(viewMatrix);
-            lightPos.x = aux.x;
-            lightPos.y = aux.y;
-            lightPos.z = aux.z;
-            sceneShaderProgram.setUniform("pointLights", currPointLight, i);
-        }
-
-        // Process Spot Ligths
-        numLights = spotLightList != null ? spotLightList.length : 0;
-        for (int i = 0; i < numLights; i++) {
-            // Get a copy of the spot light object and transform its position and cone direction to view coordinates
-            SpotLight currSpotLight = new SpotLight(spotLightList[i]);
-            Vector4f dir = new Vector4f(currSpotLight.getConeDirection(), 0);
-            dir.mul(viewMatrix);
-            currSpotLight.setConeDirection(new Vector3f(dir.x, dir.y, dir.z));
-            Vector3f lightPos = currSpotLight.getPointLight().getPosition();
-
-            Vector4f aux = new Vector4f(lightPos, 1);
-            aux.mul(viewMatrix);
-            lightPos.x = aux.x;
-            lightPos.y = aux.y;
-            lightPos.z = aux.z;
-
-            sceneShaderProgram.setUniform("spotLights", currSpotLight, i);
-        }
-
-        // Get a copy of the directional light object and transform its position to view coordinates
-        DirectionalLight currDirLight = new DirectionalLight(directionalLight);
-        Vector4f dir = new Vector4f(currDirLight.getDirection(), 0);
-        dir.mul(viewMatrix);
-        currDirLight.setDirection(new Vector3f(dir.x, dir.y, dir.z));
-        sceneShaderProgram.setUniform("directionalLight", currDirLight);
     }
 
 

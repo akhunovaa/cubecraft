@@ -56,9 +56,6 @@ public class LevelScene extends Scene {
     private final Player player;
     private Hud hud;
     private Vector3f ambientLight;
-    private PointLight[] pointLightList;
-    private SpotLight[] spotLightList;
-    private DirectionalLight directionalLight;
     private float lightAngle;
     private float spotAngle = 0;
     private float spotInc = 1;
@@ -99,27 +96,6 @@ public class LevelScene extends Scene {
 //        sun.getGameCubeItem().setScale(3f);
 //        sun.getGameCubeItem().setPosition(-3000, 0.0f, 0F);
         ambientLight = new Vector3f(1f, 1f, 1f);
-
-        // Point Light
-        Vector3f lightPosition = new Vector3f(0, 0, 1);
-        float lightIntensity = 0.8f;
-        PointLight pointLight = new PointLight(new Vector3f(1f, 1f, 1f), lightPosition, lightIntensity);
-        PointLight.Attenuation att = new PointLight.Attenuation(0.0f, 0.0f, 1.0f);
-        pointLight.setAttenuation(att);
-        pointLightList = new PointLight[]{pointLight};
-
-        // Spot Light
-        lightPosition = new Vector3f(0, 0.0f, 10f);
-        pointLight = new PointLight(new Vector3f(1f, 1f, 1f), lightPosition, lightIntensity);
-        att = new PointLight.Attenuation(0.0f, 0.0f, 0.01f);
-        pointLight.setAttenuation(att);
-        Vector3f coneDir = new Vector3f(0, 0, -1);
-        float cutoff = (float) Math.cos(Math.toRadians(140));
-        SpotLight spotLight = new SpotLight(pointLight, coneDir, cutoff);
-        spotLightList = new SpotLight[]{spotLight, new SpotLight(spotLight)};
-
-        lightPosition = new Vector3f(-1, 0, 0);
-        directionalLight = new DirectionalLight(new Vector3f(1f, 1f, 1f), lightPosition, lightIntensity);
 
         mouseInput.init();
         hud = new Hud();
@@ -256,18 +232,12 @@ public class LevelScene extends Scene {
             }
         }
         this.leftButtonPressed = aux;
-        float lightPos = spotLightList[0].getPointLight().getPosition().z;
-        if (keyboardListener.isKeyPressed(GLFW_KEY_N)) {
-            this.spotLightList[0].getPointLight().getPosition().z = lightPos + 0.1f;
-        } else if (keyboardListener.isKeyPressed(GLFW_KEY_M)) {
-            this.spotLightList[0].getPointLight().getPosition().z = lightPos - 0.1f;
-        }
     }
 
 
     @Override
     public void render() {
-        renderer.render(world, camera, this, hud, ambientLight, pointLightList, spotLightList, directionalLight);
+        renderer.render(world, camera, this, hud, ambientLight);
     }
 
     @Override
