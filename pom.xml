@@ -5,7 +5,7 @@
 
     <groupId>ru.mycubecraft</groupId>
     <artifactId>cubecraft</artifactId>
-    <version>0.1.0</version>
+    <version>${projectVersion}</version>
 
     <developers>
         <developer>
@@ -15,6 +15,8 @@
     </developers>
 
     <properties>
+        <project.versioning>0.1.0</project.versioning>
+
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <maven.compiler.source>1.8</maven.compiler.source>
@@ -40,6 +42,14 @@
         <test.resources.dir>src/test/resources</test.resources.dir>
     </properties>
 
+    <distributionManagement>
+        <repository>
+            <id>github</id>
+            <name>GitHub Azat A. Akhunov Apache Maven Packages</name>
+            <url>https://maven.pkg.github.com/akhunovaa/cubecraft</url>
+        </repository>
+    </distributionManagement>
+
     <profiles>
         <profile>
             <id>windows</id>
@@ -50,6 +60,7 @@
             </activation>
             <properties>
                 <platform>windows</platform>
+                <projectVersion>${project.versioning}-windows</projectVersion>
             </properties>
         </profile>
         <profile>
@@ -93,6 +104,7 @@
             </activation>
             <properties>
                 <platform>linux</platform>
+                <projectVersion>${project.versioning}-linux</projectVersion>
             </properties>
         </profile>
         <profile>
@@ -136,6 +148,7 @@
             </activation>
             <properties>
                 <platform>macos</platform>
+                <projectVersion>${project.versioning}-macos</projectVersion>
             </properties>
             <dependencies>
                 <dependency>
@@ -157,11 +170,6 @@
         <sourceDirectory>${src.dir}</sourceDirectory>
         <testSourceDirectory>${test.src.dir}</testSourceDirectory>
 
-        <resources>
-            <resource>
-                <directory>${resources.dir}</directory>
-            </resource>
-        </resources>
         <testResources>
             <testResource>
                 <directory>${test.resources.dir}</directory>
@@ -188,7 +196,24 @@
                                     <mainClass>${mainClass}</mainClass>
                                 </transformer>
                             </transformers>
-                            <finalName>MyCubeCraft</finalName>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                        <configuration>
+                            <appendAssemblyId>false</appendAssemblyId>
+                            <descriptors>
+                                <descriptor>assembly/zip.xml</descriptor>
+                            </descriptors>
                         </configuration>
                     </execution>
                 </executions>

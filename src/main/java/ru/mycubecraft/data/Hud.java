@@ -9,8 +9,8 @@ import ru.mycubecraft.engine.IHud;
 import ru.mycubecraft.engine.Material;
 import ru.mycubecraft.engine.TextItem;
 import ru.mycubecraft.engine.graph.FontTexture;
-import ru.mycubecraft.engine.graph.OBJLoader;
 import ru.mycubecraft.renderer.Camera;
+import ru.mycubecraft.util.AssetPool;
 import ru.mycubecraft.window.Window;
 import ru.mycubecraft.world.World;
 
@@ -83,7 +83,7 @@ public class Hud implements IHud {
         // Create compass
         Mesh mesh = null;
         try {
-            mesh = OBJLoader.loadMesh("assets/models/compass.obj");
+            mesh = AssetPool.getMesh("assets/models/compass.obj");
             Material material = new Material();
             material.setAmbientColour(new Vector4f(1, 0, 0, 1));
 
