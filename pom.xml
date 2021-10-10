@@ -26,7 +26,7 @@
         <maven-shade-plugin.version>3.2.1</maven-shade-plugin.version>
 
         <lwjgl.version>3.3.0-SNAPSHOT</lwjgl.version>
-        <swt.version>4.6.1</swt.version>
+        <swt.version>4.3</swt.version>
         <joml.version>1.10.0</joml.version>
         <version.version>1.18.20</version.version>
         <commons-lang3.version>3.12.0</commons-lang3.version>
@@ -75,7 +75,7 @@
                 <dependency>
                     <groupId>org.eclipse.swt</groupId>
                     <artifactId>org.eclipse.swt.win32.win32.x86</artifactId>
-                    <version>4.3</version>
+                    <version>${swt.version}</version>
                 </dependency>
             </dependencies>
         </profile>
@@ -91,7 +91,7 @@
                 <dependency>
                     <groupId>org.eclipse.swt</groupId>
                     <artifactId>org.eclipse.swt.win32.win32.x86_64</artifactId>
-                    <version>4.3</version>
+                    <version>${swt.version}</version>
                 </dependency>
             </dependencies>
         </profile>
