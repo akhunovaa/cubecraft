@@ -26,9 +26,9 @@ jobs:
         settings-path: ${{ github.workspace }}
 
     - name: Build with Maven
-      run: mvn -B package --file pom.xml
+      run: mvn -B package -s $GITHUB_WORKSPACE/settings.xml --errors -Dfile.encoding=UTF-8 --file pom.xml -DUSERNAME=akhunovaa -P linux-x86,linux-amd64,windows-x86,linux,windows,mac,windows-amd64
 
     - name: Publish to GitHub Packages Apache Maven
-      run: mvn deploy -s $GITHUB_WORKSPACE/settings.xml
+      run: mvn deploy -s $GITHUB_WORKSPACE/settings.xml --errors -Dfile.encoding=UTF-8 --file pom.xml
       env:
         GITHUB_TOKEN: ${{ github.token }}

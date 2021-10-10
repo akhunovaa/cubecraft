@@ -26,4 +26,4 @@ jobs:
           restore-keys: ${{ runner.os }}-m2
 #  ${{ secrets.USERNAME }}
       - name: Build project with Maven
-        run: mvn -B package -s settings.xml --file pom.xml
+        run: mvn -B package -s settings.xml --errors -Dfile.encoding=UTF-8 --file pom.xml -P linux-x86,linux-amd64,windows-x86,linux,windows,mac,windows-amd64
