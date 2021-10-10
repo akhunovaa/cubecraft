@@ -11,11 +11,7 @@ import ru.mycubecraft.core.GameItem;
 import ru.mycubecraft.data.Contact;
 import ru.mycubecraft.data.Hud;
 import ru.mycubecraft.engine.Timer;
-import ru.mycubecraft.engine.graph.DirectionalLight;
-import ru.mycubecraft.engine.graph.PointLight;
-import ru.mycubecraft.engine.graph.SpotLight;
 import ru.mycubecraft.engine.graph.weather.Fog;
-import ru.mycubecraft.listener.MouseInput;
 import ru.mycubecraft.renderer.Camera;
 import ru.mycubecraft.renderer.Renderer;
 import ru.mycubecraft.util.AssetPool;
@@ -47,7 +43,6 @@ public class LevelScene extends Scene {
      */
     private static final int CHUNK_HEIGHT = 64;
     private final Vector3f cameraInc;
-    private final MouseInput mouseInput;
     private final boolean dayCycle = false;
     /**
      * Used for timing calculations.
@@ -68,7 +63,6 @@ public class LevelScene extends Scene {
         camera = new Camera();
         world = new World(new BasicGen(1));
         cameraInc = new Vector3f(0.0f, 0.0f, 0.0f);
-        mouseInput = new MouseInput();
         lightAngle = -90;
         fog = Fog.NOFOG;
         player = new DefaultPlayer();
@@ -97,7 +91,6 @@ public class LevelScene extends Scene {
 //        sun.getGameCubeItem().setPosition(-3000, 0.0f, 0F);
         ambientLight = new Vector3f(1f, 1f, 1f);
 
-        mouseInput.init();
         hud = new Hud();
         hud.buildHud();
 
@@ -146,8 +139,20 @@ public class LevelScene extends Scene {
     @Override
     public void update(float delta) {
         mouseBoxSelectionDetector.update(camera);
-        Vector2f rotVec = mouseInput.getDisplVec();
-        camera.moveRotation(rotVec.x * Settings.MOUSE_SENSITIVITY, rotVec.y * Settings.MOUSE_SENSITIVITY, 0);
+
+        float dangx = mouseListener.getDangx();
+        float dangy = mouseListener.getDangy();
+        float angx = mouseListener.getAngx();
+        float angy = mouseListener.getAngy();
+
+        angx += dangx * Settings.MOUSE_SENSITIVITY;
+        angy += dangy * Settings.MOUSE_SENSITIVITY;
+        dangx *= 0.0994f;
+        dangy *= 0.0994f;
+        mouseListener.setDangx(dangx);
+        mouseListener.setDangy(dangy);
+
+        camera.moveRotation(angx, angy, 0);
         camera.movePosition(cameraInc.x * Settings.MOVE_SPEED, cameraInc.y * Settings.MOVE_SPEED, cameraInc.z * Settings.MOVE_SPEED);
         if (!player.isFly()) {
             // System.out.println("\n");
@@ -191,7 +196,6 @@ public class LevelScene extends Scene {
 
     @Override
     public void input() {
-        mouseInput.input();
         cameraInc.set(0, 0, 0);
 
         boolean fly = !player.isFly();
@@ -225,7 +229,7 @@ public class LevelScene extends Scene {
             player.setFly(!fly);
         }
 
-        boolean aux = mouseInput.isLeftButtonPressed();
+        boolean aux = false;
         if (aux && !this.leftButtonPressed) {
             if (selectedItemPosition != null) {
                 createGameBlockItem(selectedItemPosition);

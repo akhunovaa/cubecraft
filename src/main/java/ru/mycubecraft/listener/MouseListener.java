@@ -1,16 +1,14 @@
 package ru.mycubecraft.listener;
 
-import org.joml.Vector2f;
+import lombok.Getter;
+import lombok.Setter;
 
+@Getter
+@Setter
 public class MouseListener {
 
     private static MouseListener instance;
     private final boolean[] mouseButtonPressed = new boolean[3];
-    private final Vector2f displVec;
-    private final double xPosition;
-    private final double yPosition;
-    private final double xLastPosition;
-    private final double yLastPosition;
     private final boolean inWindow = false;
 
     private boolean firstCursorPos = true;
@@ -19,11 +17,6 @@ public class MouseListener {
     private boolean hasSelection;
 
     private MouseListener() {
-        this.xPosition = 0.0;
-        this.yPosition = 0.0;
-        this.xLastPosition = 0.0;
-        this.yLastPosition = 0.0;
-        this.displVec = new Vector2f();
     }
 
     public static synchronized MouseListener getInstance() {
