@@ -13,6 +13,10 @@
                 <repository>
                     <id>central</id>
                     <url>https://repo1.maven.org/maven2</url>
+                    <layout>default</layout>
+                    <snapshots>
+                        <enabled>false</enabled>
+                    </snapshots>
                 </repository>
                 <repository>
                     <id>github</id>
@@ -20,9 +24,6 @@
                     <snapshots>
                         <enabled>true</enabled>
                     </snapshots>
-                    <releases>
-                        <enabled>true</enabled>
-                    </releases>
                 </repository>
             </repositories>
         </profile>
