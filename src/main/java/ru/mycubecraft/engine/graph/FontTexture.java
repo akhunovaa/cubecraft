@@ -35,8 +35,6 @@ public class FontTexture {
         this.font = font;
         this.charSetName = charSetName;
         charMap = new HashMap<>();
-
-        buildTexture();
     }
 
     public int getWidth() {
@@ -66,7 +64,7 @@ public class FontTexture {
         return result.toString();
     }
 
-    private void buildTexture() {
+    public void buildTexture() {
         // Get the font metrics for each character for the selected font by using image
         BufferedImage img = new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB);
         Graphics2D g2D = img.createGraphics();

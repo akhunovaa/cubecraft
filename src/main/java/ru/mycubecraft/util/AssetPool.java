@@ -20,7 +20,7 @@ public class AssetPool {
     private static final Map<String, Texture> textures = new HashMap<>();
     private static final Map<String, Sound> sounds = new HashMap<>();
 
-    static {
+    public static void loadAssets() {
         final File textureFolder = new File(DEFAULT_TEXTURE_LOCATION_FOLDER);
         for (String filePath : listFilesForFolder(textureFolder)) {
             Texture texture = new Texture();

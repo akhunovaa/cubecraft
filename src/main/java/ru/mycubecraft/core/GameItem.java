@@ -13,6 +13,7 @@ public class GameItem implements RenderObject {
 
     private final Vector3f position;
     private final Vector3f rotation;
+
     private Mesh mesh;
     private float scale;
     private boolean selected;

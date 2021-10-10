@@ -3,9 +3,14 @@ package ru.mycubecraft.scene;
 import lombok.Getter;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
+import org.joml.Vector4f;
+import org.lwjgl.opengl.GL;
+import ru.mycubecraft.DelayedRunnable;
 import ru.mycubecraft.Settings;
 import ru.mycubecraft.core.GameItem;
+import ru.mycubecraft.data.Contact;
 import ru.mycubecraft.data.Hud;
+import ru.mycubecraft.engine.Timer;
 import ru.mycubecraft.engine.graph.DirectionalLight;
 import ru.mycubecraft.engine.graph.PointLight;
 import ru.mycubecraft.engine.graph.SpotLight;
@@ -13,22 +18,43 @@ import ru.mycubecraft.engine.graph.weather.Fog;
 import ru.mycubecraft.listener.MouseInput;
 import ru.mycubecraft.renderer.Camera;
 import ru.mycubecraft.renderer.Renderer;
+import ru.mycubecraft.util.AssetPool;
+import ru.mycubecraft.window.Window;
 import ru.mycubecraft.world.BasicGen;
 import ru.mycubecraft.world.Chunk;
 import ru.mycubecraft.world.MouseBoxSelectionDetector;
 import ru.mycubecraft.world.World;
+import ru.mycubecraft.world.player.Player;
+import ru.mycubecraft.world.player.impl.DefaultPlayer;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import static java.lang.Float.NEGATIVE_INFINITY;
+import static java.lang.Float.POSITIVE_INFINITY;
+import static java.lang.Math.*;
+import static java.util.Collections.sort;
 import static org.lwjgl.glfw.GLFW.*;
+import static ru.mycubecraft.Game.caps;
 
 @Getter
 public class LevelScene extends Scene {
 
+    public static final int TARGET_FPS = 75;
+    public static final int TARGET_UPS = 30;
+    /**
+     * The height of a chunk (in number of voxels).
+     */
+    private static final int CHUNK_HEIGHT = 64;
     private final Vector3f cameraInc;
     private final MouseInput mouseInput;
     private final boolean dayCycle = false;
+    /**
+     * Used for timing calculations.
+     */
+    private final Timer timer;
+    private final Player player;
     private Hud hud;
-    private boolean firstTime;
-    private boolean sceneChanged;
     private Vector3f ambientLight;
     private PointLight[] pointLightList;
     private SpotLight[] spotLightList;
@@ -40,18 +66,35 @@ public class LevelScene extends Scene {
     private Vector3f selectedItemPosition;
 
     public LevelScene() {
+        timer = new Timer();
         System.err.println("Entered to a Level Scene");
-        renderer = new Renderer();
         camera = new Camera();
         world = new World(new BasicGen(1));
         cameraInc = new Vector3f(0.0f, 0.0f, 0.0f);
         mouseInput = new MouseInput();
         lightAngle = -90;
         fog = Fog.NOFOG;
+        player = new DefaultPlayer();
     }
 
+    /**
+     * Run the "update and render" loop in a separate thread.
+     * <p>
+     * This is to decouple rendering from possibly long-blocking polling of OS/window messages (via
+     * {@link org.lwjgl.glfw.GLFW#glfwPollEvents()}).
+     */
     @Override
-    public void init() {
+    public void runUpdateAndRenderLoop() {
+        long window = Window.getInstance().getGlfwWindow();
+        glfwMakeContextCurrent(window);
+        GL.setCapabilities(caps);
+        AssetPool.loadAssets();
+        timer.init();
+        renderer = new Renderer();
+        updateAndRenderRunnables.add(new DelayedRunnable(() -> {
+            renderer.init();
+            return null;
+        }, "Shaders creation initialize", 0));
         mouseBoxSelectionDetector = new MouseBoxSelectionDetector();
 //        sun.getGameCubeItem().setScale(3f);
 //        sun.getGameCubeItem().setPosition(-3000, 0.0f, 0F);
@@ -80,6 +123,7 @@ public class LevelScene extends Scene {
 
         mouseInput.init();
         hud = new Hud();
+        hud.buildHud();
 
         // Fog
         Vector3f fogColour = new Vector3f(0.49f, 0.61f, 0.66f);
@@ -88,27 +132,63 @@ public class LevelScene extends Scene {
             this.fog = new Fog(true, fogColour, 0.04f);
         }
 
+        float elapsedTime;
+        float accumulator = 0f;
+        float interval = 1f / TARGET_UPS;
+        long current = System.currentTimeMillis();
+
+        while (!glfwWindowShouldClose(window)) {
+
+            /* Get delta time and update the accumulator */
+            elapsedTime = timer.getElapsedTime();
+            accumulator += elapsedTime;
+
+            input();
+            /* Update game and timer UPS if enough time has passed */
+            while (accumulator >= interval) {
+                update(interval);
+                accumulator -= interval;
+            }
+
+            float currentFps = 1000f / (-current + (current = System.currentTimeMillis()));
+            hudUpdate(currentFps);
+            System.out.print("\rWithout UPS FPS: " + currentFps);
+            /*
+             * Execute any runnables that have accumulated in the render queue.
+             * These are GL calls for created/updated chunks.
+             */
+            drainRunnables();
+
+            render();
+            glfwSwapBuffers(window);
+        }
+        cleanup();
+        drainRunnables();
+        GL.setCapabilities(null);
     }
 
     @Override
     public void update(float delta) {
-        //hudUpdate(delta);
         mouseBoxSelectionDetector.update(camera);
-
         Vector2f rotVec = mouseInput.getDisplVec();
         camera.moveRotation(rotVec.x * Settings.MOUSE_SENSITIVITY, rotVec.y * Settings.MOUSE_SENSITIVITY, 0);
         camera.movePosition(cameraInc.x * Settings.MOVE_SPEED, cameraInc.y * Settings.MOVE_SPEED, cameraInc.z * Settings.MOVE_SPEED);
-
-        lightUpdate(delta);
-        //gameItems.add(sun.getGameCubeItem());
+        if (!player.isFly()) {
+            // System.out.println("\n");
+            //System.out.println("cameraInc X: " + cameraInc.x + " Y: " + cameraInc.y + " Z: " + cameraInc.z);
+            //handleCollisions(delta, cameraInc, camera.getPosition());
+        }
+        lightUpdate();
         int xPosition = (int) camera.getPosition().x;
-        int yPosition = (int) camera.getPosition().y;
         int zPosition = (int) camera.getPosition().z;
-        world.generate(xPosition, yPosition, zPosition);
-        selectedItemPosition = mouseBoxSelectionDetector.getGameItemPosition(world.getChunksBlockItems(), camera);
+        //world.generate(xPosition, yPosition, zPosition);
+        world.ensureChunk(xPosition, zPosition);
+
+
+        //selectedItemPosition = mouseBoxSelectionDetector.getGameItemPosition(world.getChunksBlockItems(), camera);
     }
 
-    private void lightUpdate(float delta) {
+    private void lightUpdate() {
         // Update spot light direction
         spotAngle += spotInc * 0.05f;
         if (spotAngle > 2) {
@@ -116,41 +196,17 @@ public class LevelScene extends Scene {
         } else if (spotAngle < -2) {
             spotInc = 1;
         }
-//        double spotAngleRad = Math.toRadians(spotAngle);
-//        Vector3f coneDir = spotLightList[0].getConeDirection();
-//        coneDir.y = (float) Math.sin(spotAngleRad);
-        // Update directional light direction, intensity and colour
+
         lightAngle += 0.5f;
-        //this.sun.getGameCubeItem().setPosition(directionalLight.getDirection().x * 1000f, directionalLight.getDirection().y * 1000f, directionalLight.getDirection().z * 1000f);
-        //if (lightAngle > 90) {
-        //directionalLight.setIntensity(1);
         if (lightAngle >= 360) {
             lightAngle = -90;
         }
-        //ambientLight.set(0.8f, 0.8f, 0.8f);
-        //  } else if (lightAngle <= -80 || lightAngle >= 80) {
-//            float factor = 1 - (Math.abs(lightAngle) - 80) / 10.0f;
-//            ambientLight.set(Math.min(factor, 0.79f), Math.min(factor, 0.91f), Math.min(factor, 0.96f));
-//            directionalLight.setIntensity(Math.min(factor, 0.91f));
-//            directionalLight.getColor().y = Math.min(factor, 0.9f);
-//            directionalLight.getColor().z = Math.min(factor, 0.5f);
-//        } else {
-//            ambientLight.set(0.8f, 0.8f, 0.8f);
-//            directionalLight.setIntensity(0.91f);
-//            directionalLight.getColor().x = 0.79f;
-//            directionalLight.getColor().y = 0.91f;
-//            directionalLight.getColor().z = 0.96f;
-//        }
-
-//        double angRad = Math.toRadians(lightAngle);
-//        directionalLight.getDirection().x = (float) Math.sin(angRad);
-//        directionalLight.getDirection().y = (float) Math.cos(angRad);
     }
 
     private void hudUpdate(float delta) {
         hud.rotateCompass(-camera.getRotation().y);
         int filteredBlocksCount = renderer.getFilteredItems().size();
-        hud.updateHud(window, camera, world, filteredBlocksCount);
+        hud.updateHud(camera, world, filteredBlocksCount);
         hud.updateFps(delta);
         if (selectedItemPosition != null) {
             hud.updateTargetObjectInfo(selectedItemPosition);
@@ -161,21 +217,38 @@ public class LevelScene extends Scene {
     public void input() {
         mouseInput.input();
         cameraInc.set(0, 0, 0);
+
+        boolean fly = !player.isFly();
+        boolean jumping = player.isJumping();
+
+        float factor = fly ? 2f : 1f;
+        if (keyboardListener.isKeyPressed(GLFW_KEY_LEFT_SHIFT)) {
+            cameraInc.y = -factor;
+        } else if (fly && keyboardListener.isKeyPressed(GLFW_KEY_SPACE)) {
+            cameraInc.y = factor;
+        }
         if (keyboardListener.isKeyPressed(GLFW_KEY_W)) {
-            cameraInc.z = -1;
+            cameraInc.z = -factor;
         } else if (keyboardListener.isKeyPressed(GLFW_KEY_S)) {
-            cameraInc.z = 1;
+            cameraInc.z = factor;
         }
         if (keyboardListener.isKeyPressed(GLFW_KEY_A)) {
-            cameraInc.x = -1;
+            cameraInc.x = -factor;
         } else if (keyboardListener.isKeyPressed(GLFW_KEY_D)) {
-            cameraInc.x = 1;
+            cameraInc.x = factor;
         }
-        if (keyboardListener.isKeyPressed(GLFW_KEY_Z) || keyboardListener.isKeyPressed(GLFW_KEY_LEFT_SHIFT)) {
-            cameraInc.y = -1;
-        } else if (keyboardListener.isKeyPressed(GLFW_KEY_X) || keyboardListener.isKeyPressed(GLFW_KEY_SPACE)) {
-            cameraInc.y = 1;
+
+        if (!fly && keyboardListener.isKeyPressed(GLFW_KEY_SPACE) && !jumping) {
+            player.setJumping(true);
+            cameraInc.add(0, 13, 0);
+        } else if (!keyboardListener.isKeyPressed(GLFW_KEY_SPACE)) {
+            player.setJumping(false);
         }
+
+        if (keyboardListener.isKeyPressed(GLFW_KEY_F)) {
+            player.setFly(!fly);
+        }
+
         boolean aux = mouseInput.isLeftButtonPressed();
         if (aux && !this.leftButtonPressed) {
             if (selectedItemPosition != null) {
@@ -193,9 +266,8 @@ public class LevelScene extends Scene {
 
 
     @Override
-    public void render(float delta) {
-        renderer.render(window, gameItems, world, camera, skyBox, this, hud, ambientLight, pointLightList, spotLightList, directionalLight);
-        hudUpdate(delta);
+    public void render() {
+        renderer.render(world, camera, this, hud, ambientLight, pointLightList, spotLightList, directionalLight);
     }
 
     @Override
@@ -204,6 +276,7 @@ public class LevelScene extends Scene {
         renderer.cleanup();
         world.cleanup();
         for (GameItem gameItem : gameItems) {
+            gameItem.cleanup();
             gameItem.getMesh().cleanUp();
         }
     }
@@ -220,17 +293,149 @@ public class LevelScene extends Scene {
         Chunk chunk;
         if (!containsChunk) {
             chunk = world.addChunk(newBlockPosition);
-            chunk.addBlock(newBlockPosition);
+            //chunk.addBlock(newBlockPosition);
         } else {
             chunk = world.getChunk(newBlockPosition);
-            boolean chunkContainsBlock = chunk.containsBlock(newBlockPosition);
-            if (chunkContainsBlock) {
-                xStart = (float) Math.ceil(ray.x);
-                yStart = (float) Math.ceil(ray.y);
-                zStart = (float) Math.ceil(ray.z);
-                newBlockPosition.add(xStart, yStart, zStart);
+//            //boolean chunkContainsBlock = chunk.containsBlock(newBlockPosition);
+//            if (chunkContainsBlock) {
+//                xStart = (float) Math.ceil(ray.x);
+//                yStart = (float) Math.ceil(ray.y);
+//                zStart = (float) Math.ceil(ray.z);
+//                newBlockPosition.add(xStart, yStart, zStart);
+//            }
+            //chunk.addBlock(newBlockPosition);
+        }
+    }
+
+
+    /**
+     * Handle any collisions with the player and the voxels.
+     */
+    private void handleCollisions(float dt, Vector3f velocity, Vector4f position) {
+        List<Contact> contacts = new ArrayList<>();
+        collisionDetection(dt, velocity, position, contacts);
+        System.out.println("\n");
+        System.out.println("contacts: " + contacts.size());
+        collisionResponse(dt, velocity, position, contacts);
+    }
+
+    /**
+     * Detect possible collision candidates.
+     */
+    private void collisionDetection(float dt, Vector3f velocity, Vector4f position, List<Contact> contacts) {
+        float dx = velocity.x * dt,
+                dy = velocity.y * dt,
+                dz = velocity.z * dt;
+        int minX = (int) floor(position.x - Player.PLAYER_WIDTH + (dx < 0 ? dx : 0));
+        int maxX = (int) floor(position.x + Player.PLAYER_WIDTH + (dx > 0 ? dx : 0));
+        int minY = (int) floor(position.y - Player.PLAYER_EYE_HEIGHT + (dy < 0 ? dy : 0));
+        int maxY = (int) floor(position.y + Player.PLAYER_HEIGHT - Player.PLAYER_EYE_HEIGHT + (dy > 0 ? dy : 0));
+        int minZ = (int) floor(position.z - Player.PLAYER_WIDTH + (dz < 0 ? dz : 0));
+        int maxZ = (int) floor(position.z + Player.PLAYER_WIDTH + (dz > 0 ? dz : 0));
+        /* Just loop over all voxels that could possibly collide with the player */
+        for (int y = min(CHUNK_HEIGHT - 1, maxY); y >= 0 && y >= minY; y--) {
+            for (int z = minZ; z <= maxZ; z++) {
+                for (int x = minX; x <= maxX; x++) {
+//                    if (load(x, y, z) == EMPTY_VOXEL)
+//                        continue;
+                    /* and perform swept-aabb intersection */
+                    //intersectSweptAabbAabb(x, y, z, position.x - x, position.y - y, position.z - z, dx, dy, dz, contacts);
+                }
             }
-            chunk.addBlock(newBlockPosition);
+        }
+    }
+
+    /**
+     * Respond to all found collision contacts.
+     */
+    private void collisionResponse(float dt, Vector3f v, Vector4f p, List<Contact> contacts) {
+        sort(contacts);
+        int minX = Integer.MIN_VALUE, maxX = Integer.MAX_VALUE, minY = Integer.MIN_VALUE, maxY = Integer.MAX_VALUE, minZ = Integer.MIN_VALUE,
+                maxZ = Integer.MAX_VALUE;
+        float elapsedTime = 0f;
+        float dx = v.x * dt, dy = v.y * dt, dz = v.z * dt;
+        for (Contact contact : contacts) {
+            if (contact.x <= minX || contact.y <= minY || contact.z <= minZ || contact.x >= maxX || contact.y >= maxY || contact.z >= maxZ)
+                continue;
+            float t = contact.t - elapsedTime;
+            p.add(dx * t, dy * t, dz * t, 0);
+            elapsedTime += t;
+            if (contact.nx != 0) {
+                minX = dx < 0 ? max(minX, contact.x) : minX;
+                maxX = dx < 0 ? maxX : min(maxX, contact.x);
+                v.x = 0f;
+                dx = 0f;
+            } else if (contact.ny != 0) {
+                minY = dy < 0 ? max(minY, contact.y) : contact.y - (int) Player.PLAYER_HEIGHT;
+                maxY = dy < 0 ? contact.y + (int) ceil(Player.PLAYER_HEIGHT) + 1 : min(maxY, contact.y);
+                v.y = 0f;
+                dy = 0f;
+            } else if (contact.nz != 0) {
+                minZ = dz < 0 ? max(minZ, contact.z) : minZ;
+                maxZ = dz < 0 ? maxZ : min(maxZ, contact.z);
+                v.z = 0f;
+                dz = 0f;
+            }
+        }
+        float trem = 1f - elapsedTime;
+        p.add(dx * trem, dy * trem, dz * trem, 0);
+    }
+
+    /**
+     * Compute the exact collision point between the player and the voxel at <code>(x, y, z)</code>.
+     */
+    private void intersectSweptAabbAabb(int x, int y, int z, float px, float py, float pz, float dx, float dy, float dz, List<Contact> contacts) {
+        /*
+         * https://www.gamedev.net/tutorials/programming/general-and-gameplay-programming/swept-aabb-
+         * collision-detection-and-response-r3084/
+         */
+        float pxmax = px + Player.PLAYER_WIDTH,
+                pxmin = px - Player.PLAYER_WIDTH,
+                pymax = py + Player.PLAYER_HEIGHT - Player.PLAYER_EYE_HEIGHT,
+                pymin = py - Player.PLAYER_EYE_HEIGHT,
+                pzmax = pz + Player.PLAYER_WIDTH,
+                pzmin = pz - Player.PLAYER_WIDTH;
+
+        float xInvEntry = dx > 0f ? -pxmax : 1 - pxmin,
+                xInvExit = dx > 0f ? 1 - pxmin : -pxmax;
+
+        boolean xNotValid = dx == 0;
+
+        float xEntry = xNotValid ? NEGATIVE_INFINITY : xInvEntry / dx,
+                xExit = xNotValid ? POSITIVE_INFINITY : xInvExit / dx;
+
+        float yInvEntry = dy > 0f ? -pymax : 1 - pymin,
+                yInvExit = dy > 0f ? 1 - pymin : -pymax;
+
+        boolean yNotValid = dy == 0;
+
+        float yEntry = yNotValid ? NEGATIVE_INFINITY : yInvEntry / dy,
+                yExit = yNotValid ? POSITIVE_INFINITY : yInvExit / dy;
+
+        float zInvEntry = dz > 0f ? -pzmax : 1 - pzmin,
+                zInvExit = dz > 0f ? 1 - pzmin : -pzmax;
+
+        boolean zNotValid = dz == 0;
+
+        float zEntry = zNotValid ? NEGATIVE_INFINITY : zInvEntry / dz,
+                zExit = zNotValid ? POSITIVE_INFINITY : zInvExit / dz;
+
+        float tEntry = max(max(xEntry, yEntry), zEntry),
+                tExit = min(min(xExit, yExit), zExit);
+
+        if (tEntry < -.5f || tEntry > tExit) {
+            return;
+        }
+
+        Contact c;
+        contacts.add(c = new Contact(tEntry, x, y, z));
+
+        if (xEntry == tEntry) {
+            c.nx = dx > 0 ? -1 : 1;
+        } else if (yEntry == tEntry) {
+            c.ny = dy > 0 ? -1 : 1;
+        } else {
+            c.nz = dz > 0 ? -1 : 1;
         }
     }
 }
