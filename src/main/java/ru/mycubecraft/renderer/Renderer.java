@@ -61,6 +61,7 @@ public class Renderer {
                        PointLight[] pointLightList, SpotLight[] spotLightList, DirectionalLight directionalLight) {
         clear();
         filteredItems.clear();
+        
         Window window = Window.getInstance();
         if (window.isResized()) {
             glViewport(0, 0, window.getWidth(), window.getHeight());
@@ -97,13 +98,14 @@ public class Renderer {
                 Map<String, Block> blocks = blockField.getBlocks();
                 blocks.values()
                         .parallelStream()
-                        .forEach(block -> {
+                        .filter(Block::isVisible)
+                        .filter(block -> {
                             GameItem gameItem = block.getGameCubeItem();
                             frustumFilter.filter(gameItem, camera);
-                            if (gameItem.isInsideFrustum()) {
-                                filteredItems.add(gameItem);
-                            }
-                        });
+                            return gameItem.isInsideFrustum();
+                        }).forEach(block -> {
+                    filteredItems.add(block.getGameCubeItem());
+                });
             }
         }
 

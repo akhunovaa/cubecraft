@@ -3,10 +3,10 @@ package ru.mycubecraft.world;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
-import org.joml.Vector3f;
 import ru.mycubecraft.block.Block;
 import ru.mycubecraft.block.DirtBlock;
 import ru.mycubecraft.block.GrassBlock;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -41,8 +41,8 @@ public class Chunk {
     private final int cx; //offset to x (1 offset * 8 block count)
     private final int cy; //offset to y (1 offset * 8 block count)
     private final int cz; //offset to z (1 offset * 8 block count)
-    @EqualsAndHashCode.Exclude
-    private final Map<String, Block> blocks = new HashMap<>();
+    //    @EqualsAndHashCode.Exclude
+//    private final Map<String, Block> blocks = new HashMap<>();
     @EqualsAndHashCode.Exclude
     private BlockField blockField;
 
@@ -99,82 +99,45 @@ public class Chunk {
 //        }
 //    }
 
-    public boolean containsBlock(Vector3f position) {
-        int xPosition = (int) position.x;
-        int yPosition = (int) position.y;
-        int zPosition = (int) position.z;
+//    public boolean containsBlock(Vector3f position) {
+//        int xPosition = (int) position.x;
+//        int yPosition = (int) position.y;
+//        int zPosition = (int) position.z;
+//
+//        String blockKey = String.format("%s:%s:%s", xPosition, yPosition, zPosition);
+//        return this.blocks.containsKey(blockKey);
+//    }
 
-        String blockKey = String.format("%s:%s:%s", xPosition, yPosition, zPosition);
-        return this.blocks.containsKey(blockKey);
-    }
+//    public Block addBlock(Vector3f position) {
+//        int xPosition = (int) position.x;
+//        int yPosition = (int) position.y;
+//        int zPosition = (int) position.z;
+//
+//        String blockKey = String.format("%s:%s:%s", xPosition, yPosition, zPosition);
+//        Block block = generator.genBlock(xPosition, yPosition, zPosition);
+//
+//        this.blocks.put(blockKey, block);
+//        return block;
+//    }
 
-    public Block addBlock(Vector3f position) {
-        int xPosition = (int) position.x;
-        int yPosition = (int) position.y;
-        int zPosition = (int) position.z;
-
-        String blockKey = String.format("%s:%s:%s", xPosition, yPosition, zPosition);
-        Block block = generator.genBlock(xPosition, yPosition, zPosition);
-
-        this.blocks.put(blockKey, block);
-        return block;
-    }
-
-    public boolean deleteBlock(Vector3f position) {
-        int xPosition = (int) position.x;
-        int yPosition = (int) position.y;
-        int zPosition = (int) position.z;
-        String blockKey = String.format("%s:%s:%s", xPosition, yPosition, zPosition);
-        this.blocks.remove(blockKey);
-        return true;
-    }
-
-    public void render() {
-        this.blocks.forEach((key, value) -> value.render());
-    }
+//    public boolean deleteBlock(Vector3f position) {
+//        int xPosition = (int) position.x;
+//        int yPosition = (int) position.y;
+//        int zPosition = (int) position.z;
+//        String blockKey = String.format("%s:%s:%s", xPosition, yPosition, zPosition);
+//        this.blocks.remove(blockKey);
+//        return true;
+//    }
+//
+//    public void render() {
+//        this.blocks.forEach((key, value) -> value.render());
+//    }
 
 //    public ArrayList<GameItem> getItemListForRendering() {
 //        ArrayList<GameItem> gameItemList = new ArrayList<>(this.blocks.size());
 //        this.blocks.forEach((key, value) -> gameItemList.add(value.getGameCubeItem()));
 //        return gameItemList;
 //    }
-
-    /**
-     * Create a block field for a chunk at the given chunk position.
-     */
-    public void createBlockField() {
-        int gx = (cx << CHUNK_SIZE_SHIFT) + GLOBAL_X,
-                gz = (cz << CHUNK_SIZE_SHIFT) + GLOBAL_Z;
-        Map<String, Block> field = new HashMap<>((CHUNK_SIZE + 2) * (CHUNK_HEIGHT + 2) * (CHUNK_SIZE + 2));
-        int maxY = Integer.MIN_VALUE,
-                minY = Integer.MAX_VALUE;
-        int num = 0;
-        for (int z = -1; z < CHUNK_SIZE + 1; z++) {
-            for (int x = -1; x < CHUNK_SIZE + 1; x++) {
-                int y = (int) terrainNoise(gx + x, gz + z);
-                y = min(max(y, 0), CHUNK_HEIGHT - 1);
-                maxY = max(maxY, y);
-                minY = min(minY, y);
-                for (int y0 = -1; y0 <= y; y0++) {
-                    String key = String.valueOf(idx(x, y0, z));
-                    field.put(key, y0 == y ? new DirtBlock(x, y0, z) : new GrassBlock(x, y0, z));
-                    num++;
-                }
-            }
-        }
-        this.blockField = new BlockField();
-        blockField.setNy(minY);
-        blockField.setPy(maxY);
-        blockField.setNum(num);
-        blockField.setBlocks(field);
-    }
-
-    /**
-     * Return the flattened block field index for a local block at <code>(x, y, z)</code>.
-     */
-    private static int idx(int x, int y, int z) {
-        return (x + 1) + (32 + 2) * ((z + 1) + (y + 1) * (32 + 2));
-    }
 
     /**
      * Evaluate a heightmap/terrain noise function at the given global <code>(x, z)</code> position.
@@ -193,8 +156,83 @@ public class Chunk {
         return y;
     }
 
+    /**
+     * Create a block field for a chunk at the given chunk position.
+     */
+    public void createBlockField() {
+        int gx = (cx << CHUNK_SIZE_SHIFT) + GLOBAL_X,
+                gz = (cz << CHUNK_SIZE_SHIFT) + GLOBAL_Z;
+        Map<String, Block> field = new HashMap<>((CHUNK_SIZE + 2) * (CHUNK_HEIGHT + 2) * (CHUNK_SIZE + 2));
+        int maxY = Integer.MIN_VALUE,
+                minY = Integer.MAX_VALUE;
+        int num = 0;
+        for (int z = -1; z < CHUNK_SIZE + 1; z++) {
+            for (int x = -1; x < CHUNK_SIZE + 1; x++) {
+                int y = (int) terrainNoise(gx + x, gz + z);
+                y = min(max(y, 0), CHUNK_HEIGHT - 1);
+                maxY = max(maxY, y);
+                minY = min(minY, y);
+                for (int y0 = -1; y0 <= y; y0++) {
+                    String key = idx(x, y0, z);
+                    field.put(key, y0 == y ? new DirtBlock(x, y0, z) : new GrassBlock(x, y0, z));
+                    num++;
+                }
+            }
+        }
+        BlockField blockField = new BlockField();
+        blockField.setNy(minY);
+        blockField.setPy(maxY);
+        blockField.setNum(num);
+        blockField.setBlocks(field);
+        this.blockField = blockField;
+    }
+
+    public void sortBlocksVisibility() {
+        Map<String, Block> blocks = this.blockField.getBlocks();
+        blocks.values()
+                .forEach(block -> {
+                    int xPosition = (int) block.getPosition().x;
+                    int yPosition = (int) block.getPosition().y;
+                    int zPosition = (int) block.getPosition().z;
+                    Block rightBlock = this.blockField.load(xPosition + 1, yPosition, zPosition);
+                    Block leftBlock = this.blockField.load(xPosition - 1, yPosition, zPosition);
+                    Block frontBlock = this.blockField.load(xPosition, yPosition, zPosition + 1);
+                    Block backBlock = this.blockField.load(xPosition, yPosition, zPosition - 1);
+                    Block topBlock = this.blockField.load(xPosition, yPosition + 1, zPosition);
+                    Block bottomBlock = this.blockField.load(xPosition, yPosition - 1, zPosition);
+
+                    if (rightBlock != null && leftBlock == null) {
+                        block.setVisible(true);
+                    } else if (rightBlock == null && leftBlock != null) {
+                        block.setVisible(true);
+                    } else if (topBlock != null && bottomBlock == null) {
+                        block.setVisible(true);
+                    } else if (topBlock == null && bottomBlock != null) {
+                        block.setVisible(true);
+                    } else if (frontBlock != null && backBlock == null) {
+                        block.setVisible(true);
+                    } else if (frontBlock == null && backBlock != null) {
+                        block.setVisible(true);
+                    }
+                });
+    }
+
+    /**
+     * Return the flattened block field index for a local block at <code>(x, y, z)</code>.
+     */
+    @SuppressWarnings("StringBufferReplaceableByString")
+    public String idx(int x, int y, int z) {
+        StringBuilder key = new StringBuilder()
+                .append(x)
+                .append(":")
+                .append(y)
+                .append(":")
+                .append(z);
+        return key.toString();
+    }
+
     public void cleanup() {
-        this.blocks.forEach((key, value) -> value.getGameCubeItem().cleanup());
+        // this.blocks.forEach((key, value) -> value.getGameCubeItem().cleanup());
 
     }
 }

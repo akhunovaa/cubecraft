@@ -16,10 +16,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
-import static java.lang.Math.max;
 import static ru.mycubecraft.Game.DEBUG;
 
 @Getter
@@ -46,7 +43,7 @@ public abstract class Scene {
 
     public abstract void runUpdateAndRenderLoop();
 
-    public abstract void render(float dt);
+    public abstract void render();
 
     public abstract void cleanup();
 

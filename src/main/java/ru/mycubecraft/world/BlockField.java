@@ -4,7 +4,6 @@ import lombok.Getter;
 import lombok.Setter;
 import ru.mycubecraft.block.Block;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import static java.lang.Math.max;
@@ -32,7 +31,7 @@ public class BlockField {
     /**
      * The actual block field
      */
-    private Map<String, Block> blocks = new HashMap<>();
+    private Map<String, Block> blocks;
 
     /**
      * The number of set/active non-zero blocks. This value can be used to get a (very) rough estimate
@@ -41,16 +40,30 @@ public class BlockField {
     private int num;
 
     /**
+     * Return the flattened block field index for a local block at <code>(x, y, z)</code>.
+     */
+    @SuppressWarnings("StringBufferReplaceableByString")
+    private static String idx(int x, int y, int z) {
+        StringBuilder key = new StringBuilder()
+                .append(x)
+                .append(":")
+                .append(y)
+                .append(":")
+                .append(z);
+        return key.toString();
+    }
+
+    /**
      * Stores the value 'v' into block (x, y, z).
      *
-     * @param x the local x coordinate
-     * @param y the local y coordinate
-     * @param z the local z coordinate
+     * @param x     the local x coordinate
+     * @param y     the local y coordinate
+     * @param z     the local z coordinate
      * @param block the block value
      * @return this
      */
     private BlockField store(int x, int y, int z, Block block) {
-        String key = String.valueOf(idx(x, y, z));
+        String key = idx(x, y, z);
         blocks.put(key, block);
         /*
          * Update min/max Y coordinate so that meshing as well as frustum culling will take it into account
@@ -68,16 +81,15 @@ public class BlockField {
      * @param z the local z coordinate
      * @return the block value
      */
-    private Block load(int x, int y, int z) {
-        String key = String.valueOf(idx(x, y, z));
-        return blocks.get(key);
-    }
-
-    /**
-     * Return the flattened block field index for a local block at <code>(x, y, z)</code>.
-     */
-    private static int idx(int x, int y, int z) {
-        return (x + 1) + (32 + 2) * ((z + 1) + (y + 1) * (32 + 2));
+    @SuppressWarnings("StringBufferReplaceableByString")
+    public Block load(int x, int y, int z) {
+        StringBuilder key = new StringBuilder()
+                .append(x)
+                .append(":")
+                .append(y)
+                .append(":")
+                .append(z);
+        return blocks.get(key.toString());
     }
 
 }

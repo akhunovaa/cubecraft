@@ -1,22 +1,24 @@
 package ru.mycubecraft.block;
 
 import lombok.Getter;
+import lombok.Setter;
 import org.joml.Vector3f;
 import ru.mycubecraft.core.GameItem;
 import ru.mycubecraft.renderer.Cube;
 
 @Getter
+@Setter
 public class Block {
 
     private final Vector3f position;
     private GameItem gameCubeItem;
+    private boolean visible;
 
     public Block(int bX, int bY, int bZ, String texture) {
         this.position = new Vector3f(bX, bY, bZ);
         try {
-            Cube gameCubeItem = new Cube(texture);
-            gameCubeItem.setPosition(bX, bY, bZ);
-            this.gameCubeItem = gameCubeItem;
+            this.gameCubeItem = new Cube(texture);
+            this.gameCubeItem.setPosition(bX, bY, bZ);
         } catch (Exception e) {
             e.printStackTrace();
         }

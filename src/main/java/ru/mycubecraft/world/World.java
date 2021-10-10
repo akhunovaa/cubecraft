@@ -2,11 +2,8 @@ package ru.mycubecraft.world;
 
 import lombok.extern.slf4j.Slf4j;
 import org.joml.Vector3f;
-import ru.mycubecraft.core.GameItem;
 import ru.mycubecraft.engine.Utils;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -45,10 +42,10 @@ public class World {
     public World(Generator generator) {
         generateStartChunks();
     }
-
-    public void render() {
-        chunkMap.forEach((key, value) -> value.render());
-    }
+//
+//    public void render() {
+//        chunkMap.forEach((key, value) -> value.render());
+//    }
 
 //    public List<GameItem> getChunksBlockItems() {
 //        List<GameItem> gameItemList = new ArrayList<>();
@@ -70,11 +67,21 @@ public class World {
     public void ensureChunk(int xPosition, int zPosition) {
         int cx = xPosition >> CHUNK_SIZE_SHIFT,
                 cz = zPosition >> CHUNK_SIZE_SHIFT;
-        String chunkKey = String.format("%s:%s", cx, cz);
+        String chunkKey = idx(cx, cz);
         if (!chunkMap.containsKey(chunkKey)) {
             Chunk chunk = createChunk(xPosition, zPosition);
             chunk.createBlockField();
-            chunkMap.put(chunkKey,chunk);
+            /*
+             * Submit async task to create the chunk.
+             */
+            executorService.submit(() -> {
+                try {
+                    chunk.sortBlocksVisibility();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            });
+            chunkMap.put(chunkKey, chunk);
         }
     }
 
@@ -172,5 +179,17 @@ public class World {
 
     public Map<String, Chunk> getChunkMap() {
         return chunkMap;
+    }
+
+    /**
+     * Return the flattened chunk field index <code>(x, z)</code>.
+     */
+    @SuppressWarnings("StringBufferReplaceableByString")
+    public String idx(int x, int z) {
+        StringBuilder key = new StringBuilder()
+                .append(x)
+                .append(":")
+                .append(z);
+        return key.toString();
     }
 }

@@ -8,8 +8,8 @@ import ru.mycubecraft.core.GameItem;
 
 public class Transformation {
 
-    private static Transformation instance;
     private static final Matrix4f viewMatrix = new Matrix4f();
+    private static Transformation instance;
     private final Matrix4f projectionMatrix;
     private final Matrix4f modelMatrix;
     private final Matrix4f modelViewMatrix;

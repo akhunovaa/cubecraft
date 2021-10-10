@@ -2,7 +2,6 @@ package ru.mycubecraft.block;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import org.joml.Vector3f;
 
 @Getter
 @EqualsAndHashCode(callSuper = false)

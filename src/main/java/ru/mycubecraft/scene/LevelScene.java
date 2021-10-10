@@ -123,11 +123,8 @@ public class LevelScene extends Scene {
 
         mouseInput.init();
         hud = new Hud();
+        hud.buildHud();
 
-        updateAndRenderRunnables.add(new DelayedRunnable(() -> {
-            hud.buildHud();
-            return null;
-        }, "HUD elements creation initialize", 0));
         // Fog
         Vector3f fogColour = new Vector3f(0.49f, 0.61f, 0.66f);
 
@@ -154,7 +151,7 @@ public class LevelScene extends Scene {
             }
 
             float currentFps = 1000f / (-current + (current = System.currentTimeMillis()));
-
+            hudUpdate(currentFps);
             System.out.print("\rWithout UPS FPS: " + currentFps);
             /*
              * Execute any runnables that have accumulated in the render queue.
@@ -162,7 +159,7 @@ public class LevelScene extends Scene {
              */
             drainRunnables();
 
-            render(currentFps);
+            render();
             glfwSwapBuffers(window);
         }
         cleanup();
@@ -186,6 +183,8 @@ public class LevelScene extends Scene {
         int zPosition = (int) camera.getPosition().z;
         //world.generate(xPosition, yPosition, zPosition);
         world.ensureChunk(xPosition, zPosition);
+
+
         //selectedItemPosition = mouseBoxSelectionDetector.getGameItemPosition(world.getChunksBlockItems(), camera);
     }
 
@@ -267,9 +266,8 @@ public class LevelScene extends Scene {
 
 
     @Override
-    public void render(float delta) {
+    public void render() {
         renderer.render(world, camera, this, hud, ambientLight, pointLightList, spotLightList, directionalLight);
-        hudUpdate(delta);
     }
 
     @Override
@@ -295,17 +293,17 @@ public class LevelScene extends Scene {
         Chunk chunk;
         if (!containsChunk) {
             chunk = world.addChunk(newBlockPosition);
-            chunk.addBlock(newBlockPosition);
+            //chunk.addBlock(newBlockPosition);
         } else {
             chunk = world.getChunk(newBlockPosition);
-            boolean chunkContainsBlock = chunk.containsBlock(newBlockPosition);
-            if (chunkContainsBlock) {
-                xStart = (float) Math.ceil(ray.x);
-                yStart = (float) Math.ceil(ray.y);
-                zStart = (float) Math.ceil(ray.z);
-                newBlockPosition.add(xStart, yStart, zStart);
-            }
-            chunk.addBlock(newBlockPosition);
+//            //boolean chunkContainsBlock = chunk.containsBlock(newBlockPosition);
+//            if (chunkContainsBlock) {
+//                xStart = (float) Math.ceil(ray.x);
+//                yStart = (float) Math.ceil(ray.y);
+//                zStart = (float) Math.ceil(ray.z);
+//                newBlockPosition.add(xStart, yStart, zStart);
+//            }
+            //chunk.addBlock(newBlockPosition);
         }
     }
 
