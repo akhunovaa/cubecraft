@@ -63,19 +63,6 @@ public class Chunk {
         this.generator = new BasicGen(3);
     }
 
-//    public Chunk(int cx, int cz, Generator generator) {
-//        this.cx = cx;
-//        this.cz = cz;
-//        this.cy = 0;
-//        this.generator = generator;
-//    }
-
-    public Chunk(int cx, int cy, int cz, Generator generator) {
-        this.cx = cx;
-        this.cy = cy;
-        this.cz = cz;
-        this.generator = generator;
-    }
 
 //    public void generateBlocks() {
 //        long time = System.currentTimeMillis();
