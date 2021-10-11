@@ -160,8 +160,14 @@ public class Chunk {
      * Create a block field for a chunk at the given chunk position.
      */
     public void createBlockField() {
-        int gx = (cx << CHUNK_SIZE_SHIFT) + GLOBAL_X,
-                gz = (cz << CHUNK_SIZE_SHIFT) + GLOBAL_Z;
+        int gx = (this.cx << CHUNK_SIZE_SHIFT) + GLOBAL_X,
+                gz = (this.cz << CHUNK_SIZE_SHIFT) + GLOBAL_Z;
+
+        // block position where cx is offset and CHUNK_SIZE is block count to X (1 offset * 32 block count)
+        int wX = this.cx * CHUNK_SIZE;
+        // block position where cz is offset and CHUNK_SIZE is block count to Z (1 offset * 32 block count)
+        int wZ = this.cz * CHUNK_SIZE;
+
         Map<String, Block> field = new HashMap<>((CHUNK_SIZE + 2) * (CHUNK_HEIGHT + 2) * (CHUNK_SIZE + 2));
         int maxY = Integer.MIN_VALUE,
                 minY = Integer.MAX_VALUE;
@@ -173,8 +179,8 @@ public class Chunk {
                 maxY = max(maxY, y);
                 minY = min(minY, y);
                 for (int y0 = -1; y0 <= y; y0++) {
-                    String key = idx(x, y0, z);
-                    field.put(key, y0 == y ? new DirtBlock(x, y0, z) : new GrassBlock(x, y0, z));
+                    String key = idx(x + wX, y0, z + wZ);
+                    field.put(key, y0 == y ? new DirtBlock(x + wX, y0, z + wZ) : new GrassBlock(x + wX, y0, z + wZ));
                     num++;
                 }
             }

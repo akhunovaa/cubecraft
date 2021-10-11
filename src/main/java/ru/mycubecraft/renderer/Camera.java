@@ -14,7 +14,7 @@ public class Camera {
     public Vector3f rotation;
 
     public Camera() {
-        this.position = new Vector4f(29.0f, 180.0f, 29.0f, 1);
+        this.position = new Vector4f(29.0f, 130.0f, 29.0f, 1);
         this.rotation = new Vector3f(32.0f, 9.0f, 0.0f);
         viewMatrix = new Matrix4f();
     }

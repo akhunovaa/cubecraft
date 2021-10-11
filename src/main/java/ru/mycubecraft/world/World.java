@@ -67,9 +67,11 @@ public class World {
     public void ensureChunk(int xPosition, int zPosition) {
         int cx = xPosition >> CHUNK_SIZE_SHIFT,
                 cz = zPosition >> CHUNK_SIZE_SHIFT;
+
         String chunkKey = idx(cx, cz);
         if (!chunkMap.containsKey(chunkKey)) {
-            Chunk chunk = createChunk(xPosition, zPosition);
+
+            Chunk chunk = createChunk(cx, cz);
             chunk.createBlockField();
             /*
              * Submit async task to create the chunk.

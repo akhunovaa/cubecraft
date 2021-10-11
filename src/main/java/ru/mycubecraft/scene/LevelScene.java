@@ -162,7 +162,7 @@ public class LevelScene extends Scene {
         lightUpdate();
         int xPosition = (int) camera.getPosition().x;
         int zPosition = (int) camera.getPosition().z;
-        //world.generate(xPosition, yPosition, zPosition);
+
         world.ensureChunk(xPosition, zPosition);
 
 
