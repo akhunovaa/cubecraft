@@ -91,6 +91,9 @@ public class Renderer {
             Map<String, Chunk> worldChunkMap = world.getChunkMap();
             for (Chunk chunk : worldChunkMap.values()) {
                 BlockField blockField = chunk.getBlockField();
+                if (blockField == null) {
+                    continue;
+                }
                 Map<String, Block> blocks = blockField.getBlocks();
                 blocks.values()
                         .parallelStream()

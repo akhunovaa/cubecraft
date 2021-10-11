@@ -72,12 +72,12 @@ public class World {
         if (!chunkMap.containsKey(chunkKey)) {
 
             Chunk chunk = createChunk(cx, cz);
-            chunk.createBlockField();
             /*
              * Submit async task to create the chunk.
              */
             executorService.submit(() -> {
                 try {
+                    chunk.createBlockField();
                     chunk.sortBlocksVisibility();
                 } catch (Exception e) {
                     e.printStackTrace();
