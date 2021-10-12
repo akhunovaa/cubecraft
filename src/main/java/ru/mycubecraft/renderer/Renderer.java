@@ -102,9 +102,7 @@ public class Renderer {
                             GameItem gameItem = block.getGameCubeItem();
                             frustumFilter.filter(gameItem, camera);
                             return gameItem.isInsideFrustum();
-                        }).forEach(block -> {
-                    filteredItems.add(block.getGameCubeItem());
-                });
+                        }).forEach(block -> filteredItems.add(block.getGameCubeItem()));
             }
         }
 
