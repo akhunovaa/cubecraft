@@ -1,7 +1,6 @@
 package ru.mycubecraft.scene;
 
 import lombok.Getter;
-import org.joml.Vector2f;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
 import org.lwjgl.opengl.GL;
@@ -164,7 +163,6 @@ public class LevelScene extends Scene {
         int zPosition = (int) camera.getPosition().z;
 
         world.ensureChunk(xPosition, zPosition);
-
 
         //selectedItemPosition = mouseBoxSelectionDetector.getGameItemPosition(world.getChunksBlockItems(), camera);
     }

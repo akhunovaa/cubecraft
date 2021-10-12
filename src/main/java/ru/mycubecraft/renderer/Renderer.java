@@ -10,8 +10,6 @@ import ru.mycubecraft.engine.IHud;
 import ru.mycubecraft.engine.SkyBox;
 import ru.mycubecraft.engine.graph.DirectionalLight;
 import ru.mycubecraft.engine.graph.FrustumCullingFilter;
-import ru.mycubecraft.engine.graph.PointLight;
-import ru.mycubecraft.engine.graph.SpotLight;
 import ru.mycubecraft.scene.Scene;
 import ru.mycubecraft.util.AssetPool;
 import ru.mycubecraft.window.Window;
@@ -60,7 +58,7 @@ public class Renderer {
     public void render(World world, Camera camera, Scene scene, IHud hud, Vector3f ambientLight) {
         clear();
         filteredItems.clear();
-        
+
         Window window = Window.getInstance();
         if (window.isResized()) {
             glViewport(0, 0, window.getWidth(), window.getHeight());
@@ -76,8 +74,6 @@ public class Renderer {
     }
 
     private void renderScene(World world, Scene scene, Vector3f ambientLight) {
-
-        Camera camera = scene.getCamera();
 
         boolean frustumCulling = true;
         Matrix4f projectionMatrix = transformation.getProjectionMatrix();
@@ -100,7 +96,7 @@ public class Renderer {
                         .filter(Block::isVisible)
                         .filter(block -> {
                             GameItem gameItem = block.getGameCubeItem();
-                            frustumFilter.filter(gameItem, camera);
+                            frustumFilter.filter(gameItem);
                             return gameItem.isInsideFrustum();
                         }).forEach(block -> filteredItems.add(block.getGameCubeItem()));
             }

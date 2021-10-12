@@ -2,25 +2,19 @@ package ru.mycubecraft.engine.graph;
 
 import org.joml.FrustumIntersection;
 import org.joml.Matrix4f;
-import org.joml.Vector2f;
 import org.joml.Vector3f;
-import ru.mycubecraft.Settings;
 import ru.mycubecraft.core.GameItem;
-import ru.mycubecraft.renderer.Camera;
 
 import java.util.ArrayList;
 
 public class FrustumCullingFilter {
 
     private final Matrix4f prjViewMatrix;
-    private final Vector2f nearFar;
     private final FrustumIntersection frustumInt;
-    private final float closestDistance = Settings.Z_FAR;
 
     public FrustumCullingFilter() {
         prjViewMatrix = new Matrix4f();
         frustumInt = new FrustumIntersection();
-        nearFar = new Vector2f();
     }
 
     public void updateFrustum(Matrix4f projMatrix, Matrix4f viewMatrix) {
@@ -31,11 +25,11 @@ public class FrustumCullingFilter {
         frustumInt.set(prjViewMatrix);
     }
 
-    public void filter(ArrayList<GameItem> gameItems, Camera camera) {
-        gameItems.parallelStream().forEach(item -> filter(item, camera));
+    public void filter(ArrayList<GameItem> gameItems) {
+        gameItems.parallelStream().forEach(this::filter);
     }
 
-    public void filter(GameItem gameItem, Camera camera) {
+    public void filter(GameItem gameItem) {
         float boundingRadius;
         Vector3f gameItemPosition;
         if (gameItem != null && !gameItem.isDisableFrustumCulling()) {

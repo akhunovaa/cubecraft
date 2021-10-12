@@ -42,27 +42,6 @@ public class World {
     public World(Generator generator) {
         generateStartChunks();
     }
-//
-//    public void render() {
-//        chunkMap.forEach((key, value) -> value.render());
-//    }
-
-//    public List<GameItem> getChunksBlockItems() {
-//        List<GameItem> gameItemList = new ArrayList<>();
-//        chunkMap.forEach((key, value) -> gameItemList.addAll(value.getItemListForRendering()));
-//        return gameItemList;
-//    }
-
-//    public void generate(int xPosition, int yPosition, int zPosition) {
-//        int xOffset = xPosition / WORLD_WIDTH;
-//        int yOffset = yPosition / WORLD_HEIGHT;
-//        int zOffset = zPosition / WORLD_WIDTH;
-//
-//        String chunkKey = String.format("%s:%s:%s", xOffset, yOffset, zOffset);
-//        if (!chunkMap.containsKey(chunkKey)) {
-//            //generateChunk(xPosition, yPosition, zPosition);
-//        }
-//    }
 
     public void ensureChunk(int xPosition, int zPosition) {
         int cx = xPosition >> CHUNK_SIZE_SHIFT,
@@ -70,11 +49,8 @@ public class World {
 
         String chunkKey = idx(cx, cz);
         if (!chunkMap.containsKey(chunkKey)) {
-
             Chunk chunk = createChunk(cx, cz);
-            /*
-             * Submit async task to create the chunk.
-             */
+            chunkMap.put(chunkKey, chunk);
             executorService.submit(() -> {
                 try {
                     chunk.createBlockField();
@@ -83,16 +59,11 @@ public class World {
                     e.printStackTrace();
                 }
             });
-            chunkMap.put(chunkKey, chunk);
         }
     }
 
     private void generateStartChunks() {
-//        executorService.execute(new Runnable() {
-//            public void run() {
-//               generateChunk(3, 3);
-//            }
-//        });
+
     }
 
 //    private void generateChunk(int xPosition, int yOffset, int zPosition) {
