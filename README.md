@@ -21,7 +21,8 @@ mvn -P {your OS name} clean install
 
 `java -jar cubecraft-0.1.0.jar -XstartOnFirstThread`
 
-[![Video clip](https://s3.amazonaws.com/culga-games-images/uploads/images/cube-craft.jpg)](https://www.youtube.com/watch?v=rNPUGIlataY "Everything Is AWESOME")
+[![Video clip](https://s3.amazonaws.com/culga-games-images/uploads/images/cube-craft.jpg)](https://www.youtube.com/watch?v=16pI2U7xM0E "Everything Is AWESOME")
 
 https://youtu.be/rNPUGIlataY  
 https://youtu.be/sltipBHccIM
+https://www.youtube.com/watch?v=16pI2U7xM0E
