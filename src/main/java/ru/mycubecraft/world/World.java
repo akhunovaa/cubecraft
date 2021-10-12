@@ -15,7 +15,7 @@ import static java.lang.Math.max;
 public class World {
 
     // 256 chunks & 4096 blocks in one chunk & totally 1 048 576 blocks
-    public static final int WORLD_WIDTH = 8;
+    public static final int WORLD_WIDTH = 2;
     public static final int WORLD_HEIGHT = 8;
     public static final int WORLD_SIZE = 5 * 8; // 4=64 5=100 6=144
 
@@ -37,46 +37,41 @@ public class World {
         return t;
     });
 
-    private final Map<String, Chunk> chunkMap = Utils.createLRUMap(166);
+    private final Map<String, Chunk> chunkMap = Utils.createLRUMap(8);
 
-    public World(Generator generator) {
-        generateStartChunks();
+    public World() {
     }
 
     public void ensureChunk(int xPosition, int zPosition) {
         int cx = xPosition >> CHUNK_SIZE_SHIFT,
                 cz = zPosition >> CHUNK_SIZE_SHIFT;
+        generateChunk(cx, cz);
+    }
 
-        String chunkKey = idx(cx, cz);
-        if (!chunkMap.containsKey(chunkKey)) {
-            Chunk chunk = createChunk(cx, cz);
-            chunkMap.put(chunkKey, chunk);
-            executorService.submit(() -> {
-                try {
-                    chunk.createBlockField();
-                    chunk.sortBlocksVisibility();
-                } catch (Exception e) {
-                    e.printStackTrace();
+    public void generateStartChunks() {
+        generateChunk(-1, -1);
+        generateChunk(1, 1);
+    }
+
+    private void generateChunk(int cx, int cz) {
+        for (int x = (cx - 1); x < (cx + 1); x++) {
+            for (int z = (cz - 1); z < (cz + 1); z++) {
+                String chunkKey = idx(x, z);
+                if (!chunkMap.containsKey(chunkKey)) {
+                    Chunk chunk = createChunk(x, z);
+                    chunkMap.put(chunkKey, chunk);
+                    executorService.submit(() -> {
+                        try {
+                            chunk.createBlockField();
+                            chunk.sortBlocksVisibility();
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    });
                 }
-            });
+            }
         }
     }
-
-    private void generateStartChunks() {
-
-    }
-
-//    private void generateChunk(int xPosition, int yOffset, int zPosition) {
-//        for (int x = (xPosition - WORLD_SIZE) / WORLD_WIDTH; x < (xPosition + WORLD_SIZE) / WORLD_WIDTH; x++) {
-//            for (int z = (zPosition - WORLD_SIZE) / WORLD_WIDTH; z < (zPosition + WORLD_SIZE) / WORLD_WIDTH; z++) {
-//                String chunkKey = String.format("%s:%s:%s", x, yOffset / WORLD_WIDTH, z);
-//                if (!chunkMap.containsKey(chunkKey)) {
-//                    Chunk chunk = new Chunk(x, z, new BasicGen(3));
-//                    //chunk.generateBlocks();
-//                }
-//            }
-//        }
-//    }
 
     /**
      * Create a chunk at the position <code>(cx, cz)</code> (in units of whole chunks).

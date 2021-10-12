@@ -60,7 +60,7 @@ public class LevelScene extends Scene {
         timer = new Timer();
         System.err.println("Entered to a Level Scene");
         camera = new Camera();
-        world = new World(new BasicGen(1));
+        world = new World();
         cameraInc = new Vector3f(0.0f, 0.0f, 0.0f);
         lightAngle = -90;
         fog = Fog.NOFOG;
@@ -83,6 +83,7 @@ public class LevelScene extends Scene {
         renderer = new Renderer();
         updateAndRenderRunnables.add(new DelayedRunnable(() -> {
             renderer.init();
+            world.generateStartChunks();
             return null;
         }, "Shaders creation initialize", 0));
         mouseBoxSelectionDetector = new MouseBoxSelectionDetector();
