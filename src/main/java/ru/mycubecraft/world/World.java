@@ -1,24 +1,37 @@
 package ru.mycubecraft.world;
 
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.joml.Vector3f;
+import org.joml.Vector4f;
+import ru.mycubecraft.block.Block;
+import ru.mycubecraft.data.Contact;
 import ru.mycubecraft.engine.Utils;
+import ru.mycubecraft.world.player.Player;
 
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-import static java.lang.Math.max;
+import static java.lang.Float.NEGATIVE_INFINITY;
+import static java.lang.Float.POSITIVE_INFINITY;
+import static java.lang.Math.*;
+import static java.util.Collections.sort;
 
 @Slf4j
+@Getter
 public class World {
 
     // 256 chunks & 4096 blocks in one chunk & totally 1 048 576 blocks
-    public static final int WORLD_WIDTH = 8;
+    public static final int WORLD_WIDTH = 2;
     public static final int WORLD_HEIGHT = 8;
     public static final int WORLD_SIZE = 5 * 8; // 4=64 5=100 6=144
-
+    /**
+     * The height of a chunk (in number of voxels).
+     */
+    private static final int CHUNK_HEIGHT = 256;
     /**
      * The width and depth of a chunk (in number of voxels).
      */
@@ -37,75 +50,195 @@ public class World {
         return t;
     });
 
-    private final Map<String, Chunk> chunkMap = Utils.createLRUMap(166);
+    private final Map<String, Chunk> chunkMap = Utils.createLRUMap(10);
 
-    public World(Generator generator) {
-        generateStartChunks();
+    public World() {
     }
-//
-//    public void render() {
-//        chunkMap.forEach((key, value) -> value.render());
-//    }
-
-//    public List<GameItem> getChunksBlockItems() {
-//        List<GameItem> gameItemList = new ArrayList<>();
-//        chunkMap.forEach((key, value) -> gameItemList.addAll(value.getItemListForRendering()));
-//        return gameItemList;
-//    }
-
-//    public void generate(int xPosition, int yPosition, int zPosition) {
-//        int xOffset = xPosition / WORLD_WIDTH;
-//        int yOffset = yPosition / WORLD_HEIGHT;
-//        int zOffset = zPosition / WORLD_WIDTH;
-//
-//        String chunkKey = String.format("%s:%s:%s", xOffset, yOffset, zOffset);
-//        if (!chunkMap.containsKey(chunkKey)) {
-//            //generateChunk(xPosition, yPosition, zPosition);
-//        }
-//    }
 
     public void ensureChunk(int xPosition, int zPosition) {
         int cx = xPosition >> CHUNK_SIZE_SHIFT,
                 cz = zPosition >> CHUNK_SIZE_SHIFT;
+        generateChunk(cx, cz);
+    }
 
-        String chunkKey = idx(cx, cz);
-        if (!chunkMap.containsKey(chunkKey)) {
+    public void generateStartChunks() {
+        generateChunk(-1, -1);
+        generateChunk(-1, 0);
+        generateChunk(0, -1);
+        generateChunk(0, 0);
+        generateChunk(1, 0);
+        generateChunk(0, 1);
+        generateChunk(1, 1);
+    }
 
-            Chunk chunk = createChunk(cx, cz);
-            /*
-             * Submit async task to create the chunk.
-             */
-            executorService.submit(() -> {
-                try {
-                    chunk.createBlockField();
-                    chunk.sortBlocksVisibility();
-                } catch (Exception e) {
-                    e.printStackTrace();
+    private void generateChunk(int cx, int cz) {
+        for (int x = (cx); x < (cx + 2); x++) {
+            for (int z = (cz); z < (cz + 2); z++) {
+                String chunkKey = idx(x, z);
+                if (!chunkMap.containsKey(chunkKey)) {
+                    Chunk chunk = createChunk(x, z);
+                    chunkMap.put(chunkKey, chunk);
+                    executorService.submit(() -> {
+                        try {
+                            chunk.createBlockField();
+                            chunk.sortBlocksVisibility();
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    });
                 }
-            });
-            chunkMap.put(chunkKey, chunk);
+            }
         }
     }
 
-    private void generateStartChunks() {
-//        executorService.execute(new Runnable() {
-//            public void run() {
-//               generateChunk(3, 3);
-//            }
-//        });
+    /**
+     * Detect possible collision candidates.
+     */
+    public void collisionDetection(float dt, Vector3f velocity, Vector4f position, List<Contact> contacts) {
+        int xPosition = (int) position.x;
+        int zPosition = (int) position.z;
+
+        int cx = xPosition >> CHUNK_SIZE_SHIFT,
+                cz = zPosition >> CHUNK_SIZE_SHIFT;
+        String chunkKey = idx(cx, cz);
+        Chunk chunk = chunkMap.get(chunkKey);
+        if (chunk == null || chunk.getBlockField() == null) {
+            return;
+        }
+        BlockField blockField = chunk.getBlockField();
+        float dx = velocity.x * dt,
+                dy = velocity.y * dt,
+                dz = velocity.z * dt;
+        int minX = (int) floor(position.x - Player.PLAYER_WIDTH + (dx < 0 ? dx : 0));
+        int maxX = (int) floor(position.x + Player.PLAYER_WIDTH + (dx > 0 ? dx : 0));
+        int minY = (int) floor(position.y - Player.PLAYER_EYE_HEIGHT + (dy < 0 ? dy : 0));
+        int maxY = (int) floor(position.y + Player.PLAYER_HEIGHT - Player.PLAYER_EYE_HEIGHT + (dy > 0 ? dy : 0));
+        int minZ = (int) floor(position.z - Player.PLAYER_WIDTH + (dz < 0 ? dz : 0));
+        int maxZ = (int) floor(position.z + Player.PLAYER_WIDTH + (dz > 0 ? dz : 0));
+        /* Just loop over all voxels that could possibly collide with the player */
+        for (int y = min(CHUNK_HEIGHT - 1, maxY); y >= 0 && y >= minY; y--) {
+            for (int z = minZ; z <= maxZ; z++) {
+                for (int x = minX; x <= maxX; x++) {
+                    Block block = blockField.load(x, y, z);
+                    if (block == null) {
+                        continue;
+                    }
+                    /* and perform swept-aabb intersection */
+                    intersectSweptAabbAabb(x, y, z, position.x - x,
+                            position.y - y, position.z - z, dx, dy, dz, contacts, blockField);
+                }
+            }
+        }
     }
 
-//    private void generateChunk(int xPosition, int yOffset, int zPosition) {
-//        for (int x = (xPosition - WORLD_SIZE) / WORLD_WIDTH; x < (xPosition + WORLD_SIZE) / WORLD_WIDTH; x++) {
-//            for (int z = (zPosition - WORLD_SIZE) / WORLD_WIDTH; z < (zPosition + WORLD_SIZE) / WORLD_WIDTH; z++) {
-//                String chunkKey = String.format("%s:%s:%s", x, yOffset / WORLD_WIDTH, z);
-//                if (!chunkMap.containsKey(chunkKey)) {
-//                    Chunk chunk = new Chunk(x, z, new BasicGen(3));
-//                    //chunk.generateBlocks();
-//                }
-//            }
-//        }
-//    }
+    /**
+     * Compute the exact collision point between the player and the voxel at <code>(x, y, z)</code>.
+     */
+    private void intersectSweptAabbAabb(int x, int y, int z, float px, float py,
+                                        float pz, float dx, float dy, float dz,
+                                        List<Contact> contacts, BlockField blockField) {
+        /*
+         * https://www.gamedev.net/tutorials/programming/general-and-gameplay-programming/swept-aabb-
+         * collision-detection-and-response-r3084/
+         */
+        float pxmax = px + Player.PLAYER_WIDTH,
+                pxmin = px - Player.PLAYER_WIDTH,
+                pymax = py + Player.PLAYER_HEIGHT - Player.PLAYER_EYE_HEIGHT,
+                pymin = py - Player.PLAYER_EYE_HEIGHT,
+                pzmax = pz + Player.PLAYER_WIDTH,
+                pzmin = pz - Player.PLAYER_WIDTH;
+
+        float xInvEntry = dx > 0f ? -pxmax : 1 - pxmin,
+                xInvExit = dx > 0f ? 1 - pxmin : -pxmax;
+
+       boolean xNotValid = dx == 0;
+
+        float xEntry = xNotValid ? NEGATIVE_INFINITY : xInvEntry / dx,
+                xExit = xNotValid ? POSITIVE_INFINITY : xInvExit / dx;
+
+        float yInvEntry = dy > 0f ? -pymax : 1 - pymin,
+                yInvExit = dy > 0f ? 1 - pymin : -pymax;
+
+        boolean yNotValid = dy == 0;
+
+        float yEntry = yNotValid ? NEGATIVE_INFINITY : yInvEntry / dy,
+                yExit = yNotValid ? POSITIVE_INFINITY : yInvExit / dy;
+
+        float zInvEntry = dz > 0f ? -pzmax : 1 - pzmin,
+                zInvExit = dz > 0f ? 1 - pzmin : -pzmax;
+
+        boolean zNotValid = dz == 0;
+
+        float zEntry = zNotValid ? NEGATIVE_INFINITY : zInvEntry / dz,
+                zExit = zNotValid ? POSITIVE_INFINITY : zInvExit / dz;
+
+        float tEntry = max(max(xEntry, yEntry), zEntry),
+                tExit = min(min(xExit, yExit), zExit);
+
+        if (tEntry < -.5f || tEntry > tExit) {
+            return;
+        }
+
+        Contact contact = new Contact(tEntry, x, y, z);
+
+        if (xEntry == tEntry) {
+            contact.nx = dx > 0 ? -1 : 1;
+        } else if (yEntry == tEntry) {
+            contact.ny = dy > 0 ? -1 : 1;
+        } else {
+            contact.nz = dz > 0 ? -1 : 1;
+        }
+        contacts.add(contact);
+    }
+
+    /**
+     * Respond to all found collision contacts.
+     */
+    public void collisionResponse(float dt, Vector3f velocity, Vector4f position, List<Contact> contacts) {
+        sort(contacts);
+        int minX = Integer.MIN_VALUE,
+                maxX = Integer.MAX_VALUE,
+                minY = Integer.MIN_VALUE,
+                maxY = Integer.MAX_VALUE,
+                minZ = Integer.MIN_VALUE,
+                maxZ = Integer.MAX_VALUE;
+        float elapsedTime = 0f;
+        float dx = velocity.x * dt,
+                dy = velocity.y * dt,
+                dz = velocity.z * dt;
+        for (Contact contact : contacts) {
+            System.out.println("\n");
+            System.out.println("delta: " + dt);
+            System.out.println("contact: " + contact);
+            if (contact.x <= minX || contact.y <= minY
+                    || contact.z <= minZ || contact.x >= maxX
+                    || contact.y >= maxY || contact.z >= maxZ) {
+                continue;
+            }
+
+            float t = contact.t - elapsedTime;
+            velocity.add(dx * t * 2, dy * t * 2, dz * t * 2);
+            elapsedTime += t;
+            if (contact.nx != 0) {
+                minX = dx < 0 ? max(minX, contact.x) : minX;
+                maxX = dx < 0 ? maxX : min(maxX, contact.x);
+                velocity.x = 0f;
+                dx = 0f;
+            } else if (contact.ny != 0) {
+                minY = dy < 0 ? max(minY, contact.y) : contact.y - (int) Player.PLAYER_HEIGHT;
+                maxY = dy < 0 ? contact.y + (int) ceil(Player.PLAYER_HEIGHT) + 1 : min(maxY, contact.y);
+                velocity.y = 0f;
+                dy = 0f;
+            } else if (contact.nz != 0) {
+                minZ = dz < 0 ? max(minZ, contact.z) : minZ;
+                maxZ = dz < 0 ? maxZ : min(maxZ, contact.z);
+                velocity.z = 0f;
+                dz = 0f;
+            }
+        }
+        float trem = 1f - elapsedTime;
+        velocity.add(dx * trem * 2, dy * trem * 2, dz * trem * 2);
+    }
 
     /**
      * Create a chunk at the position <code>(cx, cz)</code> (in units of whole chunks).

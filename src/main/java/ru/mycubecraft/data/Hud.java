@@ -44,7 +44,7 @@ public class Hud implements IHud {
     public void buildHud() {
         fontTexture.buildTexture();
 
-        String version = "ALPHA 0.1.0";
+        String version = "ALPHA 0.1.2";
         String fpsText = "FPS: 0";
         String coordinatesText = "X: 0.00 Y: 0.00 Z: 0.00";
         String createdChunksSizeText = "CHUNKS: 0";

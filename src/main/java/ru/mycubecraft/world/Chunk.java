@@ -63,69 +63,6 @@ public class Chunk {
         this.generator = new BasicGen(3);
     }
 
-
-//    public void generateBlocks() {
-//        long time = System.currentTimeMillis();
-//        int wX = this.cx * BLOCKS_COUNT; // block position where cx is offset and BLOCKS_COUNT is block count to X (1 offset * 8 block count)
-//        int wY = this.cy * BLOCKS_COUNT; // block position where cy is offset and BLOCKS_COUNT is block count to Y (1 offset * 8 block count)
-//        int wZ = this.cz * BLOCKS_COUNT; // block position where cz is offset and BLOCKS_COUNT is block count to Z (1 offset * 8 block count)
-//
-//        // every block in chunk took this (new Vector3f(wX, 0, wZ)) position
-//        // time complexity is O(n^2) exclude Y coordinate (height) and O(n^3) with Y coordinate
-//        for (int x = 0; x < BLOCKS_COUNT; x++) { // iterating & creating blocks for X coordinate in this chunk
-//            for (int z = 0; z < BLOCKS_COUNT; z++) { // iterating & creating blocks for Z coordinate in this chunk
-//                int mHeight = generator.maxHeight(wX + x, wZ + z, 0);
-//                for (int y = 0; y < BLOCKS_COUNT; y++) {
-//                    String blockKey = String.format("%s:%s:%s", wX + x, wY + y, wZ + z);
-//                    if (y < mHeight) {
-//                        Block block = generator.genBlock(wX + x, wY + y, wZ + z, 0);
-//                        this.blocks.put(blockKey, block);
-//                    }
-//                }
-//            }
-//        }
-//    }
-
-//    public boolean containsBlock(Vector3f position) {
-//        int xPosition = (int) position.x;
-//        int yPosition = (int) position.y;
-//        int zPosition = (int) position.z;
-//
-//        String blockKey = String.format("%s:%s:%s", xPosition, yPosition, zPosition);
-//        return this.blocks.containsKey(blockKey);
-//    }
-
-//    public Block addBlock(Vector3f position) {
-//        int xPosition = (int) position.x;
-//        int yPosition = (int) position.y;
-//        int zPosition = (int) position.z;
-//
-//        String blockKey = String.format("%s:%s:%s", xPosition, yPosition, zPosition);
-//        Block block = generator.genBlock(xPosition, yPosition, zPosition);
-//
-//        this.blocks.put(blockKey, block);
-//        return block;
-//    }
-
-//    public boolean deleteBlock(Vector3f position) {
-//        int xPosition = (int) position.x;
-//        int yPosition = (int) position.y;
-//        int zPosition = (int) position.z;
-//        String blockKey = String.format("%s:%s:%s", xPosition, yPosition, zPosition);
-//        this.blocks.remove(blockKey);
-//        return true;
-//    }
-//
-//    public void render() {
-//        this.blocks.forEach((key, value) -> value.render());
-//    }
-
-//    public ArrayList<GameItem> getItemListForRendering() {
-//        ArrayList<GameItem> gameItemList = new ArrayList<>(this.blocks.size());
-//        this.blocks.forEach((key, value) -> gameItemList.add(value.getGameCubeItem()));
-//        return gameItemList;
-//    }
-
     /**
      * Evaluate a heightmap/terrain noise function at the given global <code>(x, z)</code> position.
      */
@@ -192,21 +129,21 @@ public class Chunk {
                     Block frontBlock = this.blockField.load(xPosition, yPosition, zPosition + 1);
                     Block backBlock = this.blockField.load(xPosition, yPosition, zPosition - 1);
                     Block topBlock = this.blockField.load(xPosition, yPosition + 1, zPosition);
+                    Block topTopBlock = this.blockField.load(xPosition, yPosition + 2, zPosition);
                     Block bottomBlock = this.blockField.load(xPosition, yPosition - 1, zPosition);
 
-                    if (rightBlock != null && leftBlock == null) {
+                    if (topBlock == null && bottomBlock != null) {
                         block.setVisible(true);
-                    } else if (rightBlock == null && leftBlock != null) {
+                    } else if (topBlock != null && topTopBlock == null && rightBlock == null) {
                         block.setVisible(true);
-                    } else if (topBlock != null && bottomBlock == null) {
+                    } else if (topBlock != null && topTopBlock == null && leftBlock == null) {
                         block.setVisible(true);
-                    } else if (topBlock == null && bottomBlock != null) {
+                    } else if (topBlock != null && topTopBlock == null && frontBlock == null) {
                         block.setVisible(true);
-                    } else if (frontBlock != null && backBlock == null) {
-                        block.setVisible(true);
-                    } else if (frontBlock == null && backBlock != null) {
+                    } else if (topBlock != null && topTopBlock == null && backBlock == null) {
                         block.setVisible(true);
                     }
+
                 });
     }
 
