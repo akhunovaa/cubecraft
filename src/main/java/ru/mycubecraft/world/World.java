@@ -50,7 +50,7 @@ public class World {
         return t;
     });
 
-    private final Map<String, Chunk> chunkMap = Utils.createLRUMap(10);
+    private final Map<String, Chunk> chunkMap = Utils.createLRUMap(12);
 
     public World() {
     }
@@ -63,11 +63,6 @@ public class World {
 
     public void generateStartChunks() {
         generateChunk(-1, -1);
-        generateChunk(-1, 0);
-        generateChunk(0, -1);
-        generateChunk(0, 0);
-        generateChunk(1, 0);
-        generateChunk(0, 1);
         generateChunk(1, 1);
     }
 

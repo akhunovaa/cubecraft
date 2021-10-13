@@ -34,7 +34,7 @@ public class LevelScene extends Scene {
     public static final int TARGET_UPS = 30;
 
     private final Vector3f playerVelocity = new Vector3f(0.0f, 0.0f, 0.0f);
-    private final Vector3f playerAcceleration = new Vector3f(0, -2.0f, 0f);
+    private final Vector3f playerAcceleration = new Vector3f(0, -3.0f, 0f);
     private final Vector3f cameraInc = new Vector3f(0.0f, 0.0f, 0.0f);
 
     /**
@@ -147,7 +147,7 @@ public class LevelScene extends Scene {
 
         if (!player.isFly()) {
             cameraInc.add(playerAcceleration);
-            handleCollisions(delta * 5f, cameraInc, camera.getPosition());
+            handleCollisions(delta * 10f, cameraInc, camera.getPosition());
         } else {
             cameraInc.add(playerVelocity.x, playerVelocity.y, playerVelocity.z);
         }
@@ -165,7 +165,7 @@ public class LevelScene extends Scene {
 
     private void lightUpdate() {
         // Update spot light direction
-        spotAngle += spotInc * 0.05f;
+        spotAngle += spotInc * 0.15f;
         if (spotAngle > 2) {
             spotInc = -1;
         } else if (spotAngle < -2) {
@@ -195,7 +195,7 @@ public class LevelScene extends Scene {
         boolean fly = player.isFly();
         boolean jumping = player.isJumping();
 
-        float factor = fly ? 1f : 2f;
+        float factor = fly ? 1f : 1f;
         if (keyboardListener.isKeyPressed(GLFW_KEY_LEFT_SHIFT)) {
             cameraInc.y = -factor;
         } else if (fly && keyboardListener.isKeyPressed(GLFW_KEY_SPACE)) {

@@ -104,7 +104,7 @@ public class Chunk {
                 minY = min(minY, y);
                 for (int y0 = -1; y0 <= y; y0++) {
                     String key = idx(x + wX, y0, z + wZ);
-                    field.put(key, y0 == y ? new DirtBlock(x + wX, y0, z + wZ) : new GrassBlock(x + wX, y0, z + wZ));
+                    field.put(key, new DirtBlock(x + wX, y0, z + wZ));
                     num++;
                 }
             }

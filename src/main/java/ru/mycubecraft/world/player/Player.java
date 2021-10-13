@@ -14,11 +14,11 @@ public abstract class Player {
     /**
      * The eye level of the player.
      */
-    public static final float PLAYER_EYE_HEIGHT = 1.70f;
+    public static final float PLAYER_EYE_HEIGHT = 1.1f;
     /**
      * The width of the player's collision box.
      */
-    public static final float PLAYER_WIDTH = 0.4f;
+    public static final float PLAYER_WIDTH = 1.1f;
 
     protected boolean fly;
     protected boolean jumping;
