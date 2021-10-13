@@ -151,8 +151,7 @@ public class World {
         float xInvEntry = dx > 0f ? -pxmax : 1 - pxmin,
                 xInvExit = dx > 0f ? 1 - pxmin : -pxmax;
 
-        boolean xNotValid = dx == 0 || blockField.load(x + (dx > 0 ? -1 : 1), y, z) != null;
-        //boolean xNotValid = dx == 0;
+       boolean xNotValid = dx == 0;
 
         float xEntry = xNotValid ? NEGATIVE_INFINITY : xInvEntry / dx,
                 xExit = xNotValid ? POSITIVE_INFINITY : xInvExit / dx;
@@ -160,8 +159,7 @@ public class World {
         float yInvEntry = dy > 0f ? -pymax : 1 - pymin,
                 yInvExit = dy > 0f ? 1 - pymin : -pymax;
 
-        boolean yNotValid = dy == 0 || blockField.load(x, y + (dy > 0 ? -1 : 1), z) != null;
-        //boolean yNotValid = dy == 0;
+        boolean yNotValid = dy == 0;
 
         float yEntry = yNotValid ? NEGATIVE_INFINITY : yInvEntry / dy,
                 yExit = yNotValid ? POSITIVE_INFINITY : yInvExit / dy;
@@ -169,8 +167,7 @@ public class World {
         float zInvEntry = dz > 0f ? -pzmax : 1 - pzmin,
                 zInvExit = dz > 0f ? 1 - pzmin : -pzmax;
 
-        boolean zNotValid = dz == 0 || blockField.load(x, y, z + (dz > 0 ? -1 : 1)) != null;
-        //boolean zNotValid = dz == 0;
+        boolean zNotValid = dz == 0;
 
         float zEntry = zNotValid ? NEGATIVE_INFINITY : zInvEntry / dz,
                 zExit = zNotValid ? POSITIVE_INFINITY : zInvExit / dz;
