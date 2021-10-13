@@ -8,7 +8,7 @@ public class Contact implements Comparable<Contact> {
     public final float t;
     /* The collision normal */
     public int nx, ny, nz;
-    /* The global position of the collided voxel */
+    /* The global position of the collided block */
     public int x, y, z;
 
     public Contact(float t, int x, int y, int z) {
@@ -24,6 +24,6 @@ public class Contact implements Comparable<Contact> {
     }
 
     public String toString() {
-        return "{" + x + "|" + y + "|" + z + " " + nx + " " + ny + " " + nz + " @ " + t + "}";
+        return "{The global position of the collided block: x=" + x + " y=" + y + " z=" + z + " The collision normal: nx=" + nx + " ny=" + ny + " nz=" + nz + " @ The collision time: " + t + "}";
     }
 }
