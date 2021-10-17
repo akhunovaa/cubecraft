@@ -158,7 +158,6 @@ public class LevelScene extends Scene {
         int xPosition = (int) camera.getPosition().x;
         int zPosition = (int) camera.getPosition().z;
         world.ensureChunk(xPosition, zPosition);
-        world.ensureChunk(xPosition, zPosition);
 
         //selectedItemPosition = mouseBoxSelectionDetector.getGameItemPosition(world.getChunksBlockItems(), camera);
     }
