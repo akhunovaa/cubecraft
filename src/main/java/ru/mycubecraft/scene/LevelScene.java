@@ -147,8 +147,9 @@ public class LevelScene extends Scene {
         mouseListener.setDangy(dangy);
 
         if (!player.isFly()) {
+            float fixedDelta = delta * 10;
             cameraInc.add(playerAcceleration);
-            handleCollisions(delta * 10, cameraInc, camera.getPosition());
+            handleCollisions(fixedDelta, cameraInc, camera.getPosition());
         } else {
             cameraInc.mul(delta).add(playerAcceleration);
         }
