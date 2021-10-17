@@ -122,7 +122,7 @@ public class Game {
         caps = GL.createCapabilities();
 
         // Set the clear color
-        glClearColor(225 / 255f, 253 / 255f, 255 / 255f, 0f);
+        glClearColor(0f, 0f, 0f, 0f);
         glEnable(GL_DEPTH_TEST);
         glEnable(GL_STENCIL_TEST);
 

@@ -79,7 +79,7 @@ public class LevelScene extends Scene {
         mouseBoxSelectionDetector = new MouseBoxSelectionDetector();
 //        sun.getGameCubeItem().setScale(3f);
 //        sun.getGameCubeItem().setPosition(-3000, 0.0f, 0F);
-        ambientLight = new Vector3f(1f, 1f, 1f);
+        ambientLight = new Vector3f(0.8f, 0.8f, 0.8f);
 
         hud = new Hud();
         hud.buildHud();
@@ -130,6 +130,10 @@ public class LevelScene extends Scene {
 
     @Override
     public void update(float delta) {
+        int xPosition = (int) camera.getPosition().x;
+        int zPosition = (int) camera.getPosition().z;
+        world.ensureChunk(xPosition, zPosition);
+
         lightUpdate();
 
         mouseBoxSelectionDetector.update(camera);
@@ -155,10 +159,6 @@ public class LevelScene extends Scene {
         }
         camera.moveRotation(angx, angy, 0);
         camera.movePosition(cameraInc.x * delta * Settings.MOVE_SPEED, cameraInc.y * delta * Settings.MOVE_SPEED, cameraInc.z * delta * Settings.MOVE_SPEED);
-
-        int xPosition = (int) camera.getPosition().x;
-        int zPosition = (int) camera.getPosition().z;
-        world.ensureChunk(xPosition, zPosition);
 
         //selectedItemPosition = mouseBoxSelectionDetector.getGameItemPosition(world.getChunksBlockItems(), camera);
     }
@@ -223,7 +223,7 @@ public class LevelScene extends Scene {
         }
 
         if (keyboardListener.isKeyPressed(GLFW_KEY_R)) {
-            camera.setPosition(92.0f, 110f, 29.0f);
+            camera.setPosition(16f, 200f, 16f);
         }
 
         boolean aux = false;

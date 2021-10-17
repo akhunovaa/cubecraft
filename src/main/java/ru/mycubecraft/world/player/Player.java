@@ -18,7 +18,7 @@ public abstract class Player {
     /**
      * The width of the player's collision box.
      */
-    public static final float PLAYER_WIDTH = 0.4f;
+    public static final float PLAYER_WIDTH = 0.2f;
 
     protected boolean fly;
     protected boolean jumping;

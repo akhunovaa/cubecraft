@@ -51,7 +51,7 @@ public class World {
         return t;
     });
 
-    private final Map<String, Chunk> chunkMap = Utils.createLRUMap(12);
+    private final Map<String, Chunk> chunkMap = Utils.createLRUMap(18);
 
     public World() {
     }
@@ -63,13 +63,15 @@ public class World {
     }
 
     public void generateStartChunks() {
-        generateChunk(-1, -1);
-        generateChunk(1, 1);
+//        generateChunk(0, 1);
+//        generateChunk(1, 0);
+//        generateChunk(0, 0);
+//        generateChunk(1, 1);
     }
 
     private void generateChunk(int cx, int cz) {
-        for (int x = (cx); x < (cx + 2); x++) {
-            for (int z = (cz); z < (cz + 2); z++) {
+        for (int x = (cx - 2); x < (cx + 2); x++) {
+            for (int z = (cz - 2); z < (cz + 2); z++) {
                 String chunkKey = idx(x, z);
                 if (!chunkMap.containsKey(chunkKey)) {
                     Chunk chunk = createChunk(x, z);
