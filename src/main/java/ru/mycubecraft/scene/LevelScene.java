@@ -30,7 +30,7 @@ import static ru.mycubecraft.Game.caps;
 public class LevelScene extends Scene {
 
     private final Vector3f playerVelocity = new Vector3f(0.0f, 0.0f, 0.0f);
-    private final Vector3f playerAcceleration = new Vector3f(0f, -3f, 0f);
+    private final Vector3f playerAcceleration = new Vector3f(0f, -4f, 0f);
     private final Vector3f tmpv3f = new Vector3f();
 
     private final Vector3f cameraInc = new Vector3f(0.0f, 0.0f, 0.0f);
@@ -214,7 +214,7 @@ public class LevelScene extends Scene {
         }
 
         if (!fly && keyboardListener.isKeyPressed(GLFW_KEY_SPACE) && !jumping) {
-            cameraInc.y = 5;
+            cameraInc.y = factor * 2 * 2;
         }
 
         if (keyboardListener.isKeyPressed(GLFW_KEY_F)) {

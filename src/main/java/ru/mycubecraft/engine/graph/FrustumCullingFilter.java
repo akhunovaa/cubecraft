@@ -25,9 +25,6 @@ public class FrustumCullingFilter {
         frustumInt.set(prjViewMatrix);
     }
 
-    public void filter(ArrayList<GameItem> gameItems) {
-        gameItems.parallelStream().forEach(this::filter);
-    }
 
     public void filter(GameItem gameItem) {
         float boundingRadius;
