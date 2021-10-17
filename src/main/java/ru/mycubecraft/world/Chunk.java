@@ -5,7 +5,6 @@ import lombok.Getter;
 import lombok.Setter;
 import ru.mycubecraft.block.Block;
 import ru.mycubecraft.block.DirtBlock;
-import ru.mycubecraft.block.GrassBlock;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -134,16 +133,16 @@ public class Chunk {
 
                     if (topBlock == null && bottomBlock != null) {
                         block.setVisible(true);
-                    } else if (topBlock != null && topTopBlock == null && rightBlock == null) {
-                        block.setVisible(true);
-                    } else if (topBlock != null && topTopBlock == null && leftBlock == null) {
-                        block.setVisible(true);
-                    } else if (topBlock != null && topTopBlock == null && frontBlock == null) {
-                        block.setVisible(true);
-                    } else if (topBlock != null && topTopBlock == null && backBlock == null) {
-                        block.setVisible(true);
                     }
-
+//                    else if (topBlock != null && topTopBlock == null && rightBlock == null) {
+//                        block.setVisible(true);
+//                    } else if (topBlock != null && topTopBlock == null && leftBlock == null) {
+//                        block.setVisible(true);
+//                    } else if (topBlock != null && topTopBlock == null && frontBlock == null) {
+//                        block.setVisible(true);
+//                    } else if (topBlock != null && topTopBlock == null && backBlock == null) {
+//                        block.setVisible(true);
+//                    }
                 });
     }
 

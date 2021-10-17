@@ -7,12 +7,12 @@ public final class Settings {
     public static final int WIDTH = 1024;
     public static final int HEIGHT = 768;
 
-    public static final boolean SHOW_FOG = true;
+    public static final boolean SHOW_FOG = false;
     public static final boolean SHOW_TRIANGLES = false;
     public static final boolean CULL_FACE = true;
     public static final boolean ANTIALIASING = false;
 
-    public static final float MOVE_SPEED = 0.15f;
+    public static final float MOVE_SPEED = 3.35f;
 
     public static final float FOV = (float) Math.toRadians(60.0f);
     public static final float Z_NEAR = 0.01f;

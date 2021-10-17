@@ -4,7 +4,6 @@ import lombok.Getter;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
 import org.lwjgl.opengl.GL;
-import ru.mycubecraft.DelayedRunnable;
 import ru.mycubecraft.Settings;
 import ru.mycubecraft.core.GameItem;
 import ru.mycubecraft.data.Contact;
@@ -30,11 +29,10 @@ import static ru.mycubecraft.Game.caps;
 @Getter
 public class LevelScene extends Scene {
 
-    public static final int TARGET_FPS = 75;
-    public static final int TARGET_UPS = 30;
-
     private final Vector3f playerVelocity = new Vector3f(0.0f, 0.0f, 0.0f);
-    private final Vector3f playerAcceleration = new Vector3f(0, -3.0f, 0f);
+    private final Vector3f playerAcceleration = new Vector3f(0f, -3f, 0f);
+    private final Vector3f tmpv3f = new Vector3f();
+
     private final Vector3f cameraInc = new Vector3f(0.0f, 0.0f, 0.0f);
 
     /**
@@ -74,11 +72,10 @@ public class LevelScene extends Scene {
         AssetPool.loadAssets();
         timer.init();
         renderer = new Renderer();
-        updateAndRenderRunnables.add(new DelayedRunnable(() -> {
-            renderer.init();
-            world.generateStartChunks();
-            return null;
-        }, "Shaders creation initialize", 0));
+        renderer.init();
+        world.generateStartChunks();
+        /* Initialize timer */
+        timer.init();
         mouseBoxSelectionDetector = new MouseBoxSelectionDetector();
 //        sun.getGameCubeItem().setScale(3f);
 //        sun.getGameCubeItem().setPosition(-3000, 0.0f, 0F);
@@ -94,34 +91,36 @@ public class LevelScene extends Scene {
             this.fog = new Fog(true, fogColour, 0.04f);
         }
 
-        float elapsedTime;
-        float accumulator = 0f;
-        float interval = 1f / TARGET_UPS;
-        long current = System.currentTimeMillis();
-
+        float delta;
         while (!glfwWindowShouldClose(window)) {
 
-            /* Get delta time and update the accumulator */
-            elapsedTime = timer.getElapsedTime();
-            accumulator += elapsedTime;
-
+            /* Get delta time */
+            delta = timer.getDelta();
+            System.out.print("\rCurrent DELTA: " + delta);
             input();
-            /* Update game and timer UPS if enough time has passed */
-            while (accumulator >= interval) {
-                update(interval);
-                accumulator -= interval;
-            }
 
-            float currentFps = 1000f / (-current + (current = System.currentTimeMillis()));
-            hudUpdate(currentFps);
-            System.out.print("\rWithout UPS FPS: " + currentFps);
+            /* Update game and timer UPS */
+            update(delta);
+            timer.updateUPS();
+
             /*
              * Execute any runnables that have accumulated in the render queue.
              * These are GL calls for created/updated chunks.
              */
             drainRunnables();
 
+            /* Render game and update timer FPS */
             render();
+            timer.updateFPS();
+
+            /* Update timer */
+            timer.update();
+
+            int currentFps = timer.getFPS();
+            int currentUps = timer.getUPS();
+            hudUpdate(currentFps, currentUps, delta);
+            System.out.print("\rCurrent FPS: " + currentFps);
+
             glfwSwapBuffers(window);
         }
         cleanup();
@@ -131,6 +130,8 @@ public class LevelScene extends Scene {
 
     @Override
     public void update(float delta) {
+        lightUpdate();
+
         mouseBoxSelectionDetector.update(camera);
 
         float dangx = mouseListener.getDangx();
@@ -147,17 +148,16 @@ public class LevelScene extends Scene {
 
         if (!player.isFly()) {
             cameraInc.add(playerAcceleration);
-            handleCollisions(delta * 10f, cameraInc, camera.getPosition());
+            handleCollisions(delta * 10, cameraInc, camera.getPosition());
         } else {
-            cameraInc.add(playerVelocity.x, playerVelocity.y, playerVelocity.z);
+            cameraInc.mul(delta).add(playerAcceleration);
         }
         camera.moveRotation(angx, angy, 0);
-        camera.movePosition(cameraInc.x * Settings.MOVE_SPEED, cameraInc.y * Settings.MOVE_SPEED, cameraInc.z * Settings.MOVE_SPEED);
+        camera.movePosition(cameraInc.x * delta * Settings.MOVE_SPEED, cameraInc.y * delta * Settings.MOVE_SPEED, cameraInc.z * delta * Settings.MOVE_SPEED);
 
-        lightUpdate();
         int xPosition = (int) camera.getPosition().x;
         int zPosition = (int) camera.getPosition().z;
-
+        world.ensureChunk(xPosition, zPosition);
         world.ensureChunk(xPosition, zPosition);
 
         //selectedItemPosition = mouseBoxSelectionDetector.getGameItemPosition(world.getChunksBlockItems(), camera);
@@ -178,11 +178,13 @@ public class LevelScene extends Scene {
         }
     }
 
-    private void hudUpdate(float delta) {
+    private void hudUpdate(int fps, int ups, float delta) {
         hud.rotateCompass(-camera.getRotation().y);
         int filteredBlocksCount = renderer.getFilteredItems().size();
         hud.updateHud(camera, world, filteredBlocksCount);
-        hud.updateFps(delta);
+        hud.updateFps(fps);
+        hud.updateUps(ups);
+        hud.updateDelta(delta);
         if (selectedItemPosition != null) {
             hud.updateTargetObjectInfo(selectedItemPosition);
         }
@@ -195,7 +197,7 @@ public class LevelScene extends Scene {
         boolean fly = player.isFly();
         boolean jumping = player.isJumping();
 
-        float factor = fly ? 1f : 1f;
+        float factor = fly ? 1f : 2f;
         if (keyboardListener.isKeyPressed(GLFW_KEY_LEFT_SHIFT)) {
             cameraInc.y = -factor;
         } else if (fly && keyboardListener.isKeyPressed(GLFW_KEY_SPACE)) {
@@ -213,7 +215,7 @@ public class LevelScene extends Scene {
         }
 
         if (!fly && keyboardListener.isKeyPressed(GLFW_KEY_SPACE) && !jumping) {
-                cameraInc.add(0, 5, 0);
+            cameraInc.y = 5;
         }
 
         if (keyboardListener.isKeyPressed(GLFW_KEY_F)) {
@@ -278,7 +280,7 @@ public class LevelScene extends Scene {
 
 
     /**
-     * Handle any collisions with the player and the voxels.
+     * Handle any collisions with the player and the blocks.
      */
     private void handleCollisions(float dt, Vector3f velocity, Vector4f position) {
         List<Contact> contacts = new ArrayList<>();

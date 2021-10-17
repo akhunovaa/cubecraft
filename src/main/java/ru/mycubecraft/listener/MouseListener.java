@@ -52,9 +52,9 @@ public class MouseListener {
     public void onMouseButton(long window, int button, int action, int mods) {
         // updateAndRenderRunnables.add(new DelayedRunnable(() -> {
 //            if (button == GLFW_MOUSE_BUTTON_1 && action == GLFW_PRESS && hasSelection) {
-//                //placeAtSelectedVoxel();
+//                //placeAtSelectedBlock();
 //            } else if (button == GLFW_MOUSE_BUTTON_2 && action == GLFW_PRESS && hasSelection) {
-//                //removeSelectedVoxel();
+//                //removeSelectedBlock();
 //            }
 //            return null;
 //        }, "Mouse button event", 0));

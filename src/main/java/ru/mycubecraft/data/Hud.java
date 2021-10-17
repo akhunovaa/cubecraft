@@ -26,6 +26,8 @@ public class Hud implements IHud {
 
     private TextItem versionTextItem;
     private TextItem fpsTextItem;
+    private TextItem upsTextItem;
+    private TextItem deltaTextItem;
     private TextItem coordinatesTextItem;
     private TextItem rotationTextItem;
     private TextItem chunkSizeTextItem;
@@ -46,6 +48,8 @@ public class Hud implements IHud {
 
         String version = "ALPHA 0.1.2";
         String fpsText = "FPS: 0";
+        String upsText = "UPS: 0";
+        String deltaText = "DELTA: 0";
         String coordinatesText = "X: 0.00 Y: 0.00 Z: 0.00";
         String createdChunksSizeText = "CHUNKS: 0";
         String filteredBlockSizeText = "FILTERED BLOCKS: 0";
@@ -55,6 +59,12 @@ public class Hud implements IHud {
 
         this.fpsTextItem = new TextItem(fpsText, fontTexture);
         this.fpsTextItem.getMesh().getMaterial().setAmbientColour(new Vector4f(1f, 0f, 0f, 10f));
+
+        this.upsTextItem = new TextItem(upsText, fontTexture);
+        this.upsTextItem.getMesh().getMaterial().setAmbientColour(new Vector4f(1f, 0f, 0f, 10f));
+
+        this.deltaTextItem = new TextItem(deltaText, fontTexture);
+        this.deltaTextItem.getMesh().getMaterial().setAmbientColour(new Vector4f(1f, 0f, 0f, 10f));
 
         this.coordinatesTextItem = new TextItem(coordinatesText, fontTexture);
         this.coordinatesTextItem.getMesh().getMaterial().setAmbientColour(new Vector4f(0.8f, 0f, 0f, 1f));
@@ -97,7 +107,7 @@ public class Hud implements IHud {
         compassItem.setRotation(0f, 0f, 180f);
         // Create list that holds the items that compose the HUD
         gameItems = new GameItem[]{versionTextItem, compassItem,
-                coordinatesTextItem, fpsTextItem, rotationTextItem,
+                coordinatesTextItem, fpsTextItem, upsTextItem, deltaTextItem, rotationTextItem,
                 chunkSizeTextItem, blockSizeTextItem, filteredBlockSizeTextItem,
                 crossHairTextItem, targetObjectItem};
     }
@@ -146,6 +156,8 @@ public class Hud implements IHud {
 
     public void setColor() {
         this.fpsTextItem.getMesh().getMaterial().setAmbientColour(new Vector4f(1f, 0f, 0f, 10f));
+        this.upsTextItem.getMesh().getMaterial().setAmbientColour(new Vector4f(1f, 0f, 0f, 10f));
+        this.deltaTextItem.getMesh().getMaterial().setAmbientColour(new Vector4f(1f, 0f, 0f, 10f));
         this.coordinatesTextItem.getMesh().getMaterial().setAmbientColour(new Vector4f(0.8f, 0f, 0f, 1f));
         this.rotationTextItem.getMesh().getMaterial().setAmbientColour(new Vector4f(0.8f, 0f, 0f, 1f));
         this.chunkSizeTextItem.getMesh().getMaterial().setAmbientColour(new Vector4f(0.8f, 0f, 0f, 1f));
@@ -154,10 +166,22 @@ public class Hud implements IHud {
         this.versionTextItem.getMesh().getMaterial().setAmbientColour(new Vector4f(0.8f, 0f, 0f, 1f));
     }
 
-    public void updateFps(float fps) {
+    public void updateFps(int fps) {
         this.fpsTextItem.setPosition(20.0f, 10f, 0);
-        this.fpsTextItem.setText(String.format("FPS: %s", (int) fps));
+        this.fpsTextItem.setText(String.format("FPS: %s", fps));
         this.fpsTextItem.getMesh().getMaterial().setAmbientColour(new Vector4f(0.8f, 0f, 0f, 1f));
+    }
+
+    public void updateDelta(float delta) {
+        this.deltaTextItem.setPosition(100.0f, 10f, 0);
+        this.deltaTextItem.setText(String.format("DELTA: %s", delta));
+        this.deltaTextItem.getMesh().getMaterial().setAmbientColour(new Vector4f(0.8f, 0f, 0f, 1f));
+    }
+
+    public void updateUps(int ups) {
+        this.upsTextItem.setPosition(270.0f, 10f, 0);
+        this.upsTextItem.setText(String.format("UPS: %s", ups));
+        this.upsTextItem.getMesh().getMaterial().setAmbientColour(new Vector4f(0.8f, 0f, 0f, 1f));
     }
 
     public void updateTargetObjectInfo(Vector3f vector3f) {
