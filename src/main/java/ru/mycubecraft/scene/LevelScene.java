@@ -150,12 +150,10 @@ public class LevelScene extends Scene {
         mouseListener.setDangx(dangx);
         mouseListener.setDangy(dangy);
 
+        float fixedDelta = delta * 10;
         if (!player.isFly()) {
-            float fixedDelta = delta * 10;
             cameraInc.add(playerAcceleration);
             handleCollisions(fixedDelta, cameraInc, camera.getPosition());
-        } else {
-            cameraInc.mul(delta).add(playerAcceleration);
         }
         camera.moveRotation(angx, angy, 0);
         camera.movePosition(cameraInc.x * delta * Settings.MOVE_SPEED, cameraInc.y * delta * Settings.MOVE_SPEED, cameraInc.z * delta * Settings.MOVE_SPEED);
@@ -197,10 +195,10 @@ public class LevelScene extends Scene {
         boolean fly = player.isFly();
         boolean jumping = player.isJumping();
 
-        float factor = fly ? 1f : 2f;
+        float factor = fly ? 6f : 2f;
         if (keyboardListener.isKeyPressed(GLFW_KEY_LEFT_SHIFT)) {
             cameraInc.y = -factor;
-        } else if (fly && keyboardListener.isKeyPressed(GLFW_KEY_SPACE)) {
+        } else if (keyboardListener.isKeyPressed(GLFW_KEY_SPACE)) {
             cameraInc.y = factor;
         }
         if (keyboardListener.isKeyPressed(GLFW_KEY_W)) {
@@ -241,17 +239,6 @@ public class LevelScene extends Scene {
         renderer.render(world, camera, this, hud, ambientLight);
     }
 
-    @Override
-    public void cleanup() {
-        hud.cleanup();
-        renderer.cleanup();
-        world.cleanup();
-        for (GameItem gameItem : gameItems) {
-            gameItem.cleanup();
-            gameItem.getMesh().cleanUp();
-        }
-    }
-
     private void createGameBlockItem(Vector3f position) {
         Vector3f newBlockPosition = new Vector3f(position);
         Vector3f ray = mouseBoxSelectionDetector.rayDirection().negate();
@@ -286,6 +273,17 @@ public class LevelScene extends Scene {
         List<Contact> contacts = new ArrayList<>();
         world.collisionDetection(dt, velocity, position, contacts);
         world.collisionResponse(dt, velocity, position, contacts);
+    }
+
+    @Override
+    public void cleanup() {
+        hud.cleanup();
+        renderer.cleanup();
+        world.cleanup();
+        for (GameItem gameItem : gameItems) {
+            gameItem.cleanup();
+            gameItem.getMesh().cleanUp();
+        }
     }
 
 

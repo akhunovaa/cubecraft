@@ -70,11 +70,12 @@ public class World {
     }
 
     private void generateChunk(int cx, int cz) {
-        for (int x = (cx - 2); x < (cx + 2); x++) {
-            for (int z = (cz - 2); z < (cz + 2); z++) {
+        for (int x = (cx); x < (cx + 1); x++) {
+            for (int z = (cz); z < (cz + 1); z++) {
                 String chunkKey = idx(x, z);
+                Chunk chunk;
                 if (!chunkMap.containsKey(chunkKey)) {
-                    Chunk chunk = createChunk(x, z);
+                    chunk = createChunk(x, z);
                     chunkMap.put(chunkKey, chunk);
                     executorService.submit(() -> {
                         try {
@@ -289,18 +290,6 @@ public class World {
         return chunk;
     }
 
-    public void cleanup() {
-        chunkMap.forEach((key, value) -> value.cleanup());
-        this.chunkMap.clear();
-        executorService.shutdown();
-        try {
-            if (!executorService.awaitTermination(2000L, TimeUnit.MILLISECONDS))
-                throw new AssertionError();
-        } catch (Exception e) {
-            throw new AssertionError();
-        }
-    }
-
     public Map<String, Chunk> getChunkMap() {
         return chunkMap;
     }
@@ -315,5 +304,20 @@ public class World {
                 .append(":")
                 .append(z);
         return key.toString();
+    }
+
+    public void cleanup() {
+        if (!chunkMap.isEmpty()) {
+            chunkMap.forEach((key, value) -> value.cleanup());
+            chunkMap.clear();
+        }
+        executorService.shutdown();
+        try {
+            if (!executorService.awaitTermination(3000L, TimeUnit.MILLISECONDS)) {
+                throw new AssertionError();
+            }
+        } catch (Exception e) {
+            throw new AssertionError();
+        }
     }
 }

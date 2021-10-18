@@ -3,9 +3,8 @@ package ru.mycubecraft.engine.graph;
 import org.joml.FrustumIntersection;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
+import ru.mycubecraft.block.Block;
 import ru.mycubecraft.core.GameItem;
-
-import java.util.ArrayList;
 
 public class FrustumCullingFilter {
 
@@ -29,12 +28,20 @@ public class FrustumCullingFilter {
     public void filter(GameItem gameItem) {
         float boundingRadius;
         Vector3f gameItemPosition;
-        if (gameItem != null && !gameItem.isDisableFrustumCulling()) {
+        if (gameItem != null) {
             boundingRadius = gameItem.getScale() * gameItem.getMesh().getBoundingRadius();
             gameItemPosition = gameItem.getPosition();
             boolean insideTheFrustum = insideFrustum(gameItemPosition.x, gameItemPosition.y, gameItemPosition.z, boundingRadius);
             gameItem.setInsideFrustum(insideTheFrustum);
         }
+    }
+
+    public boolean filter(Block block) {
+        float boundingRadius = block.getScale() * block.getBoundingRadius();
+        Vector3f blockPosition = block.getPosition();
+        boolean insideTheFrustum = insideFrustum(blockPosition.x, blockPosition.y, blockPosition.z, boundingRadius);
+        block.setInsideFrustum(insideTheFrustum);
+        return insideTheFrustum;
     }
 
     public boolean insideFrustum(float x0, float y0, float z0, float boundingRadius) {
@@ -43,5 +50,9 @@ public class FrustumCullingFilter {
 
     public boolean insideFrustum(float x0, float y0, float z0) {
         return frustumInt.testPoint(x0, y0, z0);
+    }
+
+    public int intersectSphere(float x0, float y0, float z0, float radius) {
+        return frustumInt.intersectSphere(x0, y0, z0, radius);
     }
 }

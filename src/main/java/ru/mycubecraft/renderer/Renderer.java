@@ -93,12 +93,10 @@ public class Renderer {
                 Map<String, Block> blocks = blockField.getBlocks();
                 blocks.values()
                         .parallelStream()
-                        .filter(Block::isVisible)
-                        .filter(block -> {
-                            GameItem gameItem = block.getGameCubeItem();
-                            frustumFilter.filter(gameItem);
-                            return gameItem.isInsideFrustum();
-                        })
+                        .filter(block -> block.isVisible()
+                                && !block.isDisableFrustumCulling()
+                                && block.getGameCubeItem() != null)
+                        .filter(frustumFilter::filter)
                         .forEach(block -> filteredItems.add(block.getGameCubeItem()));
             }
         }
@@ -211,6 +209,10 @@ public class Renderer {
         }
         if (hudShaderProgram != null) {
             hudShaderProgram.detach();
+        }
+
+        if (filteredItems != null) {
+            filteredItems.clear();
         }
     }
 

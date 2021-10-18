@@ -20,7 +20,7 @@ public abstract class Player {
      */
     public static final float PLAYER_WIDTH = 0.2f;
 
-    protected boolean fly;
+    protected boolean fly = true;
     protected boolean jumping;
 
 }
