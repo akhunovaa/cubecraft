@@ -86,7 +86,7 @@ public class LevelScene extends Scene {
         Vector3f fogColour = new Vector3f(0.49f, 0.61f, 0.66f);
 
         if (Settings.SHOW_FOG) {
-            this.fog = new Fog(true, fogColour, 0.04f);
+            this.fog = new Fog(true, fogColour, 0.08f);
         }
 
         float delta;
@@ -226,7 +226,7 @@ public class LevelScene extends Scene {
         }
 
         if (keyboardListener.isKeyPressed(GLFW_KEY_R)) {
-            camera.setPosition(47.0f, 46f, -179f);
+            camera.setPosition(47.0f, 130f, -179f);
         }
 
         if (keyboardListener.isKeyPressed(GLFW_KEY_T)) {
