@@ -221,7 +221,19 @@ public class LevelScene extends Scene {
         }
 
         if (keyboardListener.isKeyPressed(GLFW_KEY_R)) {
-            camera.setPosition(16f, 200f, 16f);
+            camera.setPosition(-86f, 123f, -126f);
+        }
+
+        if (keyboardListener.isKeyPressed(GLFW_KEY_T)) {
+            camera.setPosition(-188f, 100f, -236f);
+        }
+
+        if (keyboardListener.isKeyPressed(GLFW_KEY_Y)) {
+            camera.setPosition(-139.130f, 118.113f, -144.038f);
+        }
+
+        if (keyboardListener.isKeyPressed(GLFW_KEY_U)) {
+            camera.setPosition(-210.962f, 113.468f, -215.272f);
         }
 
         boolean aux = false;

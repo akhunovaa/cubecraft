@@ -134,10 +134,14 @@ public class Chunk {
         int yPosition = (int) block.getPosition().y;
         int zPosition = (int) block.getPosition().z;
         Block rightBlock = this.blockField.load(xPosition + 1, yPosition, zPosition);
+        Block rightRightBlock = this.blockField.load(xPosition + 2, yPosition, zPosition);
         Block leftBlock = this.blockField.load(xPosition - 1, yPosition, zPosition);
         Block frontBlock = this.blockField.load(xPosition, yPosition, zPosition + 1);
+        Block frontFrontBlock = this.blockField.load(xPosition, yPosition, zPosition + 2);
         Block backBlock = this.blockField.load(xPosition, yPosition, zPosition - 1);
+        Block backBackBlock = this.blockField.load(xPosition, yPosition, zPosition - 2);
         Block topBlock = this.blockField.load(xPosition, yPosition + 1, zPosition);
+        Block topTopBlock = this.blockField.load(xPosition, yPosition + 2, zPosition);
         Block bottomBlock = this.blockField.load(xPosition, yPosition - 1, zPosition);
 
         if (topBlock == null && bottomBlock != null
@@ -148,10 +152,45 @@ public class Chunk {
         }
 
         if (topBlock == null && bottomBlock != null
+                && rightBlock == null && leftBlock == null
+                && frontBlock != null && backBlock == null) {
+            block.setVisible(true);
+            return new BottomBackLeftRightCube();
+        }
+
+        if (topBlock != null && bottomBlock != null
+                && rightBlock != null && rightRightBlock == null && leftBlock == null
+                && frontBlock != null && backBlock != null) {
+            block.setVisible(true);
+            return new RightCube();
+        }
+
+        if (topBlock != null && topTopBlock == null && bottomBlock != null
                 && rightBlock == null && leftBlock != null
                 && frontBlock != null && backBlock != null) {
             block.setVisible(true);
-            return new BottomLeftCube();
+            return new LeftCube();
+        }
+
+        if (topBlock != null && topTopBlock == null && bottomBlock != null
+                && rightBlock != null && leftBlock != null
+                && frontBlock == null && frontFrontBlock == null && backBlock != null) {
+            block.setVisible(true);
+            return new FrontCube();
+        }
+
+        if (topBlock != null && backBackBlock == null && topTopBlock == null && bottomBlock != null
+                && rightBlock != null && leftBlock != null
+                && frontBlock != null && backBlock == null) {
+            block.setVisible(true);
+            return new BackCube();
+        }
+
+        if (topBlock != null && topTopBlock == null && bottomBlock != null
+                && rightBlock != null && leftBlock != null
+                && frontBlock != null && backBlock == null) {
+            block.setVisible(true);
+            return new BackCube();
         }
 
         if (topBlock == null && bottomBlock != null
@@ -162,13 +201,20 @@ public class Chunk {
         }
 
         if (topBlock == null && bottomBlock != null
+                && rightBlock == null && leftBlock != null
+                && frontBlock != null && backBlock != null) {
+            block.setVisible(true);
+            return new BottomLeftCube();
+        }
+
+        if (topBlock == null && bottomBlock != null
                 && rightBlock != null && leftBlock != null
                 && frontBlock == null && backBlock != null) {
             block.setVisible(true);
             return new BottomFrontCube();
         }
 
-        if (topBlock == null && bottomBlock == null
+        if (topBlock == null && bottomBlock != null
                 && rightBlock != null && leftBlock != null
                 && frontBlock != null && backBlock == null) {
             block.setVisible(true);
@@ -177,18 +223,39 @@ public class Chunk {
 
         if (topBlock == null && bottomBlock != null
                 && rightBlock == null && leftBlock != null
+                && frontBlock != null && backBlock == null) {
+            block.setVisible(true);
+            return new BottomBackLeftCube();
+        }
+
+        if (topTopBlock == null && bottomBlock != null
+                && rightBlock == null && leftBlock != null
+                && frontBlock != null && backBlock == null) {
+            block.setVisible(true);
+            return new BottomBackLeftCube();
+        }
+
+        if (topBlock == null && bottomBlock != null
+                && rightBlock != null && leftBlock == null
+                && frontBlock != null && backBlock == null) {
+            block.setVisible(true);
+            return new BottomBackRightCube();
+        }
+
+        if (topBlock == null && bottomBlock != null
+                && rightBlock == null && leftBlock != null
+                && frontBlock == null && backBlock != null) {
+            block.setVisible(true);
+            return new BottomFrontLeftCube();
+        }
+
+        if (topBlock == null && bottomBlock != null
+                && rightBlock != null && leftBlock == null
                 && frontBlock == null && backBlock != null) {
             block.setVisible(true);
             return new BottomFrontRightCube();
         }
-//        System.out.println("\n");
-//        System.out.println("topBlock: " + topBlock);
-//        System.out.println("bottomBlock: " + bottomBlock);
-//        System.out.println("rightBlock: " + rightBlock);
-//        System.out.println("leftBlock: " + leftBlock);
-//        System.out.println("frontBlock: " + frontBlock);
-//        System.out.println("backBlock: " + backBlock);
-//
+
         return new EmptyCube();
     }
 

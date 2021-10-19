@@ -28,6 +28,13 @@ public class Cube extends GameItem {
         this.texture = "assets/textures/white.png";
     }
 
+    public Cube(String colour) {
+        this.position = new Vector3f(0, 0, 0);
+        this.scale = 1;
+        this.rotation = new Vector3f(0, 0, 0);
+        this.texture = "assets/textures/" + colour + ".png";
+    }
+
     public void createCube() throws FileNotFoundException {
         Texture texture = AssetPool.getTexture(this.texture);
         Mesh mesh = AssetPool.getMesh(DEFAULT_MODEL_FILE_PATH);

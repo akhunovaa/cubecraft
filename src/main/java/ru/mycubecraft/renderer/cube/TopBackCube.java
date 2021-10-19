@@ -11,23 +11,23 @@ import ru.mycubecraft.util.AssetPool;
 import java.io.FileNotFoundException;
 
 @Setter
-public class FrontCube extends Cube {
+public class TopBackCube extends Cube {
 
-    private final static String DEFAULT_MODEL_FILE_PATH = "assets/models/cube_front.obj";
+    private final static String DEFAULT_MODEL_FILE_PATH = "assets/models/cube_top_back.obj";
     private final Vector3f position;
     private final Vector3f rotation;
     private Mesh mesh;
     private float scale;
     private String texture;
 
-    public FrontCube() {
+    public TopBackCube() {
         this.position = new Vector3f(0, 0, 0);
         this.scale = 1;
         this.rotation = new Vector3f(0, 0, 0);
         this.texture = "assets/textures/white.png";
     }
 
-    public FrontCube(String colour) {
+    public TopBackCube(String colour) {
         this.position = new Vector3f(0, 0, 0);
         this.scale = 1;
         this.rotation = new Vector3f(0, 0, 0);

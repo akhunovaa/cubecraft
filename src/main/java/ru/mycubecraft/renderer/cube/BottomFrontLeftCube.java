@@ -27,6 +27,14 @@ public class BottomFrontLeftCube extends Cube {
         this.texture = "assets/textures/white.png";
     }
 
+
+    public BottomFrontLeftCube(String colour) {
+        this.position = new Vector3f(0, 0, 0);
+        this.scale = 1;
+        this.rotation = new Vector3f(0, 0, 0);
+        this.texture = "assets/textures/" + colour + ".png";
+    }
+
     @Override
     public void createCube() throws FileNotFoundException {
         Texture texture = AssetPool.getTexture(this.texture);

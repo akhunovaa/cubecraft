@@ -27,9 +27,16 @@ public class BottomBackRightCube extends Cube {
         this.texture = "assets/textures/white.png";
     }
 
+    public BottomBackRightCube(String colour) {
+        this.position = new Vector3f(0, 0, 0);
+        this.scale = 1;
+        this.rotation = new Vector3f(0, 0, 0);
+        this.texture = "assets/textures/" + colour + ".png";
+    }
+
     @Override
     public void createCube() throws FileNotFoundException {
-        Texture texture = AssetPool.getTexture("assets/textures/white.png");
+        Texture texture = AssetPool.getTexture(this.texture);
         Mesh mesh = AssetPool.getMesh(DEFAULT_MODEL_FILE_PATH);
         mesh.setBoundingRadius(1.0f);
         mesh.setMaterial(new Material(texture, 0.0f));

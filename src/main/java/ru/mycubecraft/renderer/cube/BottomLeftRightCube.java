@@ -29,7 +29,7 @@ public class BottomLeftRightCube extends Cube {
 
     @Override
     public void createCube() throws FileNotFoundException {
-        Texture texture = AssetPool.getTexture("assets/textures/grass.png");
+        Texture texture = AssetPool.getTexture(this.texture);
         Mesh mesh = AssetPool.getMesh(DEFAULT_MODEL_FILE_PATH);
         mesh.setBoundingRadius(1.0f);
         mesh.setMaterial(new Material(texture, 0.0f));
