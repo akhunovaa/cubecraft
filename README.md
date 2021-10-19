@@ -12,14 +12,14 @@ mvn -P {your OS name} clean install
 
 ## Start/Run: 
 
-`java -jar cubecraft-0.1.2.jar `
+`java -jar cubecraft-0.1.3.jar `
 
 
 ## for MacOS users add VM option: 
 
 `-XstartOnFirstThread `
 
-`java -jar cubecraft-0.1.2.jar -XstartOnFirstThread`
+`java -jar cubecraft-0.1.3.jar -XstartOnFirstThread`
 
 [![Video clip](https://s3.amazonaws.com/culga-games-images/uploads/images/cube-craft.jpg)](https://www.youtube.com/watch?v=16pI2U7xM0E "Everything Is AWESOME")
 

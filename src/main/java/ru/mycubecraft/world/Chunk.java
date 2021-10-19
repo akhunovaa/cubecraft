@@ -3,8 +3,10 @@ package ru.mycubecraft.world;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 import ru.mycubecraft.block.Block;
 import ru.mycubecraft.block.DirtBlock;
+import ru.mycubecraft.renderer.cube.*;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -13,6 +15,7 @@ import static java.lang.Math.max;
 import static java.lang.Math.min;
 import static org.joml.SimplexNoise.noise;
 
+@Slf4j
 @Getter
 @Setter
 @EqualsAndHashCode
@@ -103,7 +106,8 @@ public class Chunk {
                 minY = min(minY, y);
                 for (int y0 = -1; y0 <= y; y0++) {
                     String key = idx(x + wX, y0, z + wZ);
-                    field.put(key, new DirtBlock(x + wX, y0, z + wZ));
+                    Block block = new DirtBlock(x + wX, y0, z + wZ);
+                    field.put(key, block);
                     num++;
                 }
             }
@@ -120,29 +124,139 @@ public class Chunk {
         Map<String, Block> blocks = this.blockField.getBlocks();
         blocks.values()
                 .forEach(block -> {
-                    int xPosition = (int) block.getPosition().x;
-                    int yPosition = (int) block.getPosition().y;
-                    int zPosition = (int) block.getPosition().z;
-                    Block rightBlock = this.blockField.load(xPosition + 1, yPosition, zPosition);
-                    Block leftBlock = this.blockField.load(xPosition - 1, yPosition, zPosition);
-                    Block frontBlock = this.blockField.load(xPosition, yPosition, zPosition + 1);
-                    Block backBlock = this.blockField.load(xPosition, yPosition, zPosition - 1);
-                    Block topBlock = this.blockField.load(xPosition, yPosition + 1, zPosition);
-                    Block topTopBlock = this.blockField.load(xPosition, yPosition + 2, zPosition);
-                    Block bottomBlock = this.blockField.load(xPosition, yPosition - 1, zPosition);
-
-                    if (topBlock == null && bottomBlock != null) {
-                        block.setVisible(true);
-                    } else if (topBlock != null && topTopBlock == null && rightBlock == null) {
-                        block.setVisible(true);
-                    } else if (topBlock != null && topTopBlock == null && leftBlock == null) {
-                        block.setVisible(true);
-                    } else if (topBlock != null && topTopBlock == null && frontBlock == null) {
-                        block.setVisible(true);
-                    } else if (topBlock != null && topTopBlock == null && backBlock == null) {
-                        block.setVisible(true);
-                    }
+                    Cube cube = calculateChunksBlocksFace(block);
+                    block.createCube(cube);
                 });
+    }
+
+    public Cube calculateChunksBlocksFace(Block block) {
+        int xPosition = (int) block.getPosition().x;
+        int yPosition = (int) block.getPosition().y;
+        int zPosition = (int) block.getPosition().z;
+        Block rightBlock = this.blockField.load(xPosition + 1, yPosition, zPosition);
+        Block rightRightBlock = this.blockField.load(xPosition + 2, yPosition, zPosition);
+        Block leftBlock = this.blockField.load(xPosition - 1, yPosition, zPosition);
+        Block frontBlock = this.blockField.load(xPosition, yPosition, zPosition + 1);
+        Block frontFrontBlock = this.blockField.load(xPosition, yPosition, zPosition + 2);
+        Block backBlock = this.blockField.load(xPosition, yPosition, zPosition - 1);
+        Block backBackBlock = this.blockField.load(xPosition, yPosition, zPosition - 2);
+        Block topBlock = this.blockField.load(xPosition, yPosition + 1, zPosition);
+        Block topTopBlock = this.blockField.load(xPosition, yPosition + 2, zPosition);
+        Block bottomBlock = this.blockField.load(xPosition, yPosition - 1, zPosition);
+
+        if (topBlock == null && bottomBlock != null
+                && rightBlock != null && leftBlock != null
+                && frontBlock != null && backBlock != null) {
+            block.setVisible(true);
+            return new BottomCube();
+        }
+
+        if (topBlock == null && bottomBlock != null
+                && rightBlock == null && leftBlock == null
+                && frontBlock != null && backBlock == null) {
+            block.setVisible(true);
+            return new BottomBackLeftRightCube();
+        }
+
+        if (topBlock != null && bottomBlock != null
+                && rightBlock != null && rightRightBlock == null && leftBlock == null
+                && frontBlock != null && backBlock != null) {
+            block.setVisible(true);
+            return new RightCube();
+        }
+
+        if (topBlock != null && topTopBlock == null && bottomBlock != null
+                && rightBlock == null && leftBlock != null
+                && frontBlock != null && backBlock != null) {
+            block.setVisible(true);
+            return new LeftCube();
+        }
+
+        if (topBlock != null && topTopBlock == null && bottomBlock != null
+                && rightBlock != null && leftBlock != null
+                && frontBlock == null && frontFrontBlock == null && backBlock != null) {
+            block.setVisible(true);
+            return new FrontCube();
+        }
+
+        if (topBlock != null && backBackBlock == null && topTopBlock == null && bottomBlock != null
+                && rightBlock != null && leftBlock != null
+                && frontBlock != null && backBlock == null) {
+            block.setVisible(true);
+            return new BackCube();
+        }
+
+        if (topBlock != null && topTopBlock == null && bottomBlock != null
+                && rightBlock != null && leftBlock != null
+                && frontBlock != null && backBlock == null) {
+            block.setVisible(true);
+            return new BackCube();
+        }
+
+        if (topBlock == null && bottomBlock != null
+                && rightBlock != null && leftBlock == null
+                && frontBlock != null && backBlock != null) {
+            block.setVisible(true);
+            return new BottomRightCube();
+        }
+
+        if (topBlock == null && bottomBlock != null
+                && rightBlock == null && leftBlock != null
+                && frontBlock != null && backBlock != null) {
+            block.setVisible(true);
+            return new BottomLeftCube();
+        }
+
+        if (topBlock == null && bottomBlock != null
+                && rightBlock != null && leftBlock != null
+                && frontBlock == null && backBlock != null) {
+            block.setVisible(true);
+            return new BottomFrontCube();
+        }
+
+        if (topBlock == null && bottomBlock != null
+                && rightBlock != null && leftBlock != null
+                && frontBlock != null && backBlock == null) {
+            block.setVisible(true);
+            return new BottomBackCube();
+        }
+
+        if (topBlock == null && bottomBlock != null
+                && rightBlock == null && leftBlock != null
+                && frontBlock != null && backBlock == null) {
+            block.setVisible(true);
+            return new BottomBackLeftCube();
+        }
+
+        if (topTopBlock == null && bottomBlock != null
+                && rightBlock == null && leftBlock != null
+                && frontBlock != null && backBlock == null) {
+            block.setVisible(true);
+            return new BottomBackLeftCube();
+        }
+
+        if (topBlock == null && bottomBlock != null
+                && rightBlock != null && leftBlock == null
+                && frontBlock != null && backBlock == null) {
+            block.setVisible(true);
+            return new BottomBackRightCube();
+        }
+
+        if (topBlock == null && bottomBlock != null
+                && rightBlock == null && leftBlock != null
+                && frontBlock == null && backBlock != null) {
+            block.setVisible(true);
+            return new BottomFrontLeftCube();
+        }
+
+        if (topBlock == null && bottomBlock != null
+                && rightBlock != null && leftBlock == null
+                && frontBlock == null && backBlock != null) {
+            block.setVisible(true);
+            return new BottomFrontRightCube();
+        }
+
+        return new EmptyCube();
     }
 
     /**
@@ -160,7 +274,8 @@ public class Chunk {
     }
 
     public void cleanup() {
-        // this.blocks.forEach((key, value) -> value.getGameCubeItem().cleanup());
-
+        if (blockField != null) {
+            blockField.cleanup();
+        }
     }
 }

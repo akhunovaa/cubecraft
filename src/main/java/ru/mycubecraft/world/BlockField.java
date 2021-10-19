@@ -92,4 +92,10 @@ public class BlockField {
         return blocks.get(key.toString());
     }
 
+    public void cleanup() {
+        if (blocks != null && !blocks.isEmpty()) {
+            blocks.clear();
+        }
+    }
+
 }

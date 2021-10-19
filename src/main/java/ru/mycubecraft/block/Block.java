@@ -4,43 +4,34 @@ import lombok.Getter;
 import lombok.Setter;
 import org.joml.Vector3f;
 import ru.mycubecraft.core.GameItem;
-import ru.mycubecraft.renderer.Cube;
+import ru.mycubecraft.renderer.cube.Cube;
 
 @Getter
 @Setter
-public class Block {
+public abstract class Block {
 
-    private final Vector3f position;
-    private GameItem gameCubeItem;
-    private boolean visible;
-
-    public Block(int bX, int bY, int bZ, String texture) {
-        this.position = new Vector3f(bX, bY, bZ);
-        try {
-            this.gameCubeItem = new Cube(texture);
-            this.gameCubeItem.setPosition(bX, bY, bZ);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    public Block(Vector3f position, String texture) {
-        this.position = position;
-        try {
-            Cube gameCubeItem = new Cube(texture);
-            gameCubeItem.setPosition(position.x, position.y, position.z);
-            this.gameCubeItem = gameCubeItem;
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
+    final Vector3f position;
+    boolean disableFrustumCulling;
+    boolean visible;
+    float scale;
+    float boundingRadius;
+    private boolean insideFrustum;
 
     public Block(int bX, int bY, int bZ) {
-        this(bX, bY, bZ, "assets/textures/white.png");
+        this.position = new Vector3f(bX, bY, bZ);
+        this.disableFrustumCulling = false;
+        this.insideFrustum = false;
+        this.scale = 1.0f;
+        this.boundingRadius = 1.0f;
     }
 
-    public void render() {
-        gameCubeItem.render();
+    public Block(Vector3f position) {
+        this.position = position;
     }
 
+    public abstract void createCube(Cube cube);
+
+    public abstract void render();
+
+    public abstract GameItem getGameCubeItem();
 }

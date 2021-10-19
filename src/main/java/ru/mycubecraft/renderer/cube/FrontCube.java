@@ -1,33 +1,46 @@
-package ru.mycubecraft.renderer;
+package ru.mycubecraft.renderer.cube;
 
+import lombok.Setter;
 import org.joml.Vector3f;
 import org.lwjgl.opengl.GL11;
-import ru.mycubecraft.core.GameItem;
 import ru.mycubecraft.core.Mesh;
 import ru.mycubecraft.engine.Material;
+import ru.mycubecraft.renderer.Texture;
 import ru.mycubecraft.util.AssetPool;
 
 import java.io.FileNotFoundException;
 
-public class Cube extends GameItem {
+@Setter
+public class FrontCube extends Cube {
 
-    private final static String DEFAULT_MODEL_FILE_PATH = "assets/models/cube.obj";
-
-    private final Mesh mesh;
-
+    private final static String DEFAULT_MODEL_FILE_PATH = "assets/models/cube_front.obj";
     private final Vector3f position;
     private final Vector3f rotation;
+    private Mesh mesh;
     private float scale;
+    private String texture;
 
-    public Cube(String texturePath) throws FileNotFoundException {
-        Texture texture = AssetPool.getTexture(texturePath);
+    public FrontCube() {
+        this.position = new Vector3f(0, 0, 0);
+        this.scale = 1;
+        this.rotation = new Vector3f(0, 0, 0);
+        this.texture = "assets/textures/white.png";
+    }
+
+    public FrontCube(String colour) {
+        this.position = new Vector3f(0, 0, 0);
+        this.scale = 1;
+        this.rotation = new Vector3f(0, 0, 0);
+        this.texture = "assets/textures/" + colour + ".png";
+    }
+
+    @Override
+    public void createCube() throws FileNotFoundException {
+        Texture texture = AssetPool.getTexture(this.texture);
         Mesh mesh = AssetPool.getMesh(DEFAULT_MODEL_FILE_PATH);
         mesh.setBoundingRadius(1.0f);
         mesh.setMaterial(new Material(texture, 0.0f));
         this.mesh = mesh;
-        this.position = new Vector3f(0, 0, 0);
-        this.scale = 1;
-        this.rotation = new Vector3f(0, 0, 0);
     }
 
     public Vector3f getPosition() {
@@ -74,7 +87,7 @@ public class Cube extends GameItem {
         return GL11.GL_TRUE;
     }
 }
-	
-	
+
+
 
 

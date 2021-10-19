@@ -46,7 +46,7 @@ public class Hud implements IHud {
     public void buildHud() {
         fontTexture.buildTexture();
 
-        String version = "ALPHA 0.1.2";
+        String version = "ALPHA 0.1.3";
         String fpsText = "FPS: 0";
         String upsText = "UPS: 0";
         String deltaText = "DELTA: 0";

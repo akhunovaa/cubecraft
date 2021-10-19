@@ -2,8 +2,8 @@ package ru.mycubecraft.scene;
 
 import lombok.Getter;
 import org.joml.Vector3f;
-import org.joml.Vector4f;
 import org.lwjgl.opengl.GL;
+import ru.mycubecraft.DelayedRunnable;
 import ru.mycubecraft.Settings;
 import ru.mycubecraft.core.GameItem;
 import ru.mycubecraft.data.Contact;
@@ -32,8 +32,6 @@ public class LevelScene extends Scene {
     private final Vector3f playerVelocity = new Vector3f(0.0f, 0.0f, 0.0f);
     private final Vector3f playerAcceleration = new Vector3f(0f, -4f, 0f);
     private final Vector3f tmpv3f = new Vector3f();
-
-    private final Vector3f cameraInc = new Vector3f(0.0f, 0.0f, 0.0f);
 
     /**
      * Used for timing calculations.
@@ -88,7 +86,7 @@ public class LevelScene extends Scene {
         Vector3f fogColour = new Vector3f(0.49f, 0.61f, 0.66f);
 
         if (Settings.SHOW_FOG) {
-            this.fog = new Fog(true, fogColour, 0.04f);
+            this.fog = new Fog(true, fogColour, 0.08f);
         }
 
         float delta;
@@ -130,9 +128,14 @@ public class LevelScene extends Scene {
 
     @Override
     public void update(float delta) {
-        int xPosition = (int) camera.getPosition().x;
-        int zPosition = (int) camera.getPosition().z;
-        world.ensureChunk(xPosition, zPosition);
+
+        updateAndRenderRunnables.add(new DelayedRunnable(() -> {
+            int xPosition = (int) camera.getPosition().x;
+            int zPosition = (int) camera.getPosition().z;
+            world.ensureChunk(xPosition, zPosition);
+            return null;
+        }, "Framebuffer size change", 0));
+
 
         lightUpdate();
 
@@ -150,15 +153,15 @@ public class LevelScene extends Scene {
         mouseListener.setDangx(dangx);
         mouseListener.setDangy(dangy);
 
+        float fixedDelta = delta * Settings.MOVE_SPEED;
         if (!player.isFly()) {
-            float fixedDelta = delta * 10;
-            cameraInc.add(playerAcceleration);
-            handleCollisions(fixedDelta, cameraInc, camera.getPosition());
-        } else {
-            cameraInc.mul(delta).add(playerAcceleration);
+            playerVelocity.add(playerAcceleration);
+            handleCollisions(delta * 10, playerVelocity, camera);
         }
+
         camera.moveRotation(angx, angy, 0);
-        camera.movePosition(cameraInc.x * delta * Settings.MOVE_SPEED, cameraInc.y * delta * Settings.MOVE_SPEED, cameraInc.z * delta * Settings.MOVE_SPEED);
+
+        camera.movePosition(playerVelocity.x * fixedDelta, playerVelocity.y * fixedDelta, playerVelocity.z * fixedDelta);
 
         //selectedItemPosition = mouseBoxSelectionDetector.getGameItemPosition(world.getChunksBlockItems(), camera);
     }
@@ -192,30 +195,30 @@ public class LevelScene extends Scene {
 
     @Override
     public void input() {
-        cameraInc.set(0, 0, 0);
+        playerVelocity.set(0, 0, 0);
 
         boolean fly = player.isFly();
         boolean jumping = player.isJumping();
 
-        float factor = fly ? 1f : 2f;
+        float factor = fly ? 6f : 2f;
         if (keyboardListener.isKeyPressed(GLFW_KEY_LEFT_SHIFT)) {
-            cameraInc.y = -factor;
-        } else if (fly && keyboardListener.isKeyPressed(GLFW_KEY_SPACE)) {
-            cameraInc.y = factor;
+            playerVelocity.y = -factor;
+        } else if (keyboardListener.isKeyPressed(GLFW_KEY_SPACE)) {
+            playerVelocity.y = factor;
         }
         if (keyboardListener.isKeyPressed(GLFW_KEY_W)) {
-            cameraInc.z = -factor;
+            playerVelocity.z = -factor;
         } else if (keyboardListener.isKeyPressed(GLFW_KEY_S)) {
-            cameraInc.z = factor;
+            playerVelocity.z = factor;
         }
         if (keyboardListener.isKeyPressed(GLFW_KEY_A)) {
-            cameraInc.x = -factor;
+            playerVelocity.x = -factor;
         } else if (keyboardListener.isKeyPressed(GLFW_KEY_D)) {
-            cameraInc.x = factor;
+            playerVelocity.x = factor;
         }
 
         if (!fly && keyboardListener.isKeyPressed(GLFW_KEY_SPACE) && !jumping) {
-            cameraInc.y = factor * 2 * 2;
+            playerVelocity.y = factor * 2 * 2;
         }
 
         if (keyboardListener.isKeyPressed(GLFW_KEY_F)) {
@@ -223,7 +226,19 @@ public class LevelScene extends Scene {
         }
 
         if (keyboardListener.isKeyPressed(GLFW_KEY_R)) {
-            camera.setPosition(16f, 200f, 16f);
+            camera.setPosition(47.0f, 130f, -179f);
+        }
+
+        if (keyboardListener.isKeyPressed(GLFW_KEY_T)) {
+            camera.setPosition(-188f, 100f, -236f);
+        }
+
+        if (keyboardListener.isKeyPressed(GLFW_KEY_Y)) {
+            camera.setPosition(-139.130f, 118.113f, -144.038f);
+        }
+
+        if (keyboardListener.isKeyPressed(GLFW_KEY_U)) {
+            camera.setPosition(-210.962f, 113.468f, -215.272f);
         }
 
         boolean aux = false;
@@ -239,17 +254,6 @@ public class LevelScene extends Scene {
     @Override
     public void render() {
         renderer.render(world, camera, this, hud, ambientLight);
-    }
-
-    @Override
-    public void cleanup() {
-        hud.cleanup();
-        renderer.cleanup();
-        world.cleanup();
-        for (GameItem gameItem : gameItems) {
-            gameItem.cleanup();
-            gameItem.getMesh().cleanUp();
-        }
     }
 
     private void createGameBlockItem(Vector3f position) {
@@ -282,10 +286,21 @@ public class LevelScene extends Scene {
     /**
      * Handle any collisions with the player and the blocks.
      */
-    private void handleCollisions(float dt, Vector3f velocity, Vector4f position) {
+    private void handleCollisions(float dt, Vector3f velocity, Camera camera) {
         List<Contact> contacts = new ArrayList<>();
-        world.collisionDetection(dt, velocity, position, contacts);
-        world.collisionResponse(dt, velocity, position, contacts);
+        world.collisionDetection(dt, velocity, camera, contacts);
+        world.collisionResponse(dt, velocity, camera, contacts);
+    }
+
+    @Override
+    public void cleanup() {
+        hud.cleanup();
+        renderer.cleanup();
+        world.cleanup();
+        for (GameItem gameItem : gameItems) {
+            gameItem.cleanup();
+            gameItem.getMesh().cleanUp();
+        }
     }
 
 

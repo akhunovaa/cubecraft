@@ -3,10 +3,10 @@ package ru.mycubecraft.world;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.joml.Vector3f;
-import org.joml.Vector4f;
 import ru.mycubecraft.block.Block;
 import ru.mycubecraft.data.Contact;
 import ru.mycubecraft.engine.Utils;
+import ru.mycubecraft.renderer.Camera;
 import ru.mycubecraft.world.player.Player;
 
 import java.util.List;
@@ -51,7 +51,7 @@ public class World {
         return t;
     });
 
-    private final Map<String, Chunk> chunkMap = Utils.createLRUMap(18);
+    private final Map<String, Chunk> chunkMap = Utils.createLRUMap(10);
 
     public World() {
     }
@@ -70,11 +70,12 @@ public class World {
     }
 
     private void generateChunk(int cx, int cz) {
-        for (int x = (cx - 2); x < (cx + 2); x++) {
-            for (int z = (cz - 2); z < (cz + 2); z++) {
+        for (int x = (cx - 1); x < (cx + 1); x++) {
+            for (int z = (cz - 1); z < (cz + 1); z++) {
                 String chunkKey = idx(x, z);
+                Chunk chunk;
                 if (!chunkMap.containsKey(chunkKey)) {
-                    Chunk chunk = createChunk(x, z);
+                    chunk = createChunk(x, z);
                     chunkMap.put(chunkKey, chunk);
                     executorService.submit(() -> {
                         try {
@@ -92,21 +93,29 @@ public class World {
     /**
      * Detect possible collision candidates.
      */
-    public void collisionDetection(float dt, Vector3f velocity, Vector4f position, List<Contact> contacts) {
+    public void collisionDetection(float dt, Vector3f velocity, Camera camera, List<Contact> contacts) {
+
+        Vector3f position = new Vector3f(camera.position.x, camera.position.y, camera.position.z);
+
         int xPosition = (int) position.x;
         int zPosition = (int) position.z;
 
         int cx = xPosition >> CHUNK_SIZE_SHIFT,
                 cz = zPosition >> CHUNK_SIZE_SHIFT;
+
         String chunkKey = idx(cx, cz);
+
         Chunk chunk = chunkMap.get(chunkKey);
+
         if (chunk == null || chunk.getBlockField() == null) {
             return;
         }
         BlockField blockField = chunk.getBlockField();
+
         float dx = velocity.x * dt,
                 dy = velocity.y * dt,
                 dz = velocity.z * dt;
+
         int minX = (int) floor(position.x - Player.PLAYER_WIDTH + (dx < 0 ? dx : 0));
         int maxX = (int) floor(position.x + Player.PLAYER_WIDTH + (dx > 0 ? dx : 0));
         int minY = (int) floor(position.y - Player.PLAYER_EYE_HEIGHT + (dy < 0 ? dy : 0));
@@ -121,9 +130,13 @@ public class World {
                     if (block == null) {
                         continue;
                     }
+
+                    float distX = position.x - x;
+                    float distY = position.y - y;
+                    float distZ = position.z - z;
+
                     /* and perform swept-aabb intersection */
-                    intersectSweptAabbAabb(x, y, z, position.x - x,
-                            position.y - y, position.z - z, dx, dy, dz, contacts, blockField);
+                    intersectSweptAabbAabb(x, y, z, distX, distY, distZ, dx, dy, dz, contacts, blockField);
                 }
             }
         }
@@ -131,19 +144,18 @@ public class World {
 
     /**
      * Compute the exact collision point between the player and the block at <code>(x, y, z)</code>.
+     * https://www.gamedev.net/tutorials/programming/general-and-gameplay-programming/swept-aabb-collision-detection-and-response-r3084/
      */
     private void intersectSweptAabbAabb(int x, int y, int z, float px, float py,
                                         float pz, float dx, float dy, float dz,
                                         List<Contact> contacts, BlockField blockField) {
-        /*
-         * https://www.gamedev.net/tutorials/programming/general-and-gameplay-programming/swept-aabb-collision-detection-and-response-r3084/
-         */
         float pxmax = px + PLAYER_WIDTH, pxmin = px - PLAYER_WIDTH, pymax = py + PLAYER_HEIGHT - PLAYER_EYE_HEIGHT, pymin = py - PLAYER_EYE_HEIGHT,
                 pzmax = pz + PLAYER_WIDTH, pzmin = pz - PLAYER_WIDTH;
 
         float xInvEntry = dx > 0f ? -pxmax : 1 - pxmin,
                 xInvExit = dx > 0f ? 1 - pxmin : -pxmax;
 
+        //boolean xNotValid = dx == 0 || blockField.load(x + (dx > 0 ? -1 : 1), y, z) != null;
         boolean xNotValid = dx == 0;
 
         float xEntry = xNotValid ? NEGATIVE_INFINITY : xInvEntry / dx,
@@ -152,7 +164,8 @@ public class World {
         float yInvEntry = dy > 0f ? -pymax : 1 - pymin,
                 yInvExit = dy > 0f ? 1 - pymin : -pymax;
 
-        boolean yNotValid = dy == 0;
+        //boolean yNotValid = dy == 0 || blockField.load(x, y + (dy > 0 ? -1 : 1), z) != null;
+        boolean yNotValid = dy == 0f;
 
         float yEntry = yNotValid ? NEGATIVE_INFINITY : yInvEntry / dy,
                 yExit = yNotValid ? POSITIVE_INFINITY : yInvExit / dy;
@@ -160,6 +173,7 @@ public class World {
         float zInvEntry = dz > 0f ? -pzmax : 1 - pzmin,
                 zInvExit = dz > 0f ? 1 - pzmin : -pzmax;
 
+        //boolean zNotValid = dz == 0 || blockField.load(x, y, z + (dz > 0 ? -1 : 1)) != null;
         boolean zNotValid = dz == 0;
 
         float zEntry = zNotValid ? NEGATIVE_INFINITY : zInvEntry / dz,
@@ -167,6 +181,7 @@ public class World {
 
         float tEntry = max(max(xEntry, yEntry), zEntry),
                 tExit = min(min(xExit, yExit), zExit);
+
         if (tEntry < -.5f || tEntry > tExit) {
             return;
         }
@@ -186,18 +201,12 @@ public class World {
     /**
      * Respond to all found collision contacts.
      */
-    public void collisionResponse(float dt, Vector3f velocity, Vector4f position, List<Contact> contacts) {
+    public void collisionResponse(float dt, Vector3f velocity, Camera camera, List<Contact> contacts) {
         sort(contacts);
-        int minX = Integer.MIN_VALUE,
-                maxX = Integer.MAX_VALUE,
-                minY = Integer.MIN_VALUE,
-                maxY = Integer.MAX_VALUE,
-                minZ = Integer.MIN_VALUE,
+        int minX = Integer.MIN_VALUE, maxX = Integer.MAX_VALUE, minY = Integer.MIN_VALUE, maxY = Integer.MAX_VALUE, minZ = Integer.MIN_VALUE,
                 maxZ = Integer.MAX_VALUE;
         float elapsedTime = 0f;
-        float dx = velocity.x * dt,
-                dy = velocity.y * dt,
-                dz = velocity.z * dt;
+        float dx = velocity.x * dt, dy = velocity.y * dt, dz = velocity.z * dt;
         for (Contact contact : contacts) {
             if (contact.x <= minX || contact.y <= minY
                     || contact.z <= minZ || contact.x >= maxX
@@ -206,7 +215,7 @@ public class World {
             }
 
             float t = contact.t - elapsedTime;
-            velocity.add(dx * t * 2, dy * t * 2, dz * t * 2);
+            camera.movePosition(dx * t, dy * t, dz * t);
             elapsedTime += t;
             if (contact.nx != 0) {
                 minX = dx < 0 ? max(minX, contact.x) : minX;
@@ -226,7 +235,8 @@ public class World {
             }
         }
         float trem = 1f - elapsedTime;
-        velocity.add(dx * trem * 2, dy * trem * 2, dz * trem * 2);
+        //camera.movePosition(dx * trem, dy * trem, dz * trem);
+        velocity.add(dx * trem, dy * trem, dz * trem);
     }
 
     /**
@@ -289,18 +299,6 @@ public class World {
         return chunk;
     }
 
-    public void cleanup() {
-        chunkMap.forEach((key, value) -> value.cleanup());
-        this.chunkMap.clear();
-        executorService.shutdown();
-        try {
-            if (!executorService.awaitTermination(2000L, TimeUnit.MILLISECONDS))
-                throw new AssertionError();
-        } catch (Exception e) {
-            throw new AssertionError();
-        }
-    }
-
     public Map<String, Chunk> getChunkMap() {
         return chunkMap;
     }
@@ -315,5 +313,20 @@ public class World {
                 .append(":")
                 .append(z);
         return key.toString();
+    }
+
+    public void cleanup() {
+        if (!chunkMap.isEmpty()) {
+            chunkMap.forEach((key, value) -> value.cleanup());
+            chunkMap.clear();
+        }
+        executorService.shutdown();
+        try {
+            if (!executorService.awaitTermination(3000L, TimeUnit.MILLISECONDS)) {
+                throw new AssertionError();
+            }
+        } catch (Exception e) {
+            throw new AssertionError();
+        }
     }
 }
