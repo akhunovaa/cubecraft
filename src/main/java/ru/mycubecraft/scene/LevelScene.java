@@ -138,9 +138,16 @@ public class LevelScene extends Scene {
         updateAndRenderRunnables.add(new DelayedRunnable(() -> {
             int xPosition = (int) camera.getPosition().x;
             int zPosition = (int) camera.getPosition().z;
-            world.ensureChunk(xPosition, zPosition);
+            world.ensureChunkIfVisible(xPosition, zPosition);
             return null;
-        }, "Framebuffer size change", 0));
+        }, "Worlds chunk ensure", 0));
+
+        updateAndRenderRunnables.add(new DelayedRunnable(() -> {
+            int xPosition = (int) camera.getPosition().x;
+            int zPosition = (int) camera.getPosition().z;
+            world.destroyOutOfRenderDistanceFrontierChunks(xPosition, zPosition);
+            return null;
+        }, "Worlds chunk remove", 0));
 
 
         lightUpdate();
