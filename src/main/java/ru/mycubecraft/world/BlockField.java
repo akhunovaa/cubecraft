@@ -95,6 +95,7 @@ public class BlockField {
     public void cleanup() {
         if (blocks != null && !blocks.isEmpty()) {
             blocks.clear();
+            blocks = null;
         }
     }
 

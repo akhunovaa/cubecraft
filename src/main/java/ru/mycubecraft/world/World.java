@@ -4,13 +4,15 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.joml.Vector3f;
 import ru.mycubecraft.block.Block;
+import ru.mycubecraft.block.EmptyBlock;
 import ru.mycubecraft.data.Contact;
-import ru.mycubecraft.engine.Utils;
 import ru.mycubecraft.renderer.Camera;
 import ru.mycubecraft.world.player.Player;
 
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -39,6 +41,18 @@ public class World {
     private static final int CHUNK_SIZE_SHIFT = 5;
     private static final int CHUNK_SIZE = 1 << CHUNK_SIZE_SHIFT;
 
+
+    /**
+     * The number of chunks, starting from the player's position, that should be visible in any given
+     * direction.
+     */
+    private static final int MAX_RENDER_DISTANCE_CHUNKS = 40;
+
+    /**
+     * The maximum render distance in meters.
+     */
+    private static final int MAX_RENDER_DISTANCE_METERS = MAX_RENDER_DISTANCE_CHUNKS << CHUNK_SIZE_SHIFT;
+
     /**
      * Used to offload compute-heavy tasks, such as chunk meshing and triangulation, from the render
      * thread to background threads.
@@ -51,43 +65,34 @@ public class World {
         return t;
     });
 
-    private final Map<String, Chunk> chunkMap = Utils.createLRUMap(10);
+    private final Map<String, Chunk> chunkMap = new ConcurrentHashMap<>();
 
     public World() {
     }
 
-    public void ensureChunk(int xPosition, int zPosition) {
-        int cx = xPosition >> CHUNK_SIZE_SHIFT,
-                cz = zPosition >> CHUNK_SIZE_SHIFT;
-        generateChunk(cx, cz);
-    }
 
     public void generateStartChunks() {
-//        generateChunk(0, 1);
-//        generateChunk(1, 0);
-//        generateChunk(0, 0);
-//        generateChunk(1, 1);
+
     }
 
-    private void generateChunk(int cx, int cz) {
-        for (int x = (cx - 1); x < (cx + 1); x++) {
-            for (int z = (cz - 1); z < (cz + 1); z++) {
-                String chunkKey = idx(x, z);
-                Chunk chunk;
-                if (!chunkMap.containsKey(chunkKey)) {
-                    chunk = createChunk(x, z);
-                    chunkMap.put(chunkKey, chunk);
-                    executorService.submit(() -> {
-                        try {
-                            chunk.createBlockField();
-                            chunk.sortBlocksVisibility();
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                    });
+    private Chunk generateChunk(int cx, int cz) {
+        String chunkKey = idx(cx, cz);
+        Chunk chunk;
+        if (!chunkMap.containsKey(chunkKey)) {
+            chunk = createChunk(cx, cz);
+            chunkMap.put(chunkKey, chunk);
+            executorService.submit(() -> {
+                try {
+                    chunk.createBlockField();
+                    chunk.sortBlocksVisibility();
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
-            }
+            });
+            return chunk;
         }
+
+        return null;
     }
 
     /**
@@ -127,7 +132,7 @@ public class World {
             for (int z = minZ; z <= maxZ; z++) {
                 for (int x = minX; x <= maxX; x++) {
                     Block block = blockField.load(x, y, z);
-                    if (block == null) {
+                    if (block == null || block instanceof EmptyBlock) {
                         continue;
                     }
 
@@ -192,7 +197,7 @@ public class World {
             contact.nx = dx > 0 ? -1 : 1;
         } else if (yEntry == tEntry) {
             contact.ny = dy > 0 ? -1 : 1;
-        } else if (zEntry == tEntry) {
+        } else {
             contact.nz = dz > 0 ? -1 : 1;
         }
         contacts.add(contact);
@@ -297,6 +302,70 @@ public class World {
         Chunk chunk = new Chunk(xOffset, yOffset, zOffset);
         chunkMap.put(chunkKey, chunk);
         return chunk;
+    }
+
+    /**
+     * Ensure that a frontier neighbor chunk is created if it is visible.
+     *
+     * @param xPosition the x position of player
+     * @param zPosition the z position of player
+     */
+    public void ensureChunkIfVisible(int xPosition, int zPosition) {
+
+        int cx = xPosition >> CHUNK_SIZE_SHIFT,
+                cz = zPosition >> CHUNK_SIZE_SHIFT;
+
+        if (chunkInRenderDistance(cx, cz, xPosition, zPosition)) {
+            ensureChunk(cx, cz);
+        }
+        if (chunkInRenderDistance(cx - 1, cz, xPosition, zPosition)) {
+            ensureChunk(cx - 1, cz);
+        }
+        if (chunkInRenderDistance(cx + 1, cz, xPosition, zPosition)) {
+            ensureChunk(cx + 1, cz);
+        }
+        if (chunkInRenderDistance(cx, cz - 1, xPosition, zPosition)) {
+            ensureChunk(cx, cz - 1);
+        }
+        if (chunkInRenderDistance(cx, cz + 1, xPosition, zPosition)) {
+            ensureChunk(cx, cz + 1);
+        }
+    }
+
+    public Chunk ensureChunk(int xOffset, int zOffset) {
+        return generateChunk(xOffset, zOffset);
+    }
+
+
+    /**
+     * Compute the distance from the player's position to the center of the chunk at
+     * <code>(xOffset, zOffset)</code>.
+     */
+    private double distToChunk(int xOffset, int zOffset, float xPosition, float zPosition) {
+        double dx = xPosition - (xOffset + 0.5) * CHUNK_SIZE;
+        double dz = zPosition - (zOffset + 0.5) * CHUNK_SIZE;
+        return dx * dx + dz * dz;
+    }
+
+    /**
+     * Determine whether the chunk at <code>(xOffset, zOffset)</code> is within render distance.
+     */
+    private boolean chunkInRenderDistance(int xOffset, int zOffset, float xPosition, float zPosition) {
+        return distToChunk(xOffset, zOffset, xPosition, zPosition) < MAX_RENDER_DISTANCE_METERS << 1;
+    }
+
+    /**
+     * Iterate through all current  chunks and check, whether any of them is further than the
+     * {@link #MAX_RENDER_DISTANCE_CHUNKS} aways, in which case those will be destroyed.
+     */
+    public void destroyOutOfRenderDistanceFrontierChunks(int xPosition, int zPosition) {
+        for (Iterator<Chunk> chunkIterator = chunkMap.values().iterator(); chunkIterator.hasNext(); ) {
+            Chunk chunk = chunkIterator.next();
+            if (!chunkInRenderDistance(chunk.getCx(), chunk.getCz(), xPosition, zPosition)) {
+                chunk.cleanup();
+                chunkIterator.remove();
+            }
+        }
     }
 
     public Map<String, Chunk> getChunkMap() {

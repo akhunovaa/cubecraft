@@ -2,6 +2,7 @@ package ru.mycubecraft.scene;
 
 import lombok.Getter;
 import ru.mycubecraft.DelayedRunnable;
+import ru.mycubecraft.Settings;
 import ru.mycubecraft.core.GameItem;
 import ru.mycubecraft.engine.SkyBox;
 import ru.mycubecraft.engine.graph.weather.Fog;
@@ -35,6 +36,7 @@ public abstract class Scene {
     protected Camera camera;
     protected ArrayList<GameItem> gameItems = new ArrayList<>();
     protected Fog fog;
+    protected boolean fogLButtonPressed = Settings.SHOW_FOG;
     protected MouseBoxSelectionDetector mouseBoxSelectionDetector;
     protected KeyboardListener keyboardListener = KeyboardListener.getInstance();
     protected MouseListener mouseListener = MouseListener.getInstance();

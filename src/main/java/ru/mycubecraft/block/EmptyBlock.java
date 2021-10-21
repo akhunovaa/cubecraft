@@ -15,14 +15,14 @@ public class EmptyBlock extends Block {
 
     public EmptyBlock(int bX, int bY, int bZ) {
         super(bX, bY, bZ);
+        visible = false;
     }
 
     @Override
     public void createCube(Cube cube) {
         try {
-            cube.setPosition(position.x, position.y, position.z);
-            cube.setTexture(MODEL_TEXTURE_PATH);
             this.gameCubeItem = cube;
+            this.gameCubeItem.setPosition(position.x, position.y, position.z);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -30,7 +30,7 @@ public class EmptyBlock extends Block {
 
     @Override
     public void render() {
-        gameCubeItem.render();
+        throw new UnsupportedOperationException("Not implemented here!");
     }
 
     @Override

@@ -20,7 +20,7 @@ public class KeyboardListener {
     }
 
     public void keyCallback(long window, int key, int scanCode, int action, int mods) {
-        if (action == GLFW_PRESS || action == GLFW_REPEAT) {
+        if (action == GLFW_PRESS) {
             this.keyPressed[key] = true;
         } else if (action == GLFW_RELEASE) {
             this.keyPressed[key] = false;

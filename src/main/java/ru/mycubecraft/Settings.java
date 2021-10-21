@@ -14,9 +14,9 @@ public final class Settings {
 
     public static final float MOVE_SPEED = 3.35f;
 
-    public static final float FOV = (float) Math.toRadians(60.0f);
-    public static final float Z_NEAR = 0.01f;
-    public static final float Z_FAR = 1000.0f;
+    public static final float FOV = (float) Math.toRadians(72.0f);
+    public static final float Z_NEAR = 0.1f;
+    public static final float Z_FAR = 1282.0f;
 
     public static final float MOUSE_SENSITIVITY = 0.095f;
 
