@@ -6,6 +6,7 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import ru.mycubecraft.block.Block;
 import ru.mycubecraft.block.DirtBlock;
+import ru.mycubecraft.block.EmptyBlock;
 import ru.mycubecraft.renderer.cube.*;
 
 import java.util.HashMap;
@@ -110,6 +111,12 @@ public class Chunk {
                     field.put(key, block);
                     num++;
                 }
+                for (int y0 = CHUNK_HEIGHT - 1; y0 > y; y0--) {
+                    String key = idx(x + wX, y0, z + wZ);
+                    Block block = new EmptyBlock(x + wX, y0, z + wZ);
+                    field.put(key, block);
+                    num++;
+                }
             }
         }
         BlockField blockField = new BlockField();
@@ -130,19 +137,25 @@ public class Chunk {
     }
 
     public Cube calculateChunksBlocksFace(Block block) {
+
+        if (block instanceof EmptyBlock) {
+            return new EmptyCube();
+        }
+
         int xPosition = (int) block.getPosition().x;
         int yPosition = (int) block.getPosition().y;
         int zPosition = (int) block.getPosition().z;
-        Block rightBlock = this.blockField.load(xPosition + 1, yPosition, zPosition);
-        Block rightRightBlock = this.blockField.load(xPosition + 2, yPosition, zPosition);
-        Block leftBlock = this.blockField.load(xPosition - 1, yPosition, zPosition);
-        Block frontBlock = this.blockField.load(xPosition, yPosition, zPosition + 1);
-        Block frontFrontBlock = this.blockField.load(xPosition, yPosition, zPosition + 2);
-        Block backBlock = this.blockField.load(xPosition, yPosition, zPosition - 1);
-        Block backBackBlock = this.blockField.load(xPosition, yPosition, zPosition - 2);
-        Block topBlock = this.blockField.load(xPosition, yPosition + 1, zPosition);
-        Block topTopBlock = this.blockField.load(xPosition, yPosition + 2, zPosition);
-        Block bottomBlock = this.blockField.load(xPosition, yPosition - 1, zPosition);
+
+        Block rightBlock = findNotEmptyBlock(xPosition + 1, yPosition, zPosition);
+        Block rightRightBlock = findNotEmptyBlock(xPosition + 2, yPosition, zPosition);
+        Block leftBlock = findNotEmptyBlock(xPosition - 1, yPosition, zPosition);
+        Block frontBlock = findNotEmptyBlock(xPosition, yPosition, zPosition + 1);
+        Block frontFrontBlock = findNotEmptyBlock(xPosition, yPosition, zPosition + 2);
+        Block backBlock = findNotEmptyBlock(xPosition, yPosition, zPosition - 1);
+        Block backBackBlock = findNotEmptyBlock(xPosition, yPosition, zPosition - 2);
+        Block topBlock = findNotEmptyBlock(xPosition, yPosition + 1, zPosition);
+        Block topTopBlock = findNotEmptyBlock(xPosition, yPosition + 2, zPosition);
+        Block bottomBlock = findNotEmptyBlock(xPosition, yPosition - 1, zPosition);
 
         if (topBlock == null && bottomBlock != null
                 && rightBlock != null && leftBlock != null
@@ -271,6 +284,12 @@ public class Chunk {
                 .append(":")
                 .append(z);
         return key.toString();
+    }
+
+    private Block findNotEmptyBlock(int xPosition, int yPosition, int zPosition) {
+        Block block = this.blockField.load(xPosition, yPosition, zPosition);
+        boolean isEmptyBlock = block instanceof EmptyBlock;
+        return isEmptyBlock ? null : block;
     }
 
     public void cleanup() {

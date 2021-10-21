@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.lwjgl.glfw.GLFW.*;
+import static org.lwjgl.opengl.GL11.glClearColor;
 import static ru.mycubecraft.Game.caps;
 
 @Getter
@@ -44,6 +45,7 @@ public class LevelScene extends Scene {
     private float spotAngle = 0;
     private float spotInc = 1;
     private boolean leftButtonPressed = false;
+    private boolean colourClearPButtonPressed;
     private Vector3f selectedItemPosition;
 
     public LevelScene() {
@@ -52,7 +54,6 @@ public class LevelScene extends Scene {
         camera = new Camera();
         world = new World();
         lightAngle = -90;
-        fog = Fog.NOFOG;
         player = new DefaultPlayer();
     }
 
@@ -85,12 +86,17 @@ public class LevelScene extends Scene {
         // Fog
         Vector3f fogColour = new Vector3f(0.49f, 0.61f, 0.66f);
 
-        if (Settings.SHOW_FOG) {
-            this.fog = new Fog(true, fogColour, 0.08f);
-        }
+        this.fog = this.fogLButtonPressed ? new Fog(true, fogColour, 0.08f) : Fog.NOFOG;
+
 
         float delta;
         while (!glfwWindowShouldClose(window)) {
+
+            if (this.colourClearPButtonPressed) {
+                glClearColor(0f, 0f, 0f, 0f);
+            } else {
+                glClearColor(0.49f, 0.61f, 0.66f, 1f);
+            }
 
             /* Get delta time */
             delta = timer.getDelta();
@@ -156,7 +162,7 @@ public class LevelScene extends Scene {
         float fixedDelta = delta * Settings.MOVE_SPEED;
         if (!player.isFly()) {
             playerVelocity.add(playerAcceleration);
-            handleCollisions(delta * 10, playerVelocity, camera);
+            handleCollisions(fixedDelta, playerVelocity, camera);
         }
 
         camera.moveRotation(angx, angy, 0);
@@ -239,6 +245,14 @@ public class LevelScene extends Scene {
 
         if (keyboardListener.isKeyPressed(GLFW_KEY_U)) {
             camera.setPosition(-210.962f, 113.468f, -215.272f);
+        }
+
+        if (keyboardListener.isKeyPressed(GLFW_KEY_P)) {
+            this.colourClearPButtonPressed = !this.colourClearPButtonPressed;
+        }
+
+        if (keyboardListener.isKeyPressed(GLFW_KEY_L)) {
+            this.fogLButtonPressed = !this.fogLButtonPressed;
         }
 
         boolean aux = false;

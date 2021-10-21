@@ -10,6 +10,7 @@ import ru.mycubecraft.engine.IHud;
 import ru.mycubecraft.engine.SkyBox;
 import ru.mycubecraft.engine.graph.DirectionalLight;
 import ru.mycubecraft.engine.graph.FrustumCullingFilter;
+import ru.mycubecraft.engine.graph.weather.Fog;
 import ru.mycubecraft.scene.Scene;
 import ru.mycubecraft.util.AssetPool;
 import ru.mycubecraft.window.Window;
@@ -88,14 +89,15 @@ public class Renderer {
             for (Chunk chunk : worldChunkMap.values()) {
                 BlockField blockField = chunk.getBlockField();
                 if (blockField == null) {
-                    continue;
+                    return;
                 }
                 Map<String, Block> blocks = blockField.getBlocks();
                 blocks.values()
                         .parallelStream()
-                        .filter(block -> block.isVisible()
-                                && !block.isDisableFrustumCulling()
-                                && block.getGameCubeItem() != null)
+                        .filter(block ->
+                                block.getGameCubeItem() != null
+                                        && block.isVisible()
+                                        && !block.isDisableFrustumCulling())
                         .filter(frustumFilter::filter)
                         .forEach(block -> filteredItems.add(block.getGameCubeItem()));
             }
@@ -113,7 +115,7 @@ public class Renderer {
         renderLights(ambientLight);
 
         sceneShaderProgram.uploadInt("texture_sampler", 0);
-        sceneShaderProgram.setUniform("fog", scene.getFog());
+        sceneShaderProgram.setUniform("fog", scene.isFogLButtonPressed() ? scene.getFog() : Fog.NOFOG);
         sceneShaderProgram.setUniform("material", filteredItems.get(0).getMesh().getMaterial());
         // Render each filtered in frustum game item
         for (GameItem gameItem : filteredItems) {
@@ -155,7 +157,7 @@ public class Renderer {
         Matrix4f modelViewMatrix = transformation.buildModelViewMatrix(skyBox, viewMatrix);
         skyBoxShaderProgram.uploadMat4f("modelViewMatrix", modelViewMatrix);
         skyBoxShaderProgram.setUniform("ambientLight", ambientLight);
-        skyBoxShaderProgram.setUniform("fog", scene.getFog());
+        sceneShaderProgram.setUniform("fog", scene.isFogLButtonPressed() ? scene.getFog() : Fog.NOFOG);
 
         // Get a copy of the directional light object and transform its position to view coordinates
         DirectionalLight currDirLight = new DirectionalLight(directionalLight);

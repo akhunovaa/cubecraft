@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.joml.Vector3f;
 import ru.mycubecraft.block.Block;
+import ru.mycubecraft.block.EmptyBlock;
 import ru.mycubecraft.data.Contact;
 import ru.mycubecraft.engine.Utils;
 import ru.mycubecraft.renderer.Camera;
@@ -51,7 +52,7 @@ public class World {
         return t;
     });
 
-    private final Map<String, Chunk> chunkMap = Utils.createLRUMap(10);
+    private final Map<String, Chunk> chunkMap = Utils.createLRUMap(6);
 
     public World() {
     }
@@ -70,8 +71,8 @@ public class World {
     }
 
     private void generateChunk(int cx, int cz) {
-        for (int x = (cx - 1); x < (cx + 1); x++) {
-            for (int z = (cz - 1); z < (cz + 1); z++) {
+        for (int x = (cx); x < (cx + 1); x++) {
+            for (int z = (cz); z < (cz + 1); z++) {
                 String chunkKey = idx(x, z);
                 Chunk chunk;
                 if (!chunkMap.containsKey(chunkKey)) {
@@ -127,7 +128,7 @@ public class World {
             for (int z = minZ; z <= maxZ; z++) {
                 for (int x = minX; x <= maxX; x++) {
                     Block block = blockField.load(x, y, z);
-                    if (block == null) {
+                    if (block == null || block instanceof EmptyBlock) {
                         continue;
                     }
 
@@ -192,7 +193,7 @@ public class World {
             contact.nx = dx > 0 ? -1 : 1;
         } else if (yEntry == tEntry) {
             contact.ny = dy > 0 ? -1 : 1;
-        } else if (zEntry == tEntry) {
+        } else {
             contact.nz = dz > 0 ? -1 : 1;
         }
         contacts.add(contact);

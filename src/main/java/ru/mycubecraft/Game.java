@@ -8,6 +8,7 @@ import ru.mycubecraft.scene.LevelScene;
 import ru.mycubecraft.scene.Scene;
 import ru.mycubecraft.window.Window;
 
+import static java.lang.Math.max;
 import static org.lwjgl.glfw.Callbacks.glfwFreeCallbacks;
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.*;
@@ -28,7 +29,7 @@ public class Game {
 
     public static void main(String[] args) throws InterruptedException {
 
-        System.setProperty("java.util.concurrent.ForkJoinPool.common.parallelism", "14");
+        System.setProperty("java.util.concurrent.ForkJoinPool.common.parallelism", String.valueOf(max(1, Runtime.getRuntime().availableProcessors())));
 
         /*
         Headless mode is mainly useful in those systems that don't have a graphical display, typically the servers.
