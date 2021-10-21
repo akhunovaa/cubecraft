@@ -88,8 +88,8 @@ public class Renderer {
             Map<String, Chunk> worldChunkMap = world.getChunkMap();
             for (Chunk chunk : worldChunkMap.values()) {
                 BlockField blockField = chunk.getBlockField();
-                if (blockField == null) {
-                    return;
+                if (blockField == null || blockField.getBlocks() == null) {
+                    continue;
                 }
                 Map<String, Block> blocks = blockField.getBlocks();
                 blocks.values()
@@ -103,10 +103,6 @@ public class Renderer {
             }
         }
 
-        if (filteredItems.isEmpty()) {
-            return;
-        }
-
         sceneShaderProgram.use();
 
         sceneShaderProgram.uploadMat4f("projectionMatrix", projectionMatrix);
@@ -116,7 +112,9 @@ public class Renderer {
 
         sceneShaderProgram.uploadInt("texture_sampler", 0);
         sceneShaderProgram.setUniform("fog", scene.isFogLButtonPressed() ? scene.getFog() : Fog.NOFOG);
-        sceneShaderProgram.setUniform("material", filteredItems.get(0).getMesh().getMaterial());
+        if (!filteredItems.isEmpty()) {
+            sceneShaderProgram.setUniform("material", filteredItems.get(0).getMesh().getMaterial());
+        }
         // Render each filtered in frustum game item
         for (GameItem gameItem : filteredItems) {
             // Set world matrix for this item

@@ -129,11 +129,10 @@ public class Chunk {
 
     public void sortBlocksVisibility() {
         Map<String, Block> blocks = this.blockField.getBlocks();
-        blocks.values()
-                .forEach(block -> {
-                    Cube cube = calculateChunksBlocksFace(block);
-                    block.createCube(cube);
-                });
+        for (Block block : blocks.values()) {
+            Cube cube = calculateChunksBlocksFace(block);
+            block.createCube(cube);
+        }
     }
 
     public Cube calculateChunksBlocksFace(Block block) {

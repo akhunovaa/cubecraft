@@ -91,11 +91,12 @@ public class LevelScene extends Scene {
 
         float delta;
         while (!glfwWindowShouldClose(window)) {
+            boolean isColorButtonPressed = this.colourClearPButtonPressed;
 
-            if (this.colourClearPButtonPressed) {
-                glClearColor(0f, 0f, 0f, 0f);
-            } else {
+            if (isColorButtonPressed) {
                 glClearColor(0.49f, 0.61f, 0.66f, 1f);
+            } else {
+                glClearColor(0f, 0f, 0f, 0f);
             }
 
             /* Get delta time */
@@ -135,24 +136,14 @@ public class LevelScene extends Scene {
     @Override
     public void update(float delta) {
 
-        updateAndRenderRunnables.add(new DelayedRunnable(() -> {
-            int xPosition = (int) camera.getPosition().x;
-            int zPosition = (int) camera.getPosition().z;
-            world.ensureChunkIfVisible(xPosition, zPosition);
-            return null;
-        }, "Worlds chunk ensure", 0));
+        int xPosition = (int) camera.getPosition().x;
+        int zPosition = (int) camera.getPosition().z;
+        world.ensureChunkIfVisible(xPosition, zPosition);
 
         updateAndRenderRunnables.add(new DelayedRunnable(() -> {
-            int xPosition = (int) camera.getPosition().x;
-            int zPosition = (int) camera.getPosition().z;
             world.destroyOutOfRenderDistanceFrontierChunks(xPosition, zPosition);
             return null;
-        }, "Worlds chunk remove", 0));
-
-
-        lightUpdate();
-
-        mouseBoxSelectionDetector.update(camera);
+        }, "Worlds chunk destroyer!", 0));
 
         float dangx = mouseListener.getDangx();
         float dangy = mouseListener.getDangy();
@@ -176,7 +167,6 @@ public class LevelScene extends Scene {
 
         camera.movePosition(playerVelocity.x * fixedDelta, playerVelocity.y * fixedDelta, playerVelocity.z * fixedDelta);
 
-        //selectedItemPosition = mouseBoxSelectionDetector.getGameItemPosition(world.getChunksBlockItems(), camera);
     }
 
     private void lightUpdate() {

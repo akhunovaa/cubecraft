@@ -9,6 +9,7 @@ import ru.mycubecraft.data.Contact;
 import ru.mycubecraft.renderer.Camera;
 import ru.mycubecraft.world.player.Player;
 
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -350,7 +351,7 @@ public class World {
      * Determine whether the chunk at <code>(xOffset, zOffset)</code> is within render distance.
      */
     private boolean chunkInRenderDistance(int xOffset, int zOffset, float xPosition, float zPosition) {
-        return distToChunk(xOffset, zOffset, xPosition, zPosition) < MAX_RENDER_DISTANCE_METERS;
+        return distToChunk(xOffset, zOffset, xPosition, zPosition) < MAX_RENDER_DISTANCE_METERS << 1;
     }
 
     /**
@@ -358,12 +359,13 @@ public class World {
      * {@link #MAX_RENDER_DISTANCE_CHUNKS} aways, in which case those will be destroyed.
      */
     public void destroyOutOfRenderDistanceFrontierChunks(int xPosition, int zPosition) {
-        chunkMap.forEach((key, chunk) -> {
+        for (Iterator<Chunk> chunkIterator = chunkMap.values().iterator(); chunkIterator.hasNext(); ) {
+            Chunk chunk = chunkIterator.next();
             if (!chunkInRenderDistance(chunk.getCx(), chunk.getCz(), xPosition, zPosition)) {
                 chunk.cleanup();
-                chunkMap.remove(key);
+                chunkIterator.remove();
             }
-        });
+        }
     }
 
     public Map<String, Chunk> getChunkMap() {
