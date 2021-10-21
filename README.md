@@ -1,5 +1,13 @@
 # My Game Engine tested via my Cubecraft Game
 
+## Maven dependency:
+
+      <dependency>
+        <groupId>ru.mycubecraft</groupId>
+        <artifactId>cubecraft</artifactId>
+        <version>0.1.4</version>
+      </dependency>
+
 ## Install:
 
 mvn -P {your OS name} clean install
