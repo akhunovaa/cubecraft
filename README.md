@@ -1,5 +1,7 @@
 # Cubecraft Game | Cubecraft Game Engine | Powered by JAVA
 
+[![Video clip](https://s3.amazonaws.com/culga-games-images/uploads/images/cube-craft.jpg)](https://www.youtube.com/watch?v=16pI2U7xM0E "Everything Is AWESOME")
+
 ## Discord
 ![Discord Banner 1](https://discordapp.com/api/guilds/901040304684167188/widget.png?style=banner1)
 
@@ -32,7 +34,6 @@ mvn -P {your OS name} clean install
         <version>0.1.4</version>
       </dependency>
 
-[![Video clip](https://s3.amazonaws.com/culga-games-images/uploads/images/cube-craft.jpg)](https://www.youtube.com/watch?v=16pI2U7xM0E "Everything Is AWESOME")
 
 https://youtu.be/rNPUGIlataY  
 https://youtu.be/sltipBHccIM
