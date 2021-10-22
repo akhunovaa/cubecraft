@@ -6,11 +6,12 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import ru.mycubecraft.block.Block;
 import ru.mycubecraft.block.DirtBlock;
-import ru.mycubecraft.block.EmptyBlock;
+import ru.mycubecraft.block.GrassBlock;
 import ru.mycubecraft.renderer.cube.*;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import static java.lang.Math.max;
 import static java.lang.Math.min;
@@ -22,17 +23,15 @@ import static org.joml.SimplexNoise.noise;
 @EqualsAndHashCode
 public class Chunk {
 
+    /**
+     * The width, height and depth of a chunk (in number of blocks).
+     */
+    public static final int CHUNK_HEIGHT = 256;
     private static final int BLOCKS_COUNT = 8;
-
     /**
      * The chunk offset for the noise function.
      */
     private static final int GLOBAL_X = 2500, GLOBAL_Z = 851;
-
-    /**
-     * The width, height and depth of a chunk (in number of blocks).
-     */
-    private static final int CHUNK_HEIGHT = 256;
     private static final int CHUNK_SIZE_SHIFT = 5;
     private static final int CHUNK_SIZE = 1 << CHUNK_SIZE_SHIFT;
 
@@ -111,12 +110,12 @@ public class Chunk {
                     field.put(key, block);
                     num++;
                 }
-                for (int y0 = CHUNK_HEIGHT - 1; y0 > y; y0--) {
-                    String key = idx(x + wX, y0, z + wZ);
-                    Block block = new EmptyBlock(x + wX, y0, z + wZ);
-                    field.put(key, block);
-                    num++;
-                }
+//                for (int y0 = CHUNK_HEIGHT - 1; y0 > y; y0--) {
+//                    String key = idx(x + wX, y0, z + wZ);
+//                    Block block = new EmptyBlock(x + wX, y0, z + wZ);
+//                    field.put(key, block);
+//                    num++;
+//                }
             }
         }
         BlockField blockField = new BlockField();
@@ -128,8 +127,12 @@ public class Chunk {
     }
 
     public void sortBlocksVisibility() {
-        Map<String, Block> blocks = this.blockField.getBlocks();
-        for (Block block : blocks.values()) {
+        Set<Map.Entry<String, Block>> blocks = this.blockField.getBlocks().entrySet();
+        for (Map.Entry<String, Block> blocksEntry : blocks) {
+            Block block = blocksEntry.getValue();
+            if (block == null) {
+                continue;
+            }
             Cube cube = calculateChunksBlocksFace(block);
             block.createCube(cube);
         }
@@ -137,8 +140,9 @@ public class Chunk {
 
     public Cube calculateChunksBlocksFace(Block block) {
 
-        if (block instanceof EmptyBlock) {
-            return new EmptyCube();
+        if (block instanceof GrassBlock) {
+            block.setVisible(true);
+            return new Cube("grass");
         }
 
         int xPosition = (int) block.getPosition().x;
@@ -268,7 +272,7 @@ public class Chunk {
             return new BottomFrontRightCube();
         }
 
-        return new EmptyCube();
+        return new Cube();
     }
 
     /**
@@ -287,8 +291,7 @@ public class Chunk {
 
     private Block findNotEmptyBlock(int xPosition, int yPosition, int zPosition) {
         Block block = this.blockField.load(xPosition, yPosition, zPosition);
-        boolean isEmptyBlock = block instanceof EmptyBlock;
-        return isEmptyBlock ? null : block;
+        return block;
     }
 
     public void cleanup() {

@@ -1,12 +1,10 @@
 package ru.mycubecraft.block;
 
-import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import ru.mycubecraft.core.GameItem;
 import ru.mycubecraft.renderer.cube.Cube;
 
 @Getter
-@EqualsAndHashCode(callSuper = false)
 public class GrassBlock extends Block {
 
     private final static String MODEL_TEXTURE_PATH = "assets/textures/grass.png";
@@ -22,6 +20,7 @@ public class GrassBlock extends Block {
         try {
             cube.setPosition(position.x, position.y, position.z);
             cube.setTexture(MODEL_TEXTURE_PATH);
+            cube.createCube();
             this.gameCubeItem = cube;
         } catch (Exception e) {
             e.printStackTrace();

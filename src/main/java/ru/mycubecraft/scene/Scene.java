@@ -8,10 +8,9 @@ import ru.mycubecraft.engine.SkyBox;
 import ru.mycubecraft.engine.graph.weather.Fog;
 import ru.mycubecraft.listener.KeyboardListener;
 import ru.mycubecraft.listener.MouseListener;
-import ru.mycubecraft.renderer.Camera;
 import ru.mycubecraft.renderer.Renderer;
-import ru.mycubecraft.world.MouseBoxSelectionDetector;
 import ru.mycubecraft.world.World;
+import ru.mycubecraft.world.player.Player;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -33,11 +32,10 @@ public abstract class Scene {
     //    protected Window window = Window.getInstance();
     protected SkyBox skyBox;
     protected Renderer renderer;
-    protected Camera camera;
+    protected Player player;
     protected ArrayList<GameItem> gameItems = new ArrayList<>();
     protected Fog fog;
     protected boolean fogLButtonPressed = Settings.SHOW_FOG;
-    protected MouseBoxSelectionDetector mouseBoxSelectionDetector;
     protected KeyboardListener keyboardListener = KeyboardListener.getInstance();
     protected MouseListener mouseListener = MouseListener.getInstance();
 

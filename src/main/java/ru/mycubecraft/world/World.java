@@ -4,9 +4,7 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.joml.Vector3f;
 import ru.mycubecraft.block.Block;
-import ru.mycubecraft.block.EmptyBlock;
 import ru.mycubecraft.data.Contact;
-import ru.mycubecraft.renderer.Camera;
 import ru.mycubecraft.world.player.Player;
 
 import java.util.Iterator;
@@ -98,9 +96,9 @@ public class World {
     /**
      * Detect possible collision candidates.
      */
-    public void collisionDetection(float dt, Vector3f velocity, Camera camera, List<Contact> contacts) {
+    public void collisionDetection(float dt, Vector3f velocity, Player player, List<Contact> contacts) {
 
-        Vector3f position = new Vector3f(camera.position.x, camera.position.y, camera.position.z);
+        Vector3f position = new Vector3f(player.getPosition().x, player.getPosition().y, player.getPosition().z);
 
         int xPosition = (int) position.x;
         int zPosition = (int) position.z;
@@ -132,7 +130,7 @@ public class World {
             for (int z = minZ; z <= maxZ; z++) {
                 for (int x = minX; x <= maxX; x++) {
                     Block block = blockField.load(x, y, z);
-                    if (block == null || block instanceof EmptyBlock) {
+                    if (block == null) {
                         continue;
                     }
 
@@ -206,7 +204,7 @@ public class World {
     /**
      * Respond to all found collision contacts.
      */
-    public void collisionResponse(float dt, Vector3f velocity, Camera camera, List<Contact> contacts) {
+    public void collisionResponse(float dt, Vector3f velocity, Player player, List<Contact> contacts) {
         sort(contacts);
         int minX = Integer.MIN_VALUE, maxX = Integer.MAX_VALUE, minY = Integer.MIN_VALUE, maxY = Integer.MAX_VALUE, minZ = Integer.MIN_VALUE,
                 maxZ = Integer.MAX_VALUE;
@@ -220,7 +218,7 @@ public class World {
             }
 
             float t = contact.t - elapsedTime;
-            camera.movePosition(dx * t, dy * t, dz * t);
+            player.movePosition(dx * t, dy * t, dz * t);
             elapsedTime += t;
             if (contact.nx != 0) {
                 minX = dx < 0 ? max(minX, contact.x) : minX;
@@ -240,7 +238,7 @@ public class World {
             }
         }
         float trem = 1f - elapsedTime;
-        //camera.movePosition(dx * trem, dy * trem, dz * trem);
+        //player.movePosition(dx * trem, dy * trem, dz * trem);
         velocity.add(dx * trem, dy * trem, dz * trem);
     }
 
@@ -270,39 +268,30 @@ public class World {
         return chunkMap.containsKey(chunkKey);
     }
 
-    public Chunk getChunk(Vector3f position) {
-        int xOffset = (int) position.x;
-        int yOffset = (int) position.y;
-        int zOffset = (int) position.z;
-        return getChunk(xOffset, yOffset, zOffset);
-    }
-
-    public Chunk getChunk(int xPosition, int yPosition, int zPosition) {
-        int xOffset = xPosition / WORLD_WIDTH;
-        int yOffset = yPosition / WORLD_WIDTH;
-        int zOffset = zPosition / WORLD_WIDTH;
-
-        String chunkKey = String.format("%s:%s:%s", xOffset, yOffset, zOffset);
+    public Chunk getChunk(int xPosition, int zPosition) {
+        int cx = xPosition >> CHUNK_SIZE_SHIFT,
+                cz = zPosition >> CHUNK_SIZE_SHIFT;
+        String chunkKey = idx(cx, cz);
         return chunkMap.get(chunkKey);
     }
-
-    public Chunk addChunk(Vector3f position) {
-        int xOffset = (int) position.x;
-        int yOffset = (int) position.y;
-        int zOffset = (int) position.z;
-        return addChunk(xOffset, yOffset, zOffset);
-    }
-
-    public Chunk addChunk(int xPosition, int yPosition, int zPosition) {
-        int xOffset = xPosition / WORLD_WIDTH;
-        int yOffset = yPosition / WORLD_WIDTH;
-        int zOffset = zPosition / WORLD_WIDTH;
-
-        String chunkKey = String.format("%s:%s:%s", xOffset, yOffset, zOffset);
-        Chunk chunk = new Chunk(xOffset, yOffset, zOffset);
-        chunkMap.put(chunkKey, chunk);
-        return chunk;
-    }
+//
+//    public Chunk addChunk(Vector3f position) {
+//        int xOffset = (int) position.x;
+//        int yOffset = (int) position.y;
+//        int zOffset = (int) position.z;
+//        return addChunk(xOffset, yOffset, zOffset);
+//    }
+//
+//    public Chunk addChunk(int xPosition, int yPosition, int zPosition) {
+//        int xOffset = xPosition / WORLD_WIDTH;
+//        int yOffset = yPosition / WORLD_WIDTH;
+//        int zOffset = zPosition / WORLD_WIDTH;
+//
+//        String chunkKey = String.format("%s:%s:%s", xOffset, yOffset, zOffset);
+//        Chunk chunk = new Chunk(xOffset, yOffset, zOffset);
+//        chunkMap.put(chunkKey, chunk);
+//        return chunk;
+//    }
 
     /**
      * Ensure that a frontier neighbor chunk is created if it is visible.

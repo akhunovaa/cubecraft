@@ -4,8 +4,8 @@ import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
 import ru.mycubecraft.core.GameItem;
-import ru.mycubecraft.renderer.Camera;
 import ru.mycubecraft.window.Window;
+import ru.mycubecraft.world.player.Player;
 
 import java.util.List;
 
@@ -13,27 +13,22 @@ public class MouseBoxSelectionDetector extends CameraBoxSelectionDetector {
 
     private final Matrix4f invProjectionMatrix;
     private final Matrix4f invViewMatrix;
-
-    private Matrix4f projectionMatrix;
-    private Matrix4f viewMatrix;
+    private final Matrix4f viewMatrix;
+    private final Matrix4f projectionMatrix;
 
     public MouseBoxSelectionDetector() {
         super();
         invProjectionMatrix = new Matrix4f();
         invViewMatrix = new Matrix4f();
-        viewMatrix = new Matrix4f();
-    }
-
-    public void update(Camera camera) {
-        viewMatrix = camera.updateViewMatrix();
+        viewMatrix = transformation.getViewMatrix();
         projectionMatrix = transformation.updateProjectionMatrix(window.getWidth(), window.getHeight());
     }
 
-    public Vector3f getGameItemPosition(List<GameItem> gameItemList, Camera camera) {
+    public Vector3f getGameItemPosition(List<GameItem> gameItemList, Player player) {
 
-        float xStart = camera.getPosition().x;
-        float yStart = camera.getPosition().y;
-        float zStart = camera.getPosition().z;
+        float xStart = player.getPosition().x;
+        float yStart = player.getPosition().y;
+        float zStart = player.getPosition().z;
 
 //        float xStart = (float) Math.floor(camera.getPosition().x);
 //        float yStart = (float) Math.floor(camera.getPosition().y);
@@ -51,11 +46,11 @@ public class MouseBoxSelectionDetector extends CameraBoxSelectionDetector {
         return newGameItemPosition;
     }
 
-    public Vector3f getGameItemPosition(Camera camera) {
+    public Vector3f getGameItemPosition(Player player) {
 
-        float xStart = (float) Math.ceil(camera.getPosition().x);
-        float yStart = (float) Math.floor(camera.getPosition().y);
-        float zStart = (float) Math.ceil(camera.getPosition().z);
+        float xStart = (float) Math.ceil(player.getPosition().x);
+        float yStart = (float) Math.floor(player.getPosition().y);
+        float zStart = (float) Math.ceil(player.getPosition().z);
 
         Vector3f origin = new Vector3f(xStart, yStart, zStart);
 

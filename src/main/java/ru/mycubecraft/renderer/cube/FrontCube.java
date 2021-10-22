@@ -78,7 +78,6 @@ public class FrontCube extends Cube {
     @Override
     public void render() {
         mesh.render();
-
     }
 
     @Override

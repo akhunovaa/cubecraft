@@ -10,12 +10,10 @@ import ru.mycubecraft.data.Contact;
 import ru.mycubecraft.data.Hud;
 import ru.mycubecraft.engine.Timer;
 import ru.mycubecraft.engine.graph.weather.Fog;
-import ru.mycubecraft.renderer.Camera;
 import ru.mycubecraft.renderer.Renderer;
 import ru.mycubecraft.util.AssetPool;
 import ru.mycubecraft.window.Window;
 import ru.mycubecraft.world.Chunk;
-import ru.mycubecraft.world.MouseBoxSelectionDetector;
 import ru.mycubecraft.world.World;
 import ru.mycubecraft.world.player.Player;
 import ru.mycubecraft.world.player.impl.DefaultPlayer;
@@ -38,20 +36,16 @@ public class LevelScene extends Scene {
      * Used for timing calculations.
      */
     private final Timer timer;
-    private final Player player;
     private Hud hud;
     private Vector3f ambientLight;
     private float lightAngle;
     private float spotAngle = 0;
     private float spotInc = 1;
-    private boolean leftButtonPressed = false;
     private boolean colourClearPButtonPressed;
-    private Vector3f selectedItemPosition;
 
     public LevelScene() {
         timer = new Timer();
         System.err.println("Entered to a Level Scene");
-        camera = new Camera();
         world = new World();
         lightAngle = -90;
         player = new DefaultPlayer();
@@ -75,7 +69,7 @@ public class LevelScene extends Scene {
         world.generateStartChunks();
         /* Initialize timer */
         timer.init();
-        mouseBoxSelectionDetector = new MouseBoxSelectionDetector();
+
 //        sun.getGameCubeItem().setScale(3f);
 //        sun.getGameCubeItem().setPosition(-3000, 0.0f, 0F);
         ambientLight = new Vector3f(0.8f, 0.8f, 0.8f);
@@ -136,8 +130,9 @@ public class LevelScene extends Scene {
     @Override
     public void update(float delta) {
 
-        int xPosition = (int) camera.getPosition().x;
-        int zPosition = (int) camera.getPosition().z;
+        int xPosition = (int) player.getPosition().x;
+        int zPosition = (int) player.getPosition().z;
+
         world.ensureChunkIfVisible(xPosition, zPosition);
 
         updateAndRenderRunnables.add(new DelayedRunnable(() -> {
@@ -160,12 +155,12 @@ public class LevelScene extends Scene {
         float fixedDelta = delta * Settings.MOVE_SPEED;
         if (!player.isFly()) {
             playerVelocity.add(playerAcceleration);
-            handleCollisions(fixedDelta, playerVelocity, camera);
+            handleCollisions(fixedDelta, playerVelocity, player);
         }
 
-        camera.moveRotation(angx, angy, 0);
+        player.moveRotation(angx, angy, 0);
 
-        camera.movePosition(playerVelocity.x * fixedDelta, playerVelocity.y * fixedDelta, playerVelocity.z * fixedDelta);
+        player.movePosition(playerVelocity.x * fixedDelta, playerVelocity.y * fixedDelta, playerVelocity.z * fixedDelta);
 
     }
 
@@ -185,14 +180,14 @@ public class LevelScene extends Scene {
     }
 
     private void hudUpdate(int fps, int ups, float delta) {
-        hud.rotateCompass(-camera.getRotation().y);
+        hud.rotateCompass(-player.getRotation().y);
         int filteredBlocksCount = renderer.getFilteredItems().size();
-        hud.updateHud(camera, world, filteredBlocksCount);
+        hud.updateHud(player, world, filteredBlocksCount);
         hud.updateFps(fps);
         hud.updateUps(ups);
         hud.updateDelta(delta);
-        if (selectedItemPosition != null) {
-            hud.updateTargetObjectInfo(selectedItemPosition);
+        if (player.getSelectedBlock() != null) {
+            hud.updateTargetObjectInfo(player.getSelectedBlock().getPosition());
         }
     }
 
@@ -229,19 +224,7 @@ public class LevelScene extends Scene {
         }
 
         if (keyboardListener.isKeyPressed(GLFW_KEY_R)) {
-            camera.setPosition(47.0f, 130f, -179f);
-        }
-
-        if (keyboardListener.isKeyPressed(GLFW_KEY_T)) {
-            camera.setPosition(-188f, 100f, -236f);
-        }
-
-        if (keyboardListener.isKeyPressed(GLFW_KEY_Y)) {
-            camera.setPosition(-139.130f, 118.113f, -144.038f);
-        }
-
-        if (keyboardListener.isKeyPressed(GLFW_KEY_U)) {
-            camera.setPosition(-210.962f, 113.468f, -215.272f);
+            player.setPosition(47.0f, 90f, -179f);
         }
 
         if (keyboardListener.isKeyPressed(GLFW_KEY_P)) {
@@ -252,36 +235,54 @@ public class LevelScene extends Scene {
             this.fogLButtonPressed = !this.fogLButtonPressed;
         }
 
-        boolean aux = false;
-        if (aux && !this.leftButtonPressed) {
-            if (selectedItemPosition != null) {
-                createGameBlockItem(selectedItemPosition);
-            }
+        if (mouseListener.isLeftButtonPressed()) {
+            int xPosition = (int) player.getPosition().x;
+            int zPosition = (int) player.getPosition().z;
+
+            Chunk chunk = world.getChunk(xPosition, zPosition);
+
+            // Determine the selected block in the center of the viewport.
+            player.findAndSelectBlock(chunk.getBlockField());
+            player.placeAtSelectedBlock(chunk.getBlockField());
+            chunk.sortBlocksVisibility();
+            mouseListener.setLeftButtonPressed(false);
         }
-        this.leftButtonPressed = aux;
+
+        if (mouseListener.isRightButtonPressed()) {
+            int xPosition = (int) player.getPosition().x;
+            int zPosition = (int) player.getPosition().z;
+
+            Chunk chunk = world.getChunk(xPosition, zPosition);
+
+            // Determine the selected block in the center of the viewport.
+            player.findAndSelectBlock(chunk.getBlockField());
+            player.removeSelectedBlock(chunk.getBlockField());
+            chunk.sortBlocksVisibility();
+            mouseListener.setRightButtonPressed(false);
+        }
     }
 
 
     @Override
     public void render() {
-        renderer.render(world, camera, this, hud, ambientLight);
+        renderer.render(world, player, this, hud, ambientLight);
     }
 
     private void createGameBlockItem(Vector3f position) {
         Vector3f newBlockPosition = new Vector3f(position);
-        Vector3f ray = mouseBoxSelectionDetector.rayDirection().negate();
-        float xStart = (float) Math.ceil(ray.x);
-        float yStart = (float) Math.ceil(ray.y);
-        float zStart = (float) Math.ceil(ray.z);
-        newBlockPosition.add(xStart, yStart, zStart);
+//        Vector3f ray = mouseBoxSelectionDetector.rayDirection().negate();
+//        float xStart = (float) Math.ceil(ray.x);
+//        float yStart = (float) Math.ceil(ray.y);
+//        float zStart = (float) Math.ceil(ray.z);
+        //newBlockPosition.add(xStart, yStart, zStart);
 
         boolean containsChunk = world.containsChunk(newBlockPosition);
         Chunk chunk;
         if (!containsChunk) {
-            chunk = world.addChunk(newBlockPosition);
+            //chunk = world.addChunk(newBlockPosition);
             //chunk.addBlock(newBlockPosition);
         } else {
-            chunk = world.getChunk(newBlockPosition);
+            //chunk = world.getChunk(newBlockPosition);
 //            //boolean chunkContainsBlock = chunk.containsBlock(newBlockPosition);
 //            if (chunkContainsBlock) {
 //                xStart = (float) Math.ceil(ray.x);
@@ -297,10 +298,10 @@ public class LevelScene extends Scene {
     /**
      * Handle any collisions with the player and the blocks.
      */
-    private void handleCollisions(float dt, Vector3f velocity, Camera camera) {
+    private void handleCollisions(float dt, Vector3f velocity, Player player) {
         List<Contact> contacts = new ArrayList<>();
-        world.collisionDetection(dt, velocity, camera, contacts);
-        world.collisionResponse(dt, velocity, camera, contacts);
+        world.collisionDetection(dt, velocity, player, contacts);
+        world.collisionResponse(dt, velocity, player, contacts);
     }
 
     @Override

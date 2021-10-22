@@ -3,6 +3,8 @@ package ru.mycubecraft.listener;
 import lombok.Getter;
 import lombok.Setter;
 
+import static org.lwjgl.glfw.GLFW.*;
+
 @Getter
 @Setter
 public class MouseListener {
@@ -11,10 +13,12 @@ public class MouseListener {
     private final boolean[] mouseButtonPressed = new boolean[3];
     private final boolean inWindow = false;
 
+    private boolean leftButtonPressed = false;
+    private boolean rightButtonPressed = false;
+
     private boolean firstCursorPos = true;
     private int mouseX, mouseY;
     private float angx, angy, dangx, dangy;
-    private boolean hasSelection;
 
     private MouseListener() {
     }
@@ -50,13 +54,12 @@ public class MouseListener {
      * GLFW callback for mouse buttons.
      */
     public void onMouseButton(long window, int button, int action, int mods) {
-        // updateAndRenderRunnables.add(new DelayedRunnable(() -> {
-//            if (button == GLFW_MOUSE_BUTTON_1 && action == GLFW_PRESS && hasSelection) {
-//                //placeAtSelectedBlock();
-//            } else if (button == GLFW_MOUSE_BUTTON_2 && action == GLFW_PRESS && hasSelection) {
-//                //removeSelectedBlock();
-//            }
-//            return null;
-//        }, "Mouse button event", 0));
+        leftButtonPressed = button == GLFW_MOUSE_BUTTON_1 && action == GLFW_PRESS;
+        rightButtonPressed = button == GLFW_MOUSE_BUTTON_2 && action == GLFW_PRESS;
+    }
+
+
+    public boolean isKeyPressed(int keyCode) {
+        return this.mouseButtonPressed[keyCode];
     }
 }
