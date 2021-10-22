@@ -96,7 +96,7 @@ vec4 speculrC;
 
 void setupColours(Material material, vec2 textCoord)
 {
-    if (material.hasTexture == 1)
+    if (material.hasTexture >= 1)
     {
         ambientC = texture(texture_sampler, textCoord);
         diffuseC = ambientC;

@@ -1,5 +1,6 @@
 package ru.mycubecraft.block;
 
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import org.joml.Vector3f;
@@ -8,6 +9,7 @@ import ru.mycubecraft.renderer.cube.Cube;
 
 @Getter
 @Setter
+@EqualsAndHashCode
 public abstract class Block {
 
     final Vector3f position;

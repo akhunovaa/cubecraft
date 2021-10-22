@@ -6,7 +6,7 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import ru.mycubecraft.block.Block;
 import ru.mycubecraft.block.DirtBlock;
-import ru.mycubecraft.block.EmptyBlock;
+import ru.mycubecraft.block.GrassBlock;
 import ru.mycubecraft.renderer.cube.*;
 
 import java.util.HashMap;
@@ -110,12 +110,12 @@ public class Chunk {
                     field.put(key, block);
                     num++;
                 }
-                for (int y0 = CHUNK_HEIGHT - 1; y0 > y; y0--) {
-                    String key = idx(x + wX, y0, z + wZ);
-                    Block block = new EmptyBlock(x + wX, y0, z + wZ);
-                    field.put(key, block);
-                    num++;
-                }
+//                for (int y0 = CHUNK_HEIGHT - 1; y0 > y; y0--) {
+//                    String key = idx(x + wX, y0, z + wZ);
+//                    Block block = new EmptyBlock(x + wX, y0, z + wZ);
+//                    field.put(key, block);
+//                    num++;
+//                }
             }
         }
         BlockField blockField = new BlockField();
@@ -130,6 +130,9 @@ public class Chunk {
         Set<Map.Entry<String, Block>> blocks = this.blockField.getBlocks().entrySet();
         for (Map.Entry<String, Block> blocksEntry : blocks) {
             Block block = blocksEntry.getValue();
+            if (block == null) {
+                continue;
+            }
             Cube cube = calculateChunksBlocksFace(block);
             block.createCube(cube);
         }
@@ -137,8 +140,9 @@ public class Chunk {
 
     public Cube calculateChunksBlocksFace(Block block) {
 
-        if (block instanceof EmptyBlock) {
-            return new EmptyCube();
+        if (block instanceof GrassBlock) {
+            block.setVisible(true);
+            return new Cube("grass");
         }
 
         int xPosition = (int) block.getPosition().x;
@@ -268,7 +272,7 @@ public class Chunk {
             return new BottomFrontRightCube();
         }
 
-        return new EmptyCube();
+        return new Cube();
     }
 
     /**
@@ -287,8 +291,7 @@ public class Chunk {
 
     private Block findNotEmptyBlock(int xPosition, int yPosition, int zPosition) {
         Block block = this.blockField.load(xPosition, yPosition, zPosition);
-        boolean isEmptyBlock = block instanceof EmptyBlock;
-        return isEmptyBlock ? null : block;
+        return block;
     }
 
     public void cleanup() {

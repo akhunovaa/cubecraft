@@ -31,6 +31,7 @@ public abstract class Player {
     protected Vector4f position;
     protected Vector3f rotation;
     protected MouseBoxSelectionDetector mouseBoxSelectionDetector;
+    protected Block selectedBlock;
 
     public void setPosition(float x, float y, float z) {
         this.position.x = x;
@@ -49,4 +50,8 @@ public abstract class Player {
     public abstract void movePosition(float offsetX, float offsetY, float offsetZ);
 
     public abstract Block findAndSelectBlock(BlockField blockField);
+
+    public abstract void removeSelectedBlock(BlockField blockField);
+
+    public abstract void placeAtSelectedBlock(BlockField blockField);
 }

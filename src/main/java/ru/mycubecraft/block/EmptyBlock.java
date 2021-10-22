@@ -1,12 +1,10 @@
 package ru.mycubecraft.block;
 
-import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import ru.mycubecraft.core.GameItem;
 import ru.mycubecraft.renderer.cube.Cube;
 
 @Getter
-@EqualsAndHashCode(callSuper = false)
 public class EmptyBlock extends Block {
 
     private final static String MODEL_TEXTURE_PATH = "assets/textures/white.png";

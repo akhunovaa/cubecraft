@@ -1,12 +1,10 @@
 package ru.mycubecraft.block;
 
-import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import ru.mycubecraft.core.GameItem;
 import ru.mycubecraft.renderer.cube.Cube;
 
 @Getter
-@EqualsAndHashCode(callSuper = false)
 public class DirtBlock extends Block {
 
     private final static String MODEL_TEXTURE_PATH = "assets/textures/dirt.png";
@@ -37,12 +35,7 @@ public class DirtBlock extends Block {
 
     @Override
     public GameItem getGameCubeItem() {
-        if (this.gameCubeItem != null) {
-            GameItem item = this.gameCubeItem;
-            item.setSelected(this.selected);
-            return item;
-        }
-        return null;
+        return this.gameCubeItem;
     }
 
 }

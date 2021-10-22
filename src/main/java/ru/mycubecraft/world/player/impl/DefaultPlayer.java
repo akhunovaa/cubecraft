@@ -8,7 +8,7 @@ import org.joml.Vector3i;
 import org.joml.Vector4f;
 import ru.mycubecraft.Settings;
 import ru.mycubecraft.block.Block;
-import ru.mycubecraft.block.EmptyBlock;
+import ru.mycubecraft.block.GrassBlock;
 import ru.mycubecraft.util.MathUtil;
 import ru.mycubecraft.world.BlockField;
 import ru.mycubecraft.world.Chunk;
@@ -22,7 +22,6 @@ import static java.lang.Math.*;
 public class DefaultPlayer extends Player {
 
     private final Vector3i sideOffset = new Vector3i();
-    private Block selectedBlock;
 
     public DefaultPlayer() {
         this.viewMatrix = new Matrix4f();
@@ -76,13 +75,9 @@ public class DefaultPlayer extends Player {
         for (int i = 0; i < maxSteps && py >= 0; i++) {
             if (i > 0 && py < Chunk.CHUNK_HEIGHT) {
                 Block block = blockField.load(px, py, pz);
-                if (block != null && !(block instanceof EmptyBlock)) {
+                if (block != null) {
                     MathUtil.enterSide(rayOrigin.x, rayOrigin.y, rayOrigin.z, rayDirection.x,
                             rayDirection.y, rayDirection.z, px, py, pz, sideOffset);
-                    if (this.selectedBlock != null) {
-                        this.selectedBlock.setSelected(false);
-                    }
-                    block.setSelected(true);
                     this.selectedBlock = block;
                     return block;
                 }
@@ -127,5 +122,34 @@ public class DefaultPlayer extends Player {
             position.z += (float) Math.cos(Math.toRadians(rotation.y - 90)) * offsetX;
         }
         position.y += offsetY;
+    }
+
+    @Override
+    public void removeSelectedBlock(BlockField blockField) {
+        if (this.selectedBlock == null) {
+            return;
+        }
+        int xPosition = (int) this.selectedBlock.getPosition().x;
+        int yPosition = (int) this.selectedBlock.getPosition().y;
+        int zPosition = (int) this.selectedBlock.getPosition().z;
+
+        blockField.store(xPosition, yPosition, zPosition, null);
+        this.selectedBlock = null;
+    }
+
+    @Override
+    public void placeAtSelectedBlock(BlockField blockField) {
+        if (this.selectedBlock == null || this.selectedBlock.getPosition().y + this.sideOffset.y < 0 ||
+                this.selectedBlock.getPosition().y + this.sideOffset.y >= Chunk.CHUNK_HEIGHT) {
+            return;
+        }
+
+        int xPosition = (int) (this.selectedBlock.getPosition().x + this.sideOffset.x);
+        int yPosition = (int) (this.selectedBlock.getPosition().y + this.sideOffset.y);
+        int zPosition = (int) (this.selectedBlock.getPosition().z + this.sideOffset.z);
+
+        Block block = new GrassBlock(xPosition, yPosition, zPosition);
+        blockField.store(xPosition, yPosition, zPosition, block);
+        this.selectedBlock = null;
     }
 }

@@ -5,7 +5,6 @@ import org.joml.Vector3f;
 import org.lwjgl.opengl.GL;
 import ru.mycubecraft.DelayedRunnable;
 import ru.mycubecraft.Settings;
-import ru.mycubecraft.block.Block;
 import ru.mycubecraft.core.GameItem;
 import ru.mycubecraft.data.Contact;
 import ru.mycubecraft.data.Hud;
@@ -187,9 +186,9 @@ public class LevelScene extends Scene {
         hud.updateFps(fps);
         hud.updateUps(ups);
         hud.updateDelta(delta);
-//        if (selectedItemPosition != null) {
-//            hud.updateTargetObjectInfo(selectedItemPosition);
-//        }
+        if (player.getSelectedBlock() != null) {
+            hud.updateTargetObjectInfo(player.getSelectedBlock().getPosition());
+        }
     }
 
     @Override
@@ -243,7 +242,23 @@ public class LevelScene extends Scene {
             Chunk chunk = world.getChunk(xPosition, zPosition);
 
             // Determine the selected block in the center of the viewport.
-            Block selectBlock = player.findAndSelectBlock(chunk.getBlockField());
+            player.findAndSelectBlock(chunk.getBlockField());
+            player.placeAtSelectedBlock(chunk.getBlockField());
+            chunk.sortBlocksVisibility();
+            mouseListener.setLeftButtonPressed(false);
+        }
+
+        if (mouseListener.isRightButtonPressed()) {
+            int xPosition = (int) player.getPosition().x;
+            int zPosition = (int) player.getPosition().z;
+
+            Chunk chunk = world.getChunk(xPosition, zPosition);
+
+            // Determine the selected block in the center of the viewport.
+            player.findAndSelectBlock(chunk.getBlockField());
+            player.removeSelectedBlock(chunk.getBlockField());
+            chunk.sortBlocksVisibility();
+            mouseListener.setRightButtonPressed(false);
         }
     }
 

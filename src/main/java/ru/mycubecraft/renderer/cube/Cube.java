@@ -78,7 +78,6 @@ public class Cube extends GameItem {
     @Override
     public void render() {
         mesh.render();
-
     }
 
     @Override

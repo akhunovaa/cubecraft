@@ -4,7 +4,6 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.joml.Vector3f;
 import ru.mycubecraft.block.Block;
-import ru.mycubecraft.block.EmptyBlock;
 import ru.mycubecraft.data.Contact;
 import ru.mycubecraft.world.player.Player;
 
@@ -131,7 +130,7 @@ public class World {
             for (int z = minZ; z <= maxZ; z++) {
                 for (int x = minX; x <= maxX; x++) {
                     Block block = blockField.load(x, y, z);
-                    if (block == null || block instanceof EmptyBlock) {
+                    if (block == null) {
                         continue;
                     }
 

@@ -62,7 +62,7 @@ public class BlockField {
      * @param block the block value
      * @return this
      */
-    private BlockField store(int x, int y, int z, Block block) {
+    public BlockField store(int x, int y, int z, Block block) {
         String key = idx(x, y, z);
         blocks.put(key, block);
         /*

@@ -19,10 +19,7 @@ import ru.mycubecraft.world.Chunk;
 import ru.mycubecraft.world.World;
 import ru.mycubecraft.world.player.Player;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static org.lwjgl.opengl.GL11.*;
 
@@ -95,6 +92,7 @@ public class Renderer {
                 Map<String, Block> blocks = blockField.getBlocks();
                 blocks.values()
                         .parallelStream()
+                        .filter(Objects::nonNull)
                         .filter(block ->
                                 block.getGameCubeItem() != null
                                         && block.isVisible()
