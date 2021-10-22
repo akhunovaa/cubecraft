@@ -11,6 +11,7 @@ import ru.mycubecraft.renderer.cube.*;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import static java.lang.Math.max;
 import static java.lang.Math.min;
@@ -126,8 +127,9 @@ public class Chunk {
     }
 
     public void sortBlocksVisibility() {
-        Map<String, Block> blocks = this.blockField.getBlocks();
-        for (Block block : blocks.values()) {
+        Set<Map.Entry<String, Block>> blocks = this.blockField.getBlocks().entrySet();
+        for (Map.Entry<String, Block> blocksEntry : blocks) {
+            Block block = blocksEntry.getValue();
             Cube cube = calculateChunksBlocksFace(block);
             block.createCube(cube);
         }
