@@ -5,6 +5,7 @@ import org.joml.Vector3f;
 import org.joml.Vector4f;
 import ru.mycubecraft.Settings;
 import ru.mycubecraft.core.GameItem;
+import ru.mycubecraft.world.player.Player;
 
 public class Transformation {
 
@@ -47,9 +48,9 @@ public class Transformation {
         return projectionMatrix;
     }
 
-    public Matrix4f updateViewMatrix(Camera camera) {
-        Vector4f cameraPos = camera.getPosition();
-        Vector3f rotation = camera.getRotation();
+    public Matrix4f updateViewMatrix(Player player) {
+        Vector4f cameraPos = player.getPosition();
+        Vector3f rotation = player.getRotation();
 
         viewMatrix.identity();
         // First do the rotation so camera rotates over its position

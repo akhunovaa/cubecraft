@@ -9,10 +9,10 @@ import ru.mycubecraft.engine.IHud;
 import ru.mycubecraft.engine.Material;
 import ru.mycubecraft.engine.TextItem;
 import ru.mycubecraft.engine.graph.FontTexture;
-import ru.mycubecraft.renderer.Camera;
 import ru.mycubecraft.util.AssetPool;
 import ru.mycubecraft.window.Window;
 import ru.mycubecraft.world.World;
+import ru.mycubecraft.world.player.Player;
 
 import java.awt.*;
 
@@ -122,12 +122,12 @@ public class Hud implements IHud {
         return gameItems;
     }
 
-    public void updateHud(Camera camera, World world, int filteredBlocksCount) {
+    public void updateHud(Player player, World world, int filteredBlocksCount) {
         Window window = Window.getInstance();
         this.versionTextItem.setPosition(window.getWidth() - 100.0f, window.getHeight() - 20f, 0);
 
-        Vector4f cameraPosition = camera.getPosition();
-        Vector3f cameraRotation = camera.getRotation();
+        Vector4f cameraPosition = player.getPosition();
+        Vector3f cameraRotation = player.getRotation();
 
         this.coordinatesTextItem.setText(String.format("Position [X: %s Y: %s Z: %s]", cameraPosition.x, cameraPosition.y, cameraPosition.z));
         this.coordinatesTextItem.setPosition(20.0f, 40f, 0);

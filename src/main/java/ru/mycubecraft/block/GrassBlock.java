@@ -35,7 +35,12 @@ public class GrassBlock extends Block {
 
     @Override
     public GameItem getGameCubeItem() {
-        return this.gameCubeItem;
+        if (this.gameCubeItem != null) {
+            GameItem item = this.gameCubeItem;
+            item.setSelected(this.selected);
+            return item;
+        }
+        return null;
     }
 
 

@@ -22,17 +22,15 @@ import static org.joml.SimplexNoise.noise;
 @EqualsAndHashCode
 public class Chunk {
 
+    /**
+     * The width, height and depth of a chunk (in number of blocks).
+     */
+    public static final int CHUNK_HEIGHT = 256;
     private static final int BLOCKS_COUNT = 8;
-
     /**
      * The chunk offset for the noise function.
      */
     private static final int GLOBAL_X = 2500, GLOBAL_Z = 851;
-
-    /**
-     * The width, height and depth of a chunk (in number of blocks).
-     */
-    private static final int CHUNK_HEIGHT = 256;
     private static final int CHUNK_SIZE_SHIFT = 5;
     private static final int CHUNK_SIZE = 1 << CHUNK_SIZE_SHIFT;
 

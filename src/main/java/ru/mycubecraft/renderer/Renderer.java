@@ -17,6 +17,7 @@ import ru.mycubecraft.window.Window;
 import ru.mycubecraft.world.BlockField;
 import ru.mycubecraft.world.Chunk;
 import ru.mycubecraft.world.World;
+import ru.mycubecraft.world.player.Player;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -56,7 +57,7 @@ public class Renderer {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
     }
 
-    public void render(World world, Camera camera, Scene scene, IHud hud, Vector3f ambientLight) {
+    public void render(World world, Player player, Scene scene, IHud hud, Vector3f ambientLight) {
         clear();
         filteredItems.clear();
 
@@ -68,7 +69,7 @@ public class Renderer {
 
         // Update projection and view atrices once per render cycle
         transformation.updateProjectionMatrix(window.getWidth(), window.getHeight());
-        transformation.updateViewMatrix(camera);
+        transformation.updateViewMatrix(player);
 
         renderScene(world, scene, ambientLight);
         renderHud(window, hud);
@@ -120,11 +121,10 @@ public class Renderer {
             // Set world matrix for this item
             Matrix4f modelViewMatrix = transformation.buildModelViewMatrix(gameItem, viewMatrix);
             sceneShaderProgram.uploadMat4f("modelViewMatrix", modelViewMatrix);
-
+            sceneShaderProgram.uploadFloat("selected", gameItem.isSelected() ? 1.0f : 0.0f);
             // Render the mesh for this game item
             gameItem.render();
         }
-        sceneShaderProgram.uploadFloat("selected", 1.0f);
 
         // Unbind shader
         sceneShaderProgram.detach();

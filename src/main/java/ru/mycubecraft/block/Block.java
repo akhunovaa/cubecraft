@@ -13,6 +13,7 @@ public abstract class Block {
     final Vector3f position;
     boolean disableFrustumCulling;
     boolean visible;
+    boolean selected;
     float scale;
     float boundingRadius;
     private boolean insideFrustum;
