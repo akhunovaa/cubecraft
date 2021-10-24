@@ -3,7 +3,7 @@
 [![Video clip](https://s3.amazonaws.com/culga-games-images/uploads/images/cube-craft.jpg)](https://www.youtube.com/watch?v=16pI2U7xM0E "Everything Is AWESOME")
 
 ## Discord
-[![Discord Banner 1](https://discordapp.com/api/guilds/901040304684167188/widget.png?style=banner1)](https://discord.com/invite/UR2WW2cA "Cubecraft DISCORD Server")
+[![Discord Banner 1](https://discordapp.com/api/guilds/901176898850271273/widget.png?style=banner1)](https://discord.gg/wAgSS3Rj "Cubecraft DISCORD Server")
 
 ## Install:
 
