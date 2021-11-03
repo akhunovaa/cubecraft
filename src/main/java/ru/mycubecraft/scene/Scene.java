@@ -6,6 +6,7 @@ import ru.mycubecraft.Settings;
 import ru.mycubecraft.core.GameItem;
 import ru.mycubecraft.engine.SkyBox;
 import ru.mycubecraft.engine.graph.weather.Fog;
+import ru.mycubecraft.engine.sound.SoundManager;
 import ru.mycubecraft.listener.KeyboardListener;
 import ru.mycubecraft.listener.MouseListener;
 import ru.mycubecraft.renderer.Renderer;
@@ -35,6 +36,7 @@ public abstract class Scene {
     protected Player player;
     protected ArrayList<GameItem> gameItems = new ArrayList<>();
     protected Fog fog;
+    protected SoundManager soundMgr;
     protected boolean fogLButtonPressed = Settings.SHOW_FOG;
     protected KeyboardListener keyboardListener = KeyboardListener.getInstance();
     protected MouseListener mouseListener = MouseListener.getInstance();

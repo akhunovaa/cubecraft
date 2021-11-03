@@ -2,6 +2,7 @@ package ru.mycubecraft.scene;
 
 import lombok.Getter;
 import org.joml.Vector3f;
+import org.lwjgl.openal.AL11;
 import org.lwjgl.opengl.GL;
 import ru.mycubecraft.DelayedRunnable;
 import ru.mycubecraft.Settings;
@@ -10,6 +11,10 @@ import ru.mycubecraft.data.Contact;
 import ru.mycubecraft.data.Hud;
 import ru.mycubecraft.engine.Timer;
 import ru.mycubecraft.engine.graph.weather.Fog;
+import ru.mycubecraft.engine.sound.SoundBuffer;
+import ru.mycubecraft.engine.sound.SoundListener;
+import ru.mycubecraft.engine.sound.SoundManager;
+import ru.mycubecraft.engine.sound.SoundSource;
 import ru.mycubecraft.renderer.Renderer;
 import ru.mycubecraft.util.AssetPool;
 import ru.mycubecraft.window.Window;
@@ -49,6 +54,7 @@ public class LevelScene extends Scene {
         world = new World();
         lightAngle = -90;
         player = new DefaultPlayer();
+        soundMgr = new SoundManager();
     }
 
     /**
@@ -65,6 +71,13 @@ public class LevelScene extends Scene {
         AssetPool.loadAssets();
         timer.init();
         renderer = new Renderer();
+        try {
+            this.soundMgr.init();
+            this.soundMgr.setAttenuationModel(AL11.AL_SPEED_OF_SOUND);
+            setupSounds();
+        } catch (Exception e) {
+            System.err.println(e.getMessage());
+        }
         renderer.init();
         world.generateStartChunks();
         /* Initialize timer */
@@ -127,6 +140,16 @@ public class LevelScene extends Scene {
         GL.setCapabilities(null);
     }
 
+    private void setupSounds() throws Exception {
+        SoundBuffer buffBack = new SoundBuffer("assets/sounds/pigeonych-8bit.ogg");
+        soundMgr.addSoundBuffer(buffBack);
+        SoundSource sourceBack = new SoundSource(true, true);
+        sourceBack.setBuffer(buffBack.getBufferId());
+        soundMgr.addSoundSource(Sounds.MUSIC.toString(), sourceBack);
+        soundMgr.setListener(new SoundListener(new Vector3f()));
+        sourceBack.play();
+    }
+
     @Override
     public void update(float delta) {
 
@@ -162,6 +185,9 @@ public class LevelScene extends Scene {
 
         player.movePosition(playerVelocity.x * fixedDelta, playerVelocity.y * fixedDelta, playerVelocity.z * fixedDelta);
 
+        Chunk chunk = world.getChunk(xPosition, zPosition);
+        // Determine the selected block in the center of the viewport.
+        player.findAndSelectBlock(chunk.getBlockField());
     }
 
     private void lightUpdate() {
@@ -240,9 +266,6 @@ public class LevelScene extends Scene {
             int zPosition = (int) player.getPosition().z;
 
             Chunk chunk = world.getChunk(xPosition, zPosition);
-
-            // Determine the selected block in the center of the viewport.
-            player.findAndSelectBlock(chunk.getBlockField());
             player.placeAtSelectedBlock(chunk.getBlockField());
             chunk.sortBlocksVisibility();
             mouseListener.setLeftButtonPressed(false);
@@ -253,15 +276,11 @@ public class LevelScene extends Scene {
             int zPosition = (int) player.getPosition().z;
 
             Chunk chunk = world.getChunk(xPosition, zPosition);
-
-            // Determine the selected block in the center of the viewport.
-            player.findAndSelectBlock(chunk.getBlockField());
             player.removeSelectedBlock(chunk.getBlockField());
             chunk.sortBlocksVisibility();
             mouseListener.setRightButtonPressed(false);
         }
     }
-
 
     @Override
     public void render() {
@@ -294,7 +313,6 @@ public class LevelScene extends Scene {
         }
     }
 
-
     /**
      * Handle any collisions with the player and the blocks.
      */
@@ -308,12 +326,15 @@ public class LevelScene extends Scene {
     public void cleanup() {
         hud.cleanup();
         renderer.cleanup();
+        soundMgr.cleanup();
         world.cleanup();
         for (GameItem gameItem : gameItems) {
             gameItem.cleanup();
             gameItem.getMesh().cleanUp();
         }
     }
+
+    private enum Sounds {MUSIC, BEEP, FIRE}
 
 
 }
