@@ -18,7 +18,6 @@ import static org.lwjgl.system.MemoryUtil.NULL;
 
 public class SoundManager {
 
-    static public boolean isMac = System.getProperty("os.name").contains("Mac");
     private final List<SoundBuffer> soundBufferList;
     private final Map<String, SoundSource> soundSourceMap;
     private long device;
