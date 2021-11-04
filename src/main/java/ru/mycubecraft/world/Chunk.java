@@ -142,7 +142,7 @@ public class Chunk {
 
         if (block instanceof GrassBlock) {
             block.setVisible(true);
-            return new Cube("grass");
+            return new Cube();
         }
 
         int xPosition = (int) block.getPosition().x;

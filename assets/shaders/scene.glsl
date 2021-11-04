@@ -122,8 +122,8 @@ vec4 calcLightColour(vec3 light_colour, float light_intensity, vec3 position, ve
     // Specular Light
     vec3 camera_direction = normalize(-position);
     vec3 from_light_dir = -to_light_dir;
-    vec3 reflected_light = normalize(reflect(from_light_dir , normal));
-    float specularFactor = max( dot(camera_direction, reflected_light), 0.0);
+    vec3 reflected_light = normalize(reflect(from_light_dir, normal));
+    float specularFactor = max(dot(camera_direction, reflected_light), 0.0);
     specularFactor = pow(specularFactor, specularPower);
     specColour = speculrC * light_intensity  * specularFactor * material.reflectance * vec4(light_colour, 1.0);
 
@@ -152,7 +152,7 @@ vec4 calcSpotLight(SpotLight light, vec3 position, vec3 normal)
 
     vec4 colour = vec4(0, 0, 0, 0);
 
-    if ( spot_alfa > light.cutoff )
+    if (spot_alfa > light.cutoff)
     {
         colour = calcPointLight(light.pl, position, normal);
         colour *= (1 - (1 - spot_alfa)/(1 - light.cutoff));
@@ -167,8 +167,8 @@ vec4 calcDirectionalLight(DirectionalLight light, vec3 position, vec3 normal) {
 vec4 calcFog(vec3 vertexWorldPosition, vec4 colour, Fog fog, vec3 ambientLight, DirectionalLight dirLight) {
     vec3 fogColor = fog.colour * dirLight.colour;
     float distance = length(vertexWorldPosition);
-    float fogFactor = 1.0 / exp( (distance * fog.density) * (distance * fog.density) * (distance * fog.density));
-    fogFactor = clamp( fogFactor, 0.0, 1.0 );
+    float fogFactor = 1.0 / exp((distance * fog.density) * (distance * fog.density) * (distance * fog.density));
+    fogFactor = clamp(fogFactor, 0.0, 1.0);
 
     vec3 resultColour = mix(fogColor, colour.xyz, fogFactor);
     return vec4(resultColour.xyz, colour.w);
@@ -182,7 +182,7 @@ void main()
 
     for (int i=0; i<MAX_POINT_LIGHTS; i++)
     {
-        if ( pointLights[i].intensity > 0 )
+        if (pointLights[i].intensity > 0)
         {
             diffuseSpecularComp += calcPointLight(pointLights[i], mvVertexPos, mvVertexNormal);
         }
@@ -190,25 +190,19 @@ void main()
 
     for (int i=0; i<MAX_SPOT_LIGHTS; i++)
     {
-        if ( spotLights[i].pl.intensity > 0 )
+        if (spotLights[i].pl.intensity > 0)
         {
             diffuseSpecularComp += calcSpotLight(spotLights[i], mvVertexPos, mvVertexNormal);
         }
     }
 
 
-    if ( fog.activeFog == 1 ) {
-        if ( outSelected > .0 ) {
-            fragColor = calcFog(mvVertexPos, vec4(1.0, 0.1, 0.1, 1.0) * ambientC * vec4(ambientLight, 1) + diffuseSpecularComp, fog, ambientLight, directionalLight);
-        } else {
-            fragColor = calcFog(mvVertexPos, ambientC * vec4(ambientLight, 1) + diffuseSpecularComp, fog, ambientLight, directionalLight);
-
-        }
+    if (fog.activeFog == 1) {
+        fragColor = calcFog(mvVertexPos, ambientC * vec4(ambientLight, 1) + diffuseSpecularComp, fog, ambientLight, directionalLight);
     } else {
-        if ( outSelected > .0 ) {
-            fragColor = vec4(1.0, 0.1, 0.1, 1.0) * ambientC * vec4(ambientLight, 1) + diffuseSpecularComp;
-        } else {
-            fragColor = ambientC * vec4(ambientLight, 1) + diffuseSpecularComp;
-        }
+        fragColor = ambientC * vec4(ambientLight, 1) + diffuseSpecularComp;
+    }
+    if (outSelected > .0) {
+        fragColor = texture(texture_sampler, outTexCoord);
     }
 }
