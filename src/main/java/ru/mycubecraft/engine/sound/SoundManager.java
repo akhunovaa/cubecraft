@@ -1,13 +1,10 @@
 package ru.mycubecraft.engine.sound;
 
-import org.apache.commons.io.FileUtils;
 import org.lwjgl.openal.AL;
 import org.lwjgl.openal.ALC;
 import org.lwjgl.openal.ALC10;
 import org.lwjgl.openal.ALCCapabilities;
 
-import java.io.File;
-import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 import java.util.ArrayList;
@@ -33,12 +30,7 @@ public class SoundManager {
         soundSourceMap = new HashMap<>();
     }
 
-    public void init() throws IOException {
-        if (isMac) {
-            String libraryPath = System.getProperty("org.lwjgl.librarypath");
-            File copied = new File("assets/sounds/drivers/macos/libopenal.dylib");
-            FileUtils.copyFile(copied, new File(libraryPath + "/" + "libopenal.dylib"));
-        }
+    public void init() {
 
         this.device = alcOpenDevice((ByteBuffer) null);
         if (device == NULL) {
