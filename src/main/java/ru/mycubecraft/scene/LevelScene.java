@@ -71,12 +71,14 @@ public class LevelScene extends Scene {
         AssetPool.loadAssets();
         timer.init();
         renderer = new Renderer();
-        try {
+        if (Settings.MUSIC_PLAY) {
             this.soundMgr.init();
             this.soundMgr.setAttenuationModel(AL11.AL_SPEED_OF_SOUND);
-            setupSounds();
-        } catch (Exception e) {
-            System.err.println(e.getMessage());
+            try {
+                setupSounds();
+            } catch (Exception e) {
+                System.err.println(e.getMessage());
+            }
         }
         renderer.init();
         world.generateStartChunks();
@@ -297,32 +299,6 @@ public class LevelScene extends Scene {
     @Override
     public void render() {
         renderer.render(world, player, this, hud, ambientLight);
-    }
-
-    private void createGameBlockItem(Vector3f position) {
-        Vector3f newBlockPosition = new Vector3f(position);
-//        Vector3f ray = mouseBoxSelectionDetector.rayDirection().negate();
-//        float xStart = (float) Math.ceil(ray.x);
-//        float yStart = (float) Math.ceil(ray.y);
-//        float zStart = (float) Math.ceil(ray.z);
-        //newBlockPosition.add(xStart, yStart, zStart);
-
-        boolean containsChunk = world.containsChunk(newBlockPosition);
-        Chunk chunk;
-        if (!containsChunk) {
-            //chunk = world.addChunk(newBlockPosition);
-            //chunk.addBlock(newBlockPosition);
-        } else {
-            //chunk = world.getChunk(newBlockPosition);
-//            //boolean chunkContainsBlock = chunk.containsBlock(newBlockPosition);
-//            if (chunkContainsBlock) {
-//                xStart = (float) Math.ceil(ray.x);
-//                yStart = (float) Math.ceil(ray.y);
-//                zStart = (float) Math.ceil(ray.z);
-//                newBlockPosition.add(xStart, yStart, zStart);
-//            }
-            //chunk.addBlock(newBlockPosition);
-        }
     }
 
     /**

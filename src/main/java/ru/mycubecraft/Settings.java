@@ -8,6 +8,7 @@ public final class Settings {
     public static final int HEIGHT = 768;
 
     public static final boolean SHOW_FOG = true;
+    public static final boolean MUSIC_PLAY = true;
     public static final boolean SHOW_TRIANGLES = false;
     public static final boolean CULL_FACE = true;
     public static final boolean ANTIALIASING = false;
