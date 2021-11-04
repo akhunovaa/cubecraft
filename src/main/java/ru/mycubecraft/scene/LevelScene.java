@@ -261,6 +261,18 @@ public class LevelScene extends Scene {
             this.fogLButtonPressed = !this.fogLButtonPressed;
         }
 
+        if (keyboardListener.isKeyPressed(GLFW_KEY_B)) {
+            this.soundMgr.playSoundSource(Sounds.MUSIC.toString());
+        }
+
+        if (keyboardListener.isKeyPressed(GLFW_KEY_N)) {
+            this.soundMgr.stopSoundSource(Sounds.MUSIC.toString());
+        }
+
+        if (keyboardListener.isKeyPressed(GLFW_KEY_M)) {
+            this.soundMgr.pauseSoundSource(Sounds.MUSIC.toString());
+        }
+
         if (mouseListener.isLeftButtonPressed()) {
             int xPosition = (int) player.getPosition().x;
             int zPosition = (int) player.getPosition().z;

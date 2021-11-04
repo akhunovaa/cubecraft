@@ -68,6 +68,20 @@ public class SoundManager {
         }
     }
 
+    public void pauseSoundSource(String name) {
+        SoundSource soundSource = this.soundSourceMap.get(name);
+        if (soundSource != null && soundSource.isPlaying()) {
+            soundSource.pause();
+        }
+    }
+
+    public void stopSoundSource(String name) {
+        SoundSource soundSource = this.soundSourceMap.get(name);
+        if (soundSource != null && soundSource.isPlaying()) {
+            soundSource.stop();
+        }
+    }
+
     public void removeSoundSource(String name) {
         this.soundSourceMap.remove(name);
     }
