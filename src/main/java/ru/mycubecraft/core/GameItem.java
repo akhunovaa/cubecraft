@@ -83,6 +83,5 @@ public class GameItem implements RenderObject {
     @Override
     public void cleanup() {
         mesh.cleanUp();
-
     }
 }

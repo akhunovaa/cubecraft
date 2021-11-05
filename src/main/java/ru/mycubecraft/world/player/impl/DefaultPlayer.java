@@ -81,9 +81,6 @@ public class DefaultPlayer extends Player {
                 if (block != null) {
                     MathUtil.enterSide(rayOrigin.x, rayOrigin.y, rayOrigin.z, rayDirection.x,
                             rayDirection.y, rayDirection.z, px, py, pz, sideOffset);
-                    if (this.selectedBlock != null) {
-                        this.selectedBlock.setSelected(false);
-                    }
                     block.setSelected(true);
                     this.selectedBlock = block;
                     return block;

@@ -33,6 +33,7 @@ public class Renderer {
     private Shader skyBoxShaderProgram;
     private Shader sceneShaderProgram;
     private Shader hudShaderProgram;
+    private Shader selectionShaderProgram;
 
     public Renderer() {
         transformation = new Transformation();
@@ -119,9 +120,13 @@ public class Renderer {
             // Set world matrix for this item
             Matrix4f modelViewMatrix = transformation.buildModelViewMatrix(gameItem, viewMatrix);
             sceneShaderProgram.uploadMat4f("modelViewMatrix", modelViewMatrix);
-            sceneShaderProgram.uploadFloat("selected", gameItem.isSelected() ? 1.0f : 0.0f);
-            // Render the mesh for this game item
-            gameItem.render();
+            if (gameItem.isSelected()) {
+                renderSelection(gameItem);
+            } else {
+                sceneShaderProgram.uploadFloat("selected", .0f);
+                gameItem.render();
+            }
+
         }
 
         // Unbind shader
@@ -134,6 +139,11 @@ public class Renderer {
 
     }
 
+    private void renderSelection(GameItem gameItem) {
+        sceneShaderProgram.uploadFloat("selected", 1.0f);
+        gameItem.render();
+    }
+
 
     private void renderSkyBox(Scene scene, Vector3f ambientLight, DirectionalLight directionalLight) {
         SkyBox skyBox = scene.getSkyBox();
@@ -141,7 +151,6 @@ public class Renderer {
         skyBoxShaderProgram.use();
         skyBoxShaderProgram.uploadTexture("texture_sampler", 0);
 
-        // Update projection Matrix
         Matrix4f projectionMatrix = transformation.getProjectionMatrix();
         skyBoxShaderProgram.uploadMat4f("projectionMatrix", projectionMatrix);
 
@@ -207,6 +216,9 @@ public class Renderer {
         }
         if (hudShaderProgram != null) {
             hudShaderProgram.detach();
+        }
+        if (selectionShaderProgram != null) {
+            selectionShaderProgram.detach();
         }
 
         if (filteredItems != null) {

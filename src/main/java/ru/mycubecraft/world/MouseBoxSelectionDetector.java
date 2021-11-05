@@ -24,28 +24,6 @@ public class MouseBoxSelectionDetector extends CameraBoxSelectionDetector {
         projectionMatrix = transformation.updateProjectionMatrix(window.getWidth(), window.getHeight());
     }
 
-    public Vector3f getGameItemPosition(List<GameItem> gameItemList, Player player) {
-
-        float xStart = player.getPosition().x;
-        float yStart = player.getPosition().y;
-        float zStart = player.getPosition().z;
-
-//        float xStart = (float) Math.floor(camera.getPosition().x);
-//        float yStart = (float) Math.floor(camera.getPosition().y);
-//        float zStart = (float) Math.floor(camera.getPosition().z);
-
-        Vector3f origin = new Vector3f(xStart, yStart, zStart);
-        Vector3f cameraDir = rayDirection();
-
-        Vector3f newGameItemPosition = new Vector3f();
-
-        GameItem selectedGameItem = selectGameItem(gameItemList, origin, cameraDir);
-        if (selectedGameItem != null) {
-            newGameItemPosition.set(selectedGameItem.getPosition());
-        }
-        return newGameItemPosition;
-    }
-
     public Vector3f getGameItemPosition(Player player) {
 
         float xStart = (float) Math.ceil(player.getPosition().x);
@@ -97,7 +75,7 @@ public class MouseBoxSelectionDetector extends CameraBoxSelectionDetector {
         int wdwHeight = window.getHeight();
 
         float x = 2f * (wdwWidth / 2f) / wdwWidth - 1.0f;
-        float y = 1.0f - 2f * (wdwHeight / 2f) / wdwHeight;
+        float y = 1.0f - 1.5f * (wdwHeight / 2f) / wdwHeight;
         float z = 0.0f;
 
         invProjectionMatrix.set(projectionMatrix);
