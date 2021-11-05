@@ -1,6 +1,6 @@
 # Cubecraft Game | Cubecraft Game Engine
 # Powered by JAVA
-[![Video clip](https://s3.amazonaws.com/culga-games-images/uploads/images/cube-craft.jpg)](https://www.youtube.com/watch?v=16pI2U7xM0E "Everything Is AWESOME")
+[![Video clip](https://s3.amazonaws.com/culga-games-images/uploads/images/cube-craft.jpg)](https://www.youtube.com/watch?v=_pqZ_mdpZ7g&t=34s "Cubecraft video clip")
 
 ## Discord
 [![Discord Banner 1](https://discordapp.com/api/guilds/901176898850271273/widget.png?style=banner2)](https://discord.gg/QZZTj9QD "Cubecraft DISCORD Server")
