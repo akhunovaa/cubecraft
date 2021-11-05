@@ -1,5 +1,5 @@
-# Cubecraft Game | Cubecraft Game Engine
-# Powered by JAVA
+# Cubecraft Game | Cubecraft Engine | Powered by JAVA
+
 [![Video clip](https://s3.amazonaws.com/culga-games-images/uploads/images/cube-craft.jpg)](https://www.youtube.com/watch?v=_pqZ_mdpZ7g&t=34s "Cubecraft video clip")
 
 ## Discord
