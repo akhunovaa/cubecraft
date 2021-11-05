@@ -1,6 +1,7 @@
 package ru.mycubecraft.scene;
 
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 import org.joml.Vector3f;
 import org.lwjgl.openal.AL11;
 import org.lwjgl.opengl.GL;
@@ -30,6 +31,7 @@ import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.glClearColor;
 import static ru.mycubecraft.Game.caps;
 
+@Slf4j
 @Getter
 public class LevelScene extends Scene {
 
@@ -50,7 +52,7 @@ public class LevelScene extends Scene {
 
     public LevelScene() {
         timer = new Timer();
-        System.err.println("Entered to a Level Scene");
+        log.info("Entered to a Level Scene");
         world = new World();
         lightAngle = -90;
         player = new DefaultPlayer();
@@ -77,7 +79,7 @@ public class LevelScene extends Scene {
             try {
                 setupSounds();
             } catch (Exception e) {
-                System.err.println(e.getMessage());
+                log.error(e.getMessage(), e);
             }
         }
         renderer.init();
@@ -110,7 +112,7 @@ public class LevelScene extends Scene {
 
             /* Get delta time */
             delta = timer.getDelta();
-            System.out.print("\rCurrent DELTA: " + delta);
+//            System.out.print("\nCurrent DELTA: " + delta);
             input();
 
             /* Update game and timer UPS */
@@ -133,7 +135,6 @@ public class LevelScene extends Scene {
             int currentFps = timer.getFPS();
             int currentUps = timer.getUPS();
             hudUpdate(currentFps, currentUps, delta);
-            System.out.print("\rCurrent FPS: " + currentFps);
 
             glfwSwapBuffers(window);
         }

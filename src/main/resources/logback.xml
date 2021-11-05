@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+
+    <!-- Colour console appender -->
+    <appender name="color-console" class="ch.qos.logback.core.ConsoleAppender">
+        <layout class="ch.qos.logback.classic.PatternLayout">
+            <pattern>%magenta(%d{dd.MM.yyyy}) %blue(%d{HH:mm:ss.SSS}) %green([%thread]) %highlight(%-5level) %cyan(%logger{60}) - %msg%n</pattern>
+        </layout>
+        <withJansi>true</withJansi>
+    </appender>
+
+    <!-- No colour console appender -->
+    <appender name="nocolor-console" class="ch.qos.logback.core.ConsoleAppender">
+        <layout class="ch.qos.logback.classic.PatternLayout">
+            <pattern>%d{dd.MM.yyyy HH:mm:ss.SSS} [%thread] %-5level %logger{60} - %msg%n</pattern>
+        </layout>
+    </appender>
+
+    <!-- File appender -->
+    <appender name="file" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <append>true</append>
+        <layout class="ch.qos.logback.classic.PatternLayout">
+            <charset>UTF-8</charset>
+            <pattern>%d{dd.MM.yyyy HH:mm:ss.SSS} [%thread] %-5level %logger{60} - %msg%n</pattern>
+        </layout>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <!-- rollover daily -->
+            <fileNamePattern>logs/cubecraft.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <maxHistory>7</maxHistory>
+            <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <!-- or whenever the file size reaches 500MB -->
+                <maxFileSize>100MB</maxFileSize>
+            </timeBasedFileNamingAndTriggeringPolicy>
+        </rollingPolicy>
+    </appender>
+
+    <!-- ASYNC for faster logging -->
+    <appender name="ASYNC" class="ch.qos.logback.classic.AsyncAppender">
+        <appender-ref ref="color-console" />
+        <appender-ref ref="file" />
+    </appender>
+
+    <!-- Loggers -->
+    <!--ROOT logger for ru.mycubecraft -->
+    <logger name="ru.mycubecraft" additivity="false">
+        <appender-ref ref="color-console" />
+        <appender-ref ref="file" />
+        <level value="debug" />
+    </logger>
+
+    <root level="debug">
+        <appender-ref ref="color-console" />\
+        <appender-ref ref="file" />
+    </root>
+
+</configuration>

@@ -1,5 +1,6 @@
 package ru.mycubecraft;
 
+import lombok.extern.slf4j.Slf4j;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.opengl.GLCapabilities;
@@ -15,6 +16,7 @@ import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL11C.glFlush;
 import static org.lwjgl.system.MemoryUtil.NULL;
 
+@Slf4j
 public class Game {
 
     public static final boolean DEBUG = has("debug", true);
@@ -59,11 +61,13 @@ public class Game {
      */
     private void run() throws InterruptedException {
         if (!glfwInit()) {
+            log.error("Unable to initialize GLFW");
             throw new IllegalStateException("Unable to initialize GLFW");
         }
 
         // Setup an error callback
-        GLFWErrorCallback.createPrint(System.err).set();
+        GLFWErrorCallback ecb = GLFWErrorCallback.createPrint(System.err);
+        glfwSetErrorCallback(ecb);
 
         gameWindow.createWindow();
         gameWindow.registerWindowCallbacks();
@@ -71,10 +75,13 @@ public class Game {
 
         initGLResources();
 
+        log.info("Run logic updates and rendering in a separate thread");
         /* Run logic updates and rendering in a separate thread */
         Thread updateAndRenderThread = createAndStartUpdateAndRenderThread();
+        log.debug("Process OS/window event messages in this main thread");
         /* Process OS/window event messages in this main thread */
         Thread.currentThread().setPriority(Thread.MIN_PRIORITY);
+        log.info("Wait for the latch to signal that init render thread actions are done");
         /* Wait for the latch to signal that init render thread actions are done */
         runWndProcLoop();
         /*

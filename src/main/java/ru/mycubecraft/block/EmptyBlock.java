@@ -19,8 +19,10 @@ public class EmptyBlock extends Block {
     @Override
     public void createCube(Cube cube) {
         try {
+            cube.setPosition(position.x, position.y, position.z);
+            cube.setTexture(MODEL_TEXTURE_PATH);
+            cube.createCube();
             this.gameCubeItem = cube;
-            this.gameCubeItem.setPosition(position.x, position.y, position.z);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -28,11 +30,14 @@ public class EmptyBlock extends Block {
 
     @Override
     public void render() {
-        throw new UnsupportedOperationException("Not implemented here!");
+        gameCubeItem.render();
     }
 
     @Override
     public GameItem getGameCubeItem() {
+        if (this.gameCubeItem != null) {
+            this.gameCubeItem.setSelected(this.selected);
+        }
         return this.gameCubeItem;
     }
 

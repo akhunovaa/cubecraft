@@ -1,6 +1,7 @@
 package ru.mycubecraft.scene;
 
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 import ru.mycubecraft.DelayedRunnable;
 import ru.mycubecraft.Settings;
 import ru.mycubecraft.core.GameItem;
@@ -20,6 +21,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 import static ru.mycubecraft.Game.DEBUG;
 
+@Slf4j
 @Getter
 public abstract class Scene {
 
@@ -84,9 +86,7 @@ public abstract class Scene {
             int delay = dr.getDelay();
             /* Check if we want to delay this runnable */
             if (delay > 0) {
-                if (DEBUG) {
-                    System.out.println("Delaying runnable [" + dr.getName() + "] for " + dr.getDelay() + " frames");
-                }
+                log.debug("Delaying runnable [" + dr.getName() + "] for " + dr.getDelay() + " frames");
                 delay--;
                 dr.setDelay(delay);
                 continue;
@@ -96,7 +96,7 @@ public abstract class Scene {
                 it.remove();
                 dr.getRunnable().call();
             } catch (Exception e) {
-                throw new AssertionError(e);
+                log.error(e.getMessage(), e);
             }
         }
     }

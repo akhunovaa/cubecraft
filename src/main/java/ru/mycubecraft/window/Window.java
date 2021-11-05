@@ -189,8 +189,6 @@ public class Window {
 
             float currentFps = 1000f / (-current + (current = System.currentTimeMillis()));
 
-            System.out.print("\rWithout UPS FPS: " + currentFps);
-
             //currentScene.render(currentFps);
 
             glfwSwapBuffers(this.glfwWindow);
