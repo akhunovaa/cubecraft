@@ -41,6 +41,9 @@ public class DefaultPlayer extends Player {
         if (blockField == null) {
             return null;
         }
+        if (this.selectedBlock != null) {
+            this.selectedBlock.setSelected(false);
+        }
         float xStart = (float) Math.ceil(this.position.x);
         float yStart = (float) Math.floor(this.position.y);
         float zStart = (float) Math.ceil(this.position.z);
@@ -48,7 +51,7 @@ public class DefaultPlayer extends Player {
         Vector3f rayOrigin = new Vector3f(xStart, yStart, zStart);
         Vector3f rayDirection = mouseBoxSelectionDetector.rayDirection();
 
-        /* "A Fast Voxel Traversal Algorithm for Ray Tracing" by John Amanatides, Andrew Woo */
+        /* "A Fast Block Traversal Algorithm for Ray Tracing" by John Amanatides, Andrew Woo */
         float big = 1E30f;
 
         int px = (int) floor(rayOrigin.x),
@@ -71,7 +74,7 @@ public class DefaultPlayer extends Player {
                 ty = abs((py + max(sy, 0) - rayOrigin.y) * dyi),
                 tz = abs((pz + max(sz, 0) - rayOrigin.z) * dzi);
 
-        int maxSteps = 16;
+        int maxSteps = 8;
         for (int i = 0; i < maxSteps && py >= 0; i++) {
             if (i > 0 && py < Chunk.CHUNK_HEIGHT) {
                 Block block = blockField.load(px, py, pz);
@@ -138,7 +141,6 @@ public class DefaultPlayer extends Player {
         int zPosition = (int) this.selectedBlock.getPosition().z;
 
         blockField.store(xPosition, yPosition, zPosition, null);
-        this.selectedBlock = null;
     }
 
     @Override
@@ -154,6 +156,5 @@ public class DefaultPlayer extends Player {
 
         Block block = new GrassBlock(xPosition, yPosition, zPosition);
         blockField.store(xPosition, yPosition, zPosition, block);
-        this.selectedBlock = null;
     }
 }

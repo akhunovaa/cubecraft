@@ -27,13 +27,14 @@
 
         <lwjgl.version>3.3.0-SNAPSHOT</lwjgl.version>
         <swt.version>4.3</swt.version>
-        <joml.version>1.10.0</joml.version>
-        <version.version>1.18.20</version.version>
+        <joml.version>1.10.2</joml.version>
+        <lombok.version>1.18.22</lombok.version>
         <commons-lang3.version>3.12.0</commons-lang3.version>
         <commons-collections4.version>4.4</commons-collections4.version>
         <joml-primitives.version>1.10.0</joml-primitives.version>
 
-        <slf4j.version>1.7.32</slf4j.version>
+        <logback.version>1.2.6</logback.version>
+        <commons.io.version>20030203.000550</commons.io.version>
 
         <mainClass>ru.mycubecraft.Game</mainClass>
         <src.dir>src/main/java</src.dir>
@@ -530,28 +531,27 @@
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <version>${version.version}</version>
+            <version>${lombok.version}</version>
             <scope>provided</scope>
         </dependency>
+
         <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-simple</artifactId>
-            <version>${slf4j.version}</version>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>${logback.version}</version>
         </dependency>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
-            <version>${slf4j.version}</version>
-        </dependency>
+
         <dependency>
             <groupId>org.joml</groupId>
             <artifactId>joml-primitives</artifactId>
             <version>${joml-primitives.version}</version>
         </dependency>
+
         <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
-            <version>2.11.0</version>
+            <version>${commons.io.version}</version>
         </dependency>
+
     </dependencies>
 </project>
