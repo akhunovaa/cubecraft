@@ -6,7 +6,6 @@
         <layout class="ch.qos.logback.classic.PatternLayout">
             <pattern>%magenta(%d{dd.MM.yyyy}) %blue(%d{HH:mm:ss.SSS}) %green([%thread]) %highlight(%-5level) %cyan(%logger{60}) - %msg%n</pattern>
         </layout>
-        <withJansi>true</withJansi>
     </appender>
 
     <!-- No colour console appender -->
@@ -40,16 +39,8 @@
         <appender-ref ref="file" />
     </appender>
 
-    <!-- Loggers -->
-    <!--ROOT logger for ru.mycubecraft -->
-    <logger name="ru.mycubecraft" additivity="false">
-        <appender-ref ref="color-console" />
-        <appender-ref ref="file" />
-        <level value="debug" />
-    </logger>
-
     <root level="debug">
-        <appender-ref ref="color-console" />\
+        <appender-ref ref="color-console" />
         <appender-ref ref="file" />
     </root>
 
