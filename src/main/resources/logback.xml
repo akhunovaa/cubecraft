@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<configuration>
+
+<configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="http://ch.qos.logback/xml/ns/logback https://git.io/logback.xsd">
 
     <!-- Colour console appender -->
     <appender name="color-console" class="ch.qos.logback.core.ConsoleAppender">
@@ -19,7 +21,6 @@
     <appender name="file" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <append>true</append>
         <layout class="ch.qos.logback.classic.PatternLayout">
-            <charset>UTF-8</charset>
             <pattern>%d{dd.MM.yyyy HH:mm:ss.SSS} [%thread] %-5level %logger{60} - %msg%n</pattern>
         </layout>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
