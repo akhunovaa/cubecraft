@@ -8,6 +8,7 @@ import org.lwjgl.system.Callback;
 import ru.mycubecraft.scene.LevelScene;
 import ru.mycubecraft.scene.Scene;
 import ru.mycubecraft.window.Window;
+import uk.org.lidalia.sysoutslf4j.context.SysOutOverSLF4J;
 
 import static java.lang.Math.max;
 import static org.lwjgl.glfw.Callbacks.glfwFreeCallbacks;
@@ -29,6 +30,9 @@ public class Game {
     private Callback debugProc;
 
     public static void main(String[] args) throws InterruptedException {
+
+        // System Out and Err Redirected to SLF4J
+        SysOutOverSLF4J.sendSystemOutAndErrToSLF4J();
 
         System.setProperty("java.util.concurrent.ForkJoinPool.common.parallelism", String.valueOf(max(1, Runtime.getRuntime().availableProcessors())));
 

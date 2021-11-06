@@ -34,6 +34,7 @@
         <joml-primitives.version>1.10.0</joml-primitives.version>
 
         <logback.version>1.2.6</logback.version>
+        <slf4j.lidalia.version>1.0.2</slf4j.lidalia.version>
         <commons.io.version>20030203.000550</commons.io.version>
 
         <mainClass>ru.mycubecraft.Game</mainClass>
@@ -539,6 +540,13 @@
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
             <version>${logback.version}</version>
+        </dependency>
+
+        <!-- System Out and Err Redirected to SLF4J-->
+        <dependency>
+            <groupId>uk.org.lidalia</groupId>
+            <artifactId>sysout-over-slf4j</artifactId>
+            <version>${slf4j.lidalia.version}</version>
         </dependency>
 
         <dependency>

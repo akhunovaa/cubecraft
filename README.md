@@ -26,6 +26,10 @@ mvn -P {your OS name} clean install
 
 `java -jar cubecraft-0.1.4.jar -XstartOnFirstThread`
 
+## Additional DEBUG logging:
+
+`-Dorg.lwjgl.util.DebugLoader=true -Dorg.lwjgl.util.Debug=true
+`
 ## Maven dependency:
 
       <dependency>
