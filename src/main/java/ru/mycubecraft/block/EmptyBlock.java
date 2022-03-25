@@ -9,8 +9,6 @@ public class EmptyBlock extends Block {
 
     private final static String MODEL_TEXTURE_PATH = "assets/textures/white.png";
 
-    private GameItem gameCubeItem;
-
     public EmptyBlock(int bX, int bY, int bZ) {
         super(bX, bY, bZ);
         visible = false;
