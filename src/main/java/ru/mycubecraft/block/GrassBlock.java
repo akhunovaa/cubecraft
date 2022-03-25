@@ -9,8 +9,6 @@ public class GrassBlock extends Block {
 
     private final static String MODEL_TEXTURE_PATH = "assets/textures/grass.png";
 
-    private GameItem gameCubeItem;
-
     public GrassBlock(int bX, int bY, int bZ) {
         super(bX, bY, bZ);
     }

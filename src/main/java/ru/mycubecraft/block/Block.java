@@ -12,6 +12,8 @@ import ru.mycubecraft.renderer.cube.Cube;
 @EqualsAndHashCode
 public abstract class Block {
 
+    protected GameItem gameCubeItem;
+
     final Vector3f position;
     boolean disableFrustumCulling;
     boolean visible;

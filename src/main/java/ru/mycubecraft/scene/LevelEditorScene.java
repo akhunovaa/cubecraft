@@ -14,11 +14,6 @@ public class LevelEditorScene extends Scene {
     }
 
     @Override
-    public void update(float dt) {
-        //System.out.println("Current FPS: " + (1.0f / dt) + " ");
-    }
-
-    @Override
     public void render() {
 
     }

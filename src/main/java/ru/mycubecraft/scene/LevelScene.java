@@ -153,7 +153,6 @@ public class LevelScene extends Scene {
         sourceBack.play();
     }
 
-    @Override
     public void update(float delta) {
 
         int xPosition = (int) player.getPosition().x;

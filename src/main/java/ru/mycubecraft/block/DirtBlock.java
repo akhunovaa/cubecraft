@@ -9,8 +9,6 @@ public class DirtBlock extends Block {
 
     private final static String MODEL_TEXTURE_PATH = "assets/textures/dirt.png";
 
-    private GameItem gameCubeItem;
-
     public DirtBlock(int bX, int bY, int bZ) {
         super(bX, bY, bZ);
     }
