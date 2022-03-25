@@ -22,11 +22,10 @@ public class CollisionPrediction {
 
 
     /**
-     * Compute the exact collision point between the player and the block at <code>(x, y, z)</code>.
+     * Compute the exact collision point between the player and the block at <code>(x_coord, y_coord, z_coord)</code>.
      * https://www.gamedev.net/tutorials/programming/general-and-gameplay-programming/swept-aabb-collision-detection-and-response-r3084/
      */
-    public static void intersectSweptAabbAabb(int x, int y, int z, float px, float py,
-                                        float pz, float dx, float dy, float dz,
+    public static void intersectSweptAabbAabb(int x_coord, int y_coord, int z_coord, float px, float py, float pz, float dx, float dy, float dz,
                                         List<Contact> contacts, BlockField blockField) {
         float pxmax = px + PLAYER_WIDTH, pxmin = px - PLAYER_WIDTH, pymax = py + PLAYER_HEIGHT - PLAYER_EYE_HEIGHT, pymin = py - PLAYER_EYE_HEIGHT,
                 pzmax = pz + PLAYER_WIDTH, pzmin = pz - PLAYER_WIDTH;
@@ -34,7 +33,7 @@ public class CollisionPrediction {
         float xInvEntry = dx > 0f ? -pxmax : 1 - pxmin,
                 xInvExit = dx > 0f ? 1 - pxmin : -pxmax;
 
-        //boolean xNotValid = dx == 0 || blockField.load(x + (dx > 0 ? -1 : 1), y, z) != null;
+        //boolean xNotValid = dx == 0 || blockField.load(x_coord + (dx > 0 ? -1 : 1), y_coord, z_coord) != null;
         boolean xNotValid = dx == 0;
 
         float xEntry = xNotValid ? NEGATIVE_INFINITY : xInvEntry / dx,
@@ -43,7 +42,7 @@ public class CollisionPrediction {
         float yInvEntry = dy > 0f ? -pymax : 1 - pymin,
                 yInvExit = dy > 0f ? 1 - pymin : -pymax;
 
-        //boolean yNotValid = dy == 0 || blockField.load(x, y + (dy > 0 ? -1 : 1), z) != null;
+        //boolean yNotValid = dy == 0 || blockField.load(x_coord, y_coord + (dy > 0 ? -1 : 1), z_coord) != null;
         boolean yNotValid = dy == 0f;
 
         float yEntry = yNotValid ? NEGATIVE_INFINITY : yInvEntry / dy,
@@ -52,7 +51,7 @@ public class CollisionPrediction {
         float zInvEntry = dz > 0f ? -pzmax : 1 - pzmin,
                 zInvExit = dz > 0f ? 1 - pzmin : -pzmax;
 
-        //boolean zNotValid = dz == 0 || blockField.load(x, y, z + (dz > 0 ? -1 : 1)) != null;
+        //boolean zNotValid = dz == 0 || blockField.load(x_coord, y_coord, z_coord + (dz > 0 ? -1 : 1)) != null;
         boolean zNotValid = dz == 0;
 
         float zEntry = zNotValid ? NEGATIVE_INFINITY : zInvEntry / dz,
@@ -65,7 +64,7 @@ public class CollisionPrediction {
             return;
         }
 
-        Contact contact = new Contact(tEntry, x, y, z);
+        Contact contact = new Contact(tEntry, x_coord, y_coord, z_coord);
 
         if (xEntry == tEntry) {
             contact.nx = dx > 0 ? -1 : 1;
