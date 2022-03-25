@@ -83,25 +83,7 @@ public class Renderer {
             frustumFilter.updateFrustum(projectionMatrix, viewMatrix);
         }
 
-        if (world != null) {
-            Map<String, Chunk> worldChunkMap = world.getChunkMap();
-            for (Chunk chunk : worldChunkMap.values()) {
-                BlockField blockField = chunk.getBlockField();
-                if (blockField == null || blockField.getBlocks() == null) {
-                    continue;
-                }
-                Map<String, Block> blocks = blockField.getBlocks();
-                blocks.values()
-                        .parallelStream()
-                        .filter(Objects::nonNull)
-                        .filter(block ->
-                                block.getGameCubeItem() != null
-                                        && block.isVisible()
-                                        && !block.isDisableFrustumCulling())
-                        .filter(frustumFilter::filter)
-                        .forEach(block -> filteredItems.add(block.getGameCubeItem()));
-            }
-        }
+        processWorldChunks(world);
 
         sceneShaderProgram.use();
 
@@ -131,6 +113,28 @@ public class Renderer {
 
         // Unbind shader
         sceneShaderProgram.detach();
+    }
+
+    private void processWorldChunks(World world) {
+        if (world != null) {
+            Map<String, Chunk> worldChunkMap = world.getChunkMap();
+            for (Chunk chunk : worldChunkMap.values()) {
+                BlockField blockField = chunk.getBlockField();
+                if (blockField == null || blockField.getBlocks() == null) {
+                    continue;
+                }
+                Map<String, Block> blocks = blockField.getBlocks();
+                blocks.values()
+                        .parallelStream()
+                        .filter(Objects::nonNull)
+                        .filter(block ->
+                                block.getGameCubeItem() != null
+                                        && block.isVisible()
+                                        && !block.isDisableFrustumCulling())
+                        .filter(frustumFilter::filter)
+                        .forEach(block -> filteredItems.add(block.getGameCubeItem()));
+            }
+        }
     }
 
     private void renderLights(Vector3f ambientLight) {
