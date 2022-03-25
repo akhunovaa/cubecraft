@@ -43,7 +43,6 @@ public abstract class Scene {
     protected KeyboardListener keyboardListener = KeyboardListener.getInstance();
     protected MouseListener mouseListener = MouseListener.getInstance();
 
-    public abstract void update(float dt);
 
     public abstract void runUpdateAndRenderLoop();
 
