@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.joml.Vector3f;
 import ru.mycubecraft.block.Block;
 import ru.mycubecraft.data.Contact;
+import ru.mycubecraft.engine.graph.CollisionPrediction;
 import ru.mycubecraft.world.player.Player;
 
 import java.util.Iterator;
@@ -139,67 +140,12 @@ public class World {
                     float distZ = position.z - z;
 
                     /* and perform swept-aabb intersection */
-                    intersectSweptAabbAabb(x, y, z, distX, distY, distZ, dx, dy, dz, contacts, blockField);
+                    CollisionPrediction.intersectSweptAabbAabb(x, y, z, distX, distY, distZ, dx, dy, dz, contacts, blockField);
                 }
             }
         }
     }
 
-    /**
-     * Compute the exact collision point between the player and the block at <code>(x, y, z)</code>.
-     * https://www.gamedev.net/tutorials/programming/general-and-gameplay-programming/swept-aabb-collision-detection-and-response-r3084/
-     */
-    private void intersectSweptAabbAabb(int x, int y, int z, float px, float py,
-                                        float pz, float dx, float dy, float dz,
-                                        List<Contact> contacts, BlockField blockField) {
-        float pxmax = px + PLAYER_WIDTH, pxmin = px - PLAYER_WIDTH, pymax = py + PLAYER_HEIGHT - PLAYER_EYE_HEIGHT, pymin = py - PLAYER_EYE_HEIGHT,
-                pzmax = pz + PLAYER_WIDTH, pzmin = pz - PLAYER_WIDTH;
-
-        float xInvEntry = dx > 0f ? -pxmax : 1 - pxmin,
-                xInvExit = dx > 0f ? 1 - pxmin : -pxmax;
-
-        //boolean xNotValid = dx == 0 || blockField.load(x + (dx > 0 ? -1 : 1), y, z) != null;
-        boolean xNotValid = dx == 0;
-
-        float xEntry = xNotValid ? NEGATIVE_INFINITY : xInvEntry / dx,
-                xExit = xNotValid ? POSITIVE_INFINITY : xInvExit / dx;
-
-        float yInvEntry = dy > 0f ? -pymax : 1 - pymin,
-                yInvExit = dy > 0f ? 1 - pymin : -pymax;
-
-        //boolean yNotValid = dy == 0 || blockField.load(x, y + (dy > 0 ? -1 : 1), z) != null;
-        boolean yNotValid = dy == 0f;
-
-        float yEntry = yNotValid ? NEGATIVE_INFINITY : yInvEntry / dy,
-                yExit = yNotValid ? POSITIVE_INFINITY : yInvExit / dy;
-
-        float zInvEntry = dz > 0f ? -pzmax : 1 - pzmin,
-                zInvExit = dz > 0f ? 1 - pzmin : -pzmax;
-
-        //boolean zNotValid = dz == 0 || blockField.load(x, y, z + (dz > 0 ? -1 : 1)) != null;
-        boolean zNotValid = dz == 0;
-
-        float zEntry = zNotValid ? NEGATIVE_INFINITY : zInvEntry / dz,
-                zExit = zNotValid ? POSITIVE_INFINITY : zInvExit / dz;
-
-        float tEntry = max(max(xEntry, yEntry), zEntry),
-                tExit = min(min(xExit, yExit), zExit);
-
-        if (tEntry < -.5f || tEntry > tExit) {
-            return;
-        }
-
-        Contact contact = new Contact(tEntry, x, y, z);
-
-        if (xEntry == tEntry) {
-            contact.nx = dx > 0 ? -1 : 1;
-        } else if (yEntry == tEntry) {
-            contact.ny = dy > 0 ? -1 : 1;
-        } else {
-            contact.nz = dz > 0 ? -1 : 1;
-        }
-        contacts.add(contact);
-    }
 
     /**
      * Respond to all found collision contacts.
